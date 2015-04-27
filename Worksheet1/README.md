@@ -11,16 +11,16 @@ By increasing the Reynolds number, different viscosity scenarios will be
 simulated and compared.
 
 Overview of the modules: 
-* ´helper.c´  contains functions for dynamical allocation and freeing of the 
+* `helper.c`  contains functions for dynamical allocation and freeing of the 
 memory for used variables,
-* ´init.c´ includes a function for input file reading, and a function for
+* `init.c` includes a function for input file reading, and a function for
 initialization of pressure and velocity arrays,
-* ´boundary_val.c´ sets boundary values for velocity arrays,
-* ´uvp.c´ consists of functions for calculating appropriate time step, 
+* `boundary_val.c` sets boundary values for velocity arrays,
+* `uvp.c` consists of functions for calculating appropriate time step, 
 right hand side of the pressure eq., new velocity arrays and discretized 
 differential expressions of the momentum equations for the current 
 iteration(timestep),
-* ´visual.c´ contains functions for proper extraction of visualization data,
-* ´sor.c´ holds the SOR solver and
-* ´main.c´ is the main program. 
+* `visual.c` contains functions for proper extraction of visualization data,
+* `sor.c` holds the SOR solver and
+* `main.c` is the main program. 
   
