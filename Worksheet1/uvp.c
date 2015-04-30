@@ -16,7 +16,6 @@ void calculate_fg(
   double **G
 );
 
-
 void calculate_rs(
   double dt,
   double dx,
@@ -27,7 +26,6 @@ void calculate_rs(
   double **G,
   double **RS
 );
-
 
 void calculate_dt(
   double Re,
@@ -44,7 +42,6 @@ void calculate_dt(
 		*dt = tau*fmin( fmin(0.5*Re*(1/dx^2+1/dy^2)^(-1),  dx/mmax(**U, imax, jmax)),  dy/mmax(**V, imax, jmax));
  	}
 };
-
 
 void calculate_uv(
   double dt,
