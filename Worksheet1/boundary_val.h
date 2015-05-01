@@ -2,7 +2,7 @@
 #define __RANDWERTE_H__
 
 
-/**
+/*
  * The boundary values of the problem are set.
  */
 void boundaryvalues(

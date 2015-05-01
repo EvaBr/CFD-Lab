@@ -53,7 +53,7 @@ void calculate_fg(
 		F[0][j] = U[0][j];
 		F[imax][j] = U[imax][j];
 	}
-};
+}
 
 void calculate_rs(
   double dt,
@@ -65,12 +65,12 @@ void calculate_rs(
   double **G,
   double **RS
 ){
-	for( i=1; i<imax+1; i++){
-		for( j=1; j<jmax+1; j++){
+	for( int i=1; i<imax+1; i++){
+		for( int j=1; j<jmax+1; j++){
 			RS[i][j] = ((F[i][j] - F[i-1][j])/dx + (G[i][j] - G[i][j-1])/dy) / dt;
 		}
 	}
-};
+}
 
 void calculate_dt(
   double Re,
@@ -85,9 +85,9 @@ void calculate_dt(
 ){
 	/* we rewrite dt only if tau is nonnegative, else we do nothing */
 	if(tau>=0){
-		*dt = tau*fmin( fmin( pow(0.5*Re*(pow(dx,-2) + pow(dy,-2)),-1),  dx/mmax(**U, imax, jmax)),  dy/mmax(**V, imax, jmax));
+		*dt = tau*fmin( fmin( pow(0.5*Re*(pow(dx,-2) + pow(dy,-2)),-1),  dx/mmax(U, imax, jmax)),  dy/mmax(V, imax, jmax));
  	}
-};
+}
 
 
 void calculate_uv(
@@ -102,18 +102,15 @@ void calculate_uv(
   double **G,
   double **P
 ){
-	for( i=1; i<imax; i++){
-		for( j=1; j<jmax+1; j++){
+	for( int i=1; i<imax; i++){
+		for( int j=1; j<jmax+1; j++){
 			U[i][j] = F[i][j] - dt/dx * (P[i+1][j] - P[i][j]);
 		}
 	}
 
-	for( i=1; i<imax+1; i++){
-		for( j=1; j<jmax; j++){
+	for( int i=1; i<imax+1; i++){
+		for( int j=1; j<jmax; j++){
 			V[i][j] = G[i][j] - dt/dy * (P[i][j+1] - P[i][j]);
 		}
 	}
-};
-
-
-#endif
+}

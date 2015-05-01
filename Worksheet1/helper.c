@@ -33,8 +33,8 @@ double fmax( double a, double b)
 double mmax( double **U, int imax, int jmax)
 {
     double maxij = U[0][0];
-    for( i=0; i<imax+1; i++){
-	for( j=0; j<jmax+1; j++){
+    for( int i=0; i<imax+1; i++){
+	for( int j=0; j<jmax+1; j++){
 	    maxij = fmax(maxij, U[i][j]);}
     }
     return maxij;
