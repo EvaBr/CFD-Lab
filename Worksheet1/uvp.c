@@ -65,8 +65,10 @@ void calculate_rs(
   double **G,
   double **RS
 ){
-	for( int i=1; i<imax+1; i++){
-		for( int j=1; j<jmax+1; j++){
+	int i, j;
+	/*range of indices {1:imax}x{1:jmax} for RS*/
+	for(i=1; i<imax+1; i++){
+		for(j=1; j<jmax+1; j++){
 			RS[i][j] = ((F[i][j] - F[i-1][j])/dx + (G[i][j] - G[i][j-1])/dy) / dt;
 		}
 	}
@@ -102,14 +104,16 @@ void calculate_uv(
   double **G,
   double **P
 ){
-	for( int i=1; i<imax; i++){
-		for( int j=1; j<jmax+1; j++){
+	int i, j;
+	/*range of indices {1:(imax-1)}x{1:jmax} for F; {1:imax}x{1:(jmax-1)} for G*/
+	for(i=1; i<imax; i++){
+		for(j=1; j<jmax+1; j++){
 			U[i][j] = F[i][j] - dt/dx * (P[i+1][j] - P[i][j]);
 		}
 	}
 
-	for( int i=1; i<imax+1; i++){
-		for( int j=1; j<jmax; j++){
+	for(i=1; i<imax+1; i++){
+		for(j=1; j<jmax; j++){
 			V[i][j] = G[i][j] - dt/dy * (P[i][j+1] - P[i][j]);
 		}
 	}
