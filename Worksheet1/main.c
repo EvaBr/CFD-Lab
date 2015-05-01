@@ -38,5 +38,47 @@
  * - calculate_uv() Calculate the velocity at the next time step.
  */
 int main(int argn, char** args){
-  return -1;
+	//read the parameters
+	read_parameters("cavity100.dat", Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, imax, 
+			jmax, alpha, omg, tau, itermax, eps, dt_value)
+	
+	//set initial values
+	double t = 0;
+	int n = 0;
+	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
+	
+	//going through all time steps
+	while(t<t_end){
+		//adaptive time stepping
+		calculate_dt(Re, tau, dt, dx, dy, imax, jmax, U, V);
+		
+		//setting bound.values
+		boundaryvalues(imax, jmax, U, V);
+		
+		//computing F, G and right hand side of pressue eq.
+		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G);
+		calculate_rs(dt, dx, dy, imax, jmax, F, G, RS);
+		
+		//iteration counter
+		it = 0;
+		
+		do{
+			//perform SOR iteration, at same time set bound.values for P and new residual value
+			sor(omg, dx, dy, imax, jmax, P, RS, res);
+			it++;
+		}while(it<itermax && res>eps)
+		
+		//calculate U and V of this time step
+		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P);
+		
+		//indent time and number of time steps
+		n++;
+		t += dt;
+	}
+	
+	//output of U, V, P for visualization
+	/* if pics forall time steps needed, put this in the main loop... */
+	write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
+	
+	return -1;
 }

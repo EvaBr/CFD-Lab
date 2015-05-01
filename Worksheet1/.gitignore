@@ -1,0 +1,6 @@
+#object files:
+*.o
+
+#builded simulation:
+sim
+
