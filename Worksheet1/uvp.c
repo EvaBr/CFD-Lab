@@ -107,7 +107,13 @@ void calculate_rs(
   double **F,
   double **G,
   double **RS
-);
+){
+	for( i=1; i<imax+1; i++){
+		for( j=1; j<jmax+1; j++){
+			RS[i][j] = ((F[i][j] - F[i-1][j])/dx + (G[i][j] - G[i][j-1])/dy) / dt;
+		}
+	}
+};
 
 void calculate_dt(
   double Re,
@@ -126,6 +132,7 @@ void calculate_dt(
  	}
 };
 
+
 void calculate_uv(
   double dt,
   double dx,
@@ -137,6 +144,19 @@ void calculate_uv(
   double **F,
   double **G,
   double **P
-);
+){
+	for( i=1; i<imax; i++){
+		for( j=1; j<jmax+1; j++){
+			U[i][j] = F[i][j] - dt/dx * (P[i+1][j] - P[i][j]);
+		}
+	}
+
+	for( i=1; i<imax+1; i++){
+		for( j=1; j<jmax; j++){
+			V[i][j] = G[i][j] - dt/dy * (P[i][j+1] - P[i][j]);
+		}
+	}
+};
+
 
 #endif
