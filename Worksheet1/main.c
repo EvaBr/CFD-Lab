@@ -1,6 +1,9 @@
 #include "helper.h"
 #include "visual.h"
 #include "init.h"
+#include "sor.h"
+#include "boundary_val.h"
+#include "uvp.h"
 #include <stdio.h>
 
 
@@ -42,15 +45,25 @@ int main(int argn, char** args){
 	read_parameters("cavity100.dat", Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, imax, 
 			jmax, alpha, omg, tau, itermax, eps, dt_value)
 	
-	//set initial values
-	double t = 0;
-	int n = 0;
+	//initialize variables
+	double t = 0; /*time start*/
+	int it, n = 0; /*iteration and time step counter*/
+	double res; /*residual for SOR*/
+		/*arrays*/
+	double **U, **V, **P;
+	double **RS, **F, **G;
+		/*those to be read in from the input file*/
+	double Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, alpha, omg, tau, eps, dt_value;
+	int  imax, jmax, itermax;
+
+//TODO allocate memory
+
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
 	
 	//going through all time steps
-	while(t<t_end){
+	while(t < t_end){
 		//adaptive time stepping
-		calculate_dt(Re, tau, dt, dx, dy, imax, jmax, U, V);
+		calculate_dt(Re, tau, &dt, dx, dy, imax, jmax, U, V);
 		
 		//setting bound.values
 		boundaryvalues(imax, jmax, U, V);
@@ -64,21 +77,23 @@ int main(int argn, char** args){
 		
 		do{
 			//perform SOR iteration, at same time set bound.values for P and new residual value
-			sor(omg, dx, dy, imax, jmax, P, RS, res);
+			sor(omg, dx, dy, imax, jmax, P, RS, &res);
 			it++;
-		}while(it<itermax && res>eps)
+		}while(it<itermax && res>eps);
 		
 		//calculate U and V of this time step
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P);
 		
 		//indent time and number of time steps
 		n++;
-		t += dt;
+		t = t + dt;
 	}
 	
 	//output of U, V, P for visualization
 	/* if pics forall time steps needed, put this in the main loop... */
 	write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
-	
+
+//TODO: free memory
+
 	return -1;
 }
