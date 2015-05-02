@@ -1,6 +1,9 @@
 #object files:
 *.o
 
+#exec.
+*.out
+
 #builded simulation:
 sim
 

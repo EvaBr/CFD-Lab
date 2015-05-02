@@ -41,10 +41,7 @@
  * - calculate_uv() Calculate the velocity at the next time step.
  */
 int main(int argn, char** args){
-	//read the parameters
-	read_parameters("cavity100.dat", Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, imax, 
-			jmax, alpha, omg, tau, itermax, eps, dt_value)
-	
+
 	//initialize variables
 	double t = 0; /*time start*/
 	int it, n = 0; /*iteration and time step counter*/
@@ -56,7 +53,19 @@ int main(int argn, char** args){
 	double Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, alpha, omg, tau, eps, dt_value;
 	int  imax, jmax, itermax;
 
-//TODO allocate memory
+
+	//read the parameters
+	read_parameters("cavity100.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax, 
+			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value);
+
+	//allocate memory
+	U = matrix(0, imax+1, 0, jmax+1);
+	V = matrix(0, imax+1, 0, jmax+1);
+	P = matrix(0, imax+1, 0, jmax+1);
+	RS = matrix(1, imax, 1, jmax);
+	F = matrix(0, imax, 1, jmax);
+	G = matrix(1, imax, 0, jmax);
+
 
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
 	
@@ -86,14 +95,20 @@ int main(int argn, char** args){
 		
 		//indent time and number of time steps
 		n++;
-		t = t + dt;
+		t += dt;
 	}
 	
 	//output of U, V, P for visualization
 	/* if pics forall time steps needed, put this in the main loop... */
-	write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
+	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
 
-//TODO: free memory
-
+	//free memory
+	free_matrix(U, 0, imax+1, 0, jmax+1);
+	free_matrix(V, 0, imax+1, 0, jmax+1);
+	free_matrix(P, 0, imax+1, 0, jmax+1);
+	free_matrix(RS, 1, imax, 1, jmax);
+	free_matrix(F, 0, imax, 1, jmax);
+	free_matrix(G, 1, imax, 0, jmax);
+	
 	return -1;
 }
