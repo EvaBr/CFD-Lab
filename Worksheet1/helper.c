@@ -33,11 +33,11 @@ double fmax( double a, double b)
 
 double mmax( double **U, int imax, int jmax)
 {
-    double maxij = U[0][0];
+    double maxij = 0;
     for( int i=0; i<=imax+1; i++){
 	for( int j=0; j<=jmax+1; j++){
-	    if (U[i][j]>maxij){
-		maxij = U[i][j];
+	    if (abs(U[i][j])>maxij){
+		maxij = abs(U[i][j]);
 	    }
 	}
     }
