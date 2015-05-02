@@ -1,7 +1,7 @@
 #include "init.h"
 #include "boundary_val.h"
 
-/*
+/**
  * The boundary values of the problem are set.
  */
 void boundaryvalues(

@@ -1,4 +1,5 @@
 #include "helper.h"
+#include <math.h>
 
 void calculate_fg(
   double Re,
@@ -85,9 +86,12 @@ void calculate_dt(
   double **U,
   double **V
 ){
+	double tmp; //, maxi;
 	/* we rewrite dt only if tau is nonnegative, else we do nothing */
 	if(tau>=0){
-		*dt = tau*fmin( fmin( pow(0.5*Re*(pow(dx,-2) + pow(dy,-2)),-1),  dx/mmax(U, imax, jmax)),  dy/mmax(V, imax, jmax));
+		tmp = 0.5*Re*(dx*dx*dy*dy)/(dx*dx+dy*dy);
+		//maxi = mmax(U, imax, jmax);
+		*dt = tau * fmin(tmp, 1); // dy/mmax(V, imax, jmax));
  	}
 }
 

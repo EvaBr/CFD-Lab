@@ -1,6 +1,13 @@
 #object files:
 *.o
 
+#exec.
+*.out
+
+#latex
+*.aux
+*.log
+
 #builded simulation:
 sim
 
