@@ -96,6 +96,7 @@ int main(int argn, char** args){
 		//indent time and number of time steps
 		n++;
 		t += dt;
+		write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
 	}
 	
 	//output of U, V, P for visualization

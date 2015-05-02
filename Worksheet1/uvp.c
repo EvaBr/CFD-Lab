@@ -86,12 +86,13 @@ void calculate_dt(
   double **U,
   double **V
 ){
-	double tmp; //, maxi;
+	double tmp, maxi1, maxi2;
 	/* we rewrite dt only if tau is nonnegative, else we do nothing */
 	if(tau>=0){
 		tmp = 0.5*Re*(dx*dx*dy*dy)/(dx*dx+dy*dy);
-		//maxi = mmax(U, imax, jmax);
-		*dt = tau * fmin(tmp, 1); // dy/mmax(V, imax, jmax));
+		maxi1 = mmax(U, imax, jmax);
+		maxi2 = mmax(V, imax, jmax);
+		*dt = tau * fmin(tmp, fmin(dx/maxi1, dy/maxi2)); // dy/mmax(V, imax, jmax));
  	}
 }
 

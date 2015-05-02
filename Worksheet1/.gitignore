@@ -4,6 +4,12 @@
 #exec.
 *.out
 
+#latex stuff
+*.aux
+*.log
+
 #builded simulation:
 sim
 
+#directory of pics
+simulation*
