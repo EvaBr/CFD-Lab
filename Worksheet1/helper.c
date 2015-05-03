@@ -36,8 +36,8 @@ double mmax( double **U, int imax, int jmax)
     double maxij = 0;
     for( int i=0; i<=imax+1; i++){
 	for( int j=0; j<=jmax+1; j++){
-	    if (abs(U[i][j])>maxij){
-		maxij = abs(U[i][j]);
+	    if (fabs(U[i][j])>maxij){
+		maxij = fabs(U[i][j]);
 	    }
 	}
     }

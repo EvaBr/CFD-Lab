@@ -92,7 +92,7 @@ void calculate_dt(
 		tmp = 0.5*Re*(dx*dx*dy*dy)/(dx*dx+dy*dy);
 		maxi1 = mmax(U, imax, jmax);
 		maxi2 = mmax(V, imax, jmax);
-		*dt = tau * fmin(tmp, fmin(dx/maxi1, dy/maxi2)); // dy/mmax(V, imax, jmax));
+		*dt = tau * fmin(tmp, fmin(dx/maxi1, dy/maxi2)); // (dx/mmax(U, imax, jmax), dy/mmax(V, imax, jmax));
  	}
 }
 
