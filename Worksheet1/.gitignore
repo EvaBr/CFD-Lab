@@ -8,6 +8,8 @@ boundary_val.o
 #latex stuff
 *.aux
 *.log
+/results/*.aux
+/results/*.log
 
 #builded simulation:
 sim
