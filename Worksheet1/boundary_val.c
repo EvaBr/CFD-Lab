@@ -17,7 +17,7 @@ void boundaryvalues(
         U[imax][j] = 0.0;
       /*Eq.16*/
         V[0][j] = -V[1][j];
-        V[imax+1][j] = V[imax][j];
+        V[imax+1][j] = -V[imax][j];
     }
     for(int i=1; i<=imax; i++)
     {/*Eq.15*/

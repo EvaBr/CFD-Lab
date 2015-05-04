@@ -44,8 +44,8 @@ double mmax( double **U, int imax, int jmax)
     double maxij = U[0][5];
     for( i=0; i<imax+1; i++){
         for( j=5; j<=jmax; j++){
-            if (U[i][j]>maxij){
-                maxij = U[i][j];
+            if (fabs(U[i][j])>maxij){
+                maxij = fabs(U[i][j]);
             }
         }
     }
@@ -55,7 +55,7 @@ double mmax( double **U, int imax, int jmax)
 
 
 void main(){
-	int imax = 200, jmax = 200;
+	int imax = 2, jmax = 10;
 	double **M;
 	int i, j;
 
@@ -71,20 +71,20 @@ void main(){
 //	printf("\n\n");
 	for (i=0; i<imax+1; i++){
 		for (j=5; j<=jmax; j++){
-			M[i][j] = rand();
+			M[i][j] = (double) rand()/ 1357.591 - 1000000;
 		}
 	}
 
-/**	for (i=0; i<imax+1; i++){
-                for (j=1; j<=jmax; j++){
+	for (i=0; i<imax+1; i++){
+                for (j=5; j<=jmax; j++){
                         printf("%f ", M[i][j]);
                 }
 		printf("\n");
-        }**/
+        }
 
 
 	double maxi = mmax(M, imax, jmax);
-	printf("\n maximum is %f", maxi);
+	printf("\n maximum is %f \n", maxi);
 	
 	free_matrix(M, 0, imax, 5, jmax);
 }
