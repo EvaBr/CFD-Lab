@@ -96,14 +96,15 @@ int main(int argn, char** args){
 		//indent time and number of time steps
 		n++;
 		t += dt;
-		if (n%20==0 && n<=2000){
+		
+		//output of pics for animation
+		/*if (n%20==0 && n<=2000){
 			write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
-		}
+		}*/
 	}
 	
-	//output of U, V, P for visualization
-	/* if pics forall time steps needed, put this in the main loop... */
-	write_vtkFile("DrivenCavity", 2001, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
+	//output of U, V, P at the end for visualization
+	/*write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  */
 
 	//free memory
 	free_matrix(U, 0, imax+1, 0, jmax+1);
