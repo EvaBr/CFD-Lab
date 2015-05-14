@@ -1,0 +1,11 @@
+##Parameters
+
+xlength			10
+
+tau			1.5
+
+velocityWall		10.0
+
+timesteps		1000
+
+timestepsPerPlotting	25

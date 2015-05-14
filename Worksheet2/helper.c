@@ -170,7 +170,7 @@ void read_string( const char* szFileName, const char* szVarName, char*   pVariab
 
     printf( "File: %s\t\t%s%s= %s\n", szFileName,
                                       szVarName,
-                                      &("               "[min_int( (int)strlen(szVarName), 15)]),
+                                      &("                "[min_int( (int)strlen(szVarName), 15)]),
                                       pVariable );
 }
 
@@ -192,7 +192,7 @@ void read_int( const char* szFileName, const char* szVarName, int* pVariable)
 
     printf( "File: %s\t\t%s%s= %d\n", szFileName,
                                       szVarName,
-                                      &("               "[min_int( (int)strlen(szVarName), 15)]),
+                                      &("                     "[min_int( (int)strlen(szVarName), 20)]),
                                       *pVariable );
 }
 
@@ -214,7 +214,7 @@ void read_double( const char* szFileName, const char* szVarName, double* pVariab
 
     printf( "File: %s\t\t%s%s= %f\n", szFileName,
                                       szVarName,
-                                      &("               "[min_int( (int)strlen(szVarName), 15)]),
+                                      &("                     "[min_int( (int)strlen(szVarName), 20)]),
                                       *pVariable );
 }
 
