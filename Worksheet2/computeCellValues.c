@@ -1,9 +1,6 @@
 #include "computeCellValues.h"
 #include "LBDefinitions.h"
 
-int Q = 19;
-int D = 3;
-
 void computeDensity(const double *const currentCell, double *density){
   /* TODO */
 
@@ -35,6 +32,7 @@ void computeFeq(const double * const density, const double * const velocity, dou
 			c_u_inner_product += *(velocity+j) * LATTICEVELOCITIES[i][j];
 			u_u_inner_product += *(velocity+j) * (*(velocity+j));
 		}
-               	*(feq+i) = LATTICEWEIGHTS[i] * (*density) * (1 + c_u_inner_product/(C_S*C_S) + c_u_inner_product*c_u_inner_product/(2*C_S*C_S*C_S*C_S) - u_u_inner_product/(2*C_S*C_S));
+               	*(feq+i) = LATTICEWEIGHTS[i] * (*density) * (1 + c_u_inner_product/(C_S*C_S) +
+		c_u_inner_product*c_u_inner_product/(2*C_S*C_S*C_S*C_S) - u_u_inner_product/(2*C_S*C_S));
 	}
 }

@@ -26,8 +26,8 @@ int main(int argc, char *argv[]){
 	int len = (xlength + 2)*(xlength + 2)*(xlength + 2);
 
 	// TODO: initialise space for pointers
-	collideField = calloc ( 19*len, sizeof(double) );
-	streamField = calloc ( 19*len, sizeof(double) );
+	collideField = calloc ( Q*len, sizeof(double) );
+	streamField = calloc ( Q*len, sizeof(double) );
 	flagField = calloc ( len, sizeof(int) );
 
 	initialiseFields ( collideField, streamField, flagField, xlength );
