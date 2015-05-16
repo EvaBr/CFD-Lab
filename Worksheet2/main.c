@@ -21,13 +21,20 @@ int main(int argc, char *argv[]){
 	int timesteps;
 	int timestepsPerPlotting;
 
-	readParameters ( &xlength, &tau, velocityWall, &timesteps, &timestepsPerPlotting, argc, argv );
+
+	//read parameters, exit if program call not valid
+	int fail;
+	fail = readParameters ( &xlength, &tau, velocityWall, &timesteps, &timestepsPerPlotting, argc, argv );
+	if (fail) {
+		return 1;
+	}
+
 
 	int len = (xlength + 2)*(xlength + 2)*(xlength + 2);
 
-	// TODO: initialise space for pointers
-	collideField = calloc ( 19*len, sizeof(double) );
-	streamField = calloc ( 19*len, sizeof(double) );
+	// initialize space for pointers
+	collideField = calloc ( Q*len, sizeof(double) );
+	streamField = calloc ( Q*len, sizeof(double) );
 	flagField = calloc ( len, sizeof(int) );
 
 	initialiseFields ( collideField, streamField, flagField, xlength );
@@ -35,6 +42,7 @@ int main(int argc, char *argv[]){
 	for (int t = 0; t < timesteps; t++){
 		doStreaming ( collideField, streamField, flagField, xlength );
 
+		//swap the stream and collide arrays
 		swap = collideField;
 		collideField = streamField;
 		streamField = swap;
@@ -48,7 +56,7 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-  /* TODO */
+	// free the initialized space
 	free ( collideField );
 	free ( streamField );
 	free ( flagField );

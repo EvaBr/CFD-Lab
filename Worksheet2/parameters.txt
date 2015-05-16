@@ -4,7 +4,9 @@ xlength			10
 
 tau			1.5
 
-velocityWall		10.0
+velocityWallx		1.0
+velocityWally		1.0
+velocityWallz		0.0
 
 timesteps		1000
 
