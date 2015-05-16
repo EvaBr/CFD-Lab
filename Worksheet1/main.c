@@ -89,7 +89,7 @@ int main(int argn, char** args){
 			sor(omg, dx, dy, imax, jmax, P, RS, &res);
 			it++;
 		}while(it<itermax && res>eps);
-		
+		//printf("%f \n", res);
 		//calculate U and V of this time step
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P);
 		
@@ -98,13 +98,12 @@ int main(int argn, char** args){
 		t += dt;
 		
 		//output of pics for animation
-		/*if (n%20==0 && n<=2000){
+		if (n%32==0){
 			write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
-		}*/
+		}
 	}
-	
 	//output of U, V, P at the end for visualization
-	/*write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  */
+	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P); 
 
 	//free memory
 	free_matrix(U, 0, imax+1, 0, jmax+1);

@@ -57,7 +57,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 			flagField [ j*xlen2 + k*xlen + xlen - 1 ] = NO_SLIP;
 			flagField [ j*xlen2 + xlen2 - xlen + k ] = NO_SLIP;
 		}
-		// what remains for (if a||b||c==0) - case j==xlength+1:
+		// what remains for (if a||b==0) - case j==xlength+1:
 		flagField [ k*xlen + xlen -1 ] = NO_SLIP;
 	}
 }
