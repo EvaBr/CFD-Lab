@@ -7,7 +7,7 @@ void treatBoundary(double *collideField, int* flagField,
     int N = xlength;
     double finv, cu = 0;
     double density;
-    
+    const double *currentCell;
     /* Two parallel walls */
     
     for (int k =0; k < 2; ++k) {
@@ -61,4 +61,6 @@ void treatBoundary(double *collideField, int* flagField,
             }
         }
     }
+}
+
 }
