@@ -1,13 +1,13 @@
 ##Parameters
 
-xlength			2
+xlength			5
 
 tau			1.5
 
 velocityWallx		0.01
-velocityWally		0.01
+velocityWally		0.0
 velocityWallz		0.0
 
-timesteps		100
+timesteps		1000
 
-timestepsPerPlotting	25
+timestepsPerPlotting	50
