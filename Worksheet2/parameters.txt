@@ -1,6 +1,6 @@
 ##Parameters
 
-xlength			10
+xlength			2
 
 tau			1.5
 
