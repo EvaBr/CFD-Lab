@@ -2,16 +2,15 @@
 #include "LBDefinitions.h"
 
 void doStreaming(double *collideField, double *streamField,int *flagField,int xlength){
-
     int dx, dy, dz;
     double fi;
-    /*Setting distribution function for each moving direction/lattice velocity of every particle*/
+    // setting distribution function for each moving direction/lattice velocity of every particle
     for (int z = 1; z < xlength + 1; ++z) {
         for (int y = 1; y < xlength + 1; ++y) {
             for (int x = 1; x < xlength + 1; ++x) {
                 for (int i = 0; i < Q; ++i) {
 
-                    /*dx = c_i_x*dt, dt = 1*/
+                    // dx = c_i_x*dt, where dt = 1, etc.
                     dx = LATTICEVELOCITIES[i][0];
                     dy = LATTICEVELOCITIES[i][1];
                     dz = LATTICEVELOCITIES[i][2];

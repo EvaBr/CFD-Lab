@@ -39,19 +39,11 @@ int main(int argc, char *argv[]){
 
 	initialiseFields ( collideField, streamField, flagField, xlength );
 
-int t;
-int xlen = xlength + 2;
-for (int k=0; k<xlen; k++){
-	for (int j=0; j<xlen; j++){
-		for (int i=0; i<xlen; i++){
-			printf("(%d, %d, %d)=%d\n",i,j,k,flagField[k*xlen*xlen+j*xlen+i]);
-		}
-	}
-}
+	int t;
 	for (t = 0; t < timesteps; t++){
 		doStreaming ( collideField, streamField, flagField, xlength );
 
-		//swap the stream and collide arrays
+		// swap the stream and collide arrays
 		swap = collideField;
 		collideField = streamField;
 		streamField = swap;
@@ -60,11 +52,11 @@ for (int k=0; k<xlen; k++){
 
 		treatBoundary ( collideField, flagField, velocityWall, xlength);
 
+		// write vtk data
 		if (t%timestepsPerPlotting==0){
 			writeVtkOutput(collideField,flagField,"DrivenCavity",t,xlength);
 		}
 	}
-//writeVtkOutput(collideField,flagField,"DrivenCavity",t,xlength);
 	// free the initialized space
 	free ( collideField );
 	free ( streamField );
