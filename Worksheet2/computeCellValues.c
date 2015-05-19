@@ -36,6 +36,5 @@ void computeFeq(const double * const density, const double * const velocity, dou
 		c_u_inner_product*c_u_inner_product/(2*C_S*C_S*C_S*C_S) - u_u_inner_product/(2*C_S*C_S));
         	c_u_inner_product = 0; //debug
         	u_u_inner_product = 0; //debug
-
 	}
 }

@@ -35,7 +35,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	for (int a=0; a<=xlength+1; a++){
 		for (int b=0; b<=xlength+1; b++){
 			for (int c=0; c<=xlength+1; c++){
-				for (int i=0; i<19; i++){
+				for (int i=0; i<Q; i++){
 					streamField [ Q*(c*xlen2 + b*xlen + a) + i ] = LATTICEWEIGHTS [i];
 					collideField [ Q*(c*xlen2 + b*xlen + a) + i ] = LATTICEWEIGHTS [i];
 				}
