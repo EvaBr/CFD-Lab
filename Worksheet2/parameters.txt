@@ -4,10 +4,10 @@ xlength			10
 
 tau			1.5
 
-velocityWallx		1.0
-velocityWally		1.0
+velocityWallx		0.01
+velocityWally		0.01
 velocityWallz		0.0
 
-timesteps		1000
+timesteps		100
 
 timestepsPerPlotting	25
