@@ -43,7 +43,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 				flagField [ c*xlen2 + b*xlen + a ] = FLUID;
 			}
 			//if c==xlength+1, moving wall:
-			flagField [ xlen2*(xlength+1) + b*xlength + a ] = MOVING_WALL;
+			flagField [ xlen2*(xlength+1) + b*xlen + a ] = MOVING_WALL;
 		}
 	}
 	//correct fluid to no slip boundaries:

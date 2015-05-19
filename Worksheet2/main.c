@@ -38,7 +38,16 @@ int main(int argc, char *argv[]){
 	flagField = calloc ( len, sizeof(int) );
 
 	initialiseFields ( collideField, streamField, flagField, xlength );
+
 int t;
+int xlen = xlength + 2;
+for (int k=0; k<xlen; k++){
+	for (int j=0; j<xlen; j++){
+		for (int i=0; i<xlen; i++){
+			printf("(%d, %d, %d)=%d\n",i,j,k,flagField[k*xlen*xlen+j*xlen+i]);
+		}
+	}
+}
 	for (t = 0; t < timesteps; t++){
 		doStreaming ( collideField, streamField, flagField, xlength );
 
