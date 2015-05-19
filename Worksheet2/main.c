@@ -38,8 +38,8 @@ int main(int argc, char *argv[]){
 	flagField = calloc ( len, sizeof(int) );
 
 	initialiseFields ( collideField, streamField, flagField, xlength );
-
-	for (int t = 0; t < timesteps; t++){
+int t;
+	for (t = 0; t < timesteps; t++){
 		doStreaming ( collideField, streamField, flagField, xlength );
 
 		//swap the stream and collide arrays
@@ -52,10 +52,10 @@ int main(int argc, char *argv[]){
 		treatBoundary ( collideField, flagField, velocityWall, xlength);
 
 		if (t%timestepsPerPlotting==0){
-			//writeVtkOutput(collideField,flagField,argv,t,xlength);
+			writeVtkOutput(collideField,flagField,"DrivenCavity",t,xlength);
 		}
 	}
-
+//writeVtkOutput(collideField,flagField,"DrivenCavity",t,xlength);
 	// free the initialized space
 	free ( collideField );
 	free ( streamField );

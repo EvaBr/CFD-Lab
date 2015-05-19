@@ -3,7 +3,7 @@
 
 void computeDensity(const double *const currentCell, double *density){
   /* TODO */
-
+	*density = 0; //debug
 	for (int i=0; i<Q; i++)
 		*density += *(currentCell+i);
 }
@@ -34,7 +34,7 @@ void computeFeq(const double * const density, const double * const velocity, dou
 		}
                	*(feq+i) = LATTICEWEIGHTS[i] * (*density) * (1 + c_u_inner_product/(C_S*C_S) +
 		c_u_inner_product*c_u_inner_product/(2*C_S*C_S*C_S*C_S) - u_u_inner_product/(2*C_S*C_S));
-	c_u_inner_product = 0;
-        u_u_inner_product = 0;
+        	c_u_inner_product = 0; //debug
+        	u_u_inner_product = 0; //debug
 	}
 }
