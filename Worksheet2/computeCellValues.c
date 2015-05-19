@@ -34,5 +34,7 @@ void computeFeq(const double * const density, const double * const velocity, dou
 		}
                	*(feq+i) = LATTICEWEIGHTS[i] * (*density) * (1 + c_u_inner_product/(C_S*C_S) +
 		c_u_inner_product*c_u_inner_product/(2*C_S*C_S*C_S*C_S) - u_u_inner_product/(2*C_S*C_S));
+	c_u_inner_product = 0;
+        u_u_inner_product = 0;
 	}
 }
