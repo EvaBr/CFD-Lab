@@ -29,7 +29,6 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-
 	int len = (xlength + 2)*(xlength + 2)*(xlength + 2);
 
 	// initialize space for pointers
@@ -54,7 +53,7 @@ int main(int argc, char *argv[]){
 
 		// write vtk data
 		if (t%timestepsPerPlotting==0){
-			writeVtkOutput(collideField,flagField,"DrivenCavity",t,xlength);
+			writeVtkOutput ( collideField, flagField, "DrivenCavity", t, xlength );
 		}
 	}
 	// free the initialized space

@@ -18,4 +18,4 @@ lbsim
 *.vtk
 
 #directory of pics
-# simulation*
+simulation*
