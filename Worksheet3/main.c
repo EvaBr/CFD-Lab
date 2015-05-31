@@ -49,25 +49,27 @@ int main(int argn, char** args){
 		/*arrays*/
 	double **U, **V, **P;
 	double **RS, **F, **G;
+	int **Flag; //additional data structure for arbitrary geometry
 		/*those to be read in from the input file*/
 	double Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, alpha, omg, tau, eps, dt_value;
 	int  imax, jmax, itermax;
 
+	//read the parameters, using problem.dat, including wl, wr, wt, wb
+	read_parameters("problem.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax, 
+			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr, &wt, &wb, &problem);
 
-	//read the parameters
-	read_parameters("cavity100.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax, 
-			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value);
-
-	//allocate memory
+	//allocate memory, including Flag
 	U = matrix(0, imax+1, 0, jmax+1);
 	V = matrix(0, imax+1, 0, jmax+1);
 	P = matrix(0, imax+1, 0, jmax+1);
 	RS = matrix(1, imax, 1, jmax);
 	F = matrix(0, imax, 1, jmax);
 	G = matrix(1, imax, 0, jmax);
+	Flag = imatrix(0, imax+1, 0, jmax+1); // or Flag = imatrix(1, imax, 1, jmax); 
 
-
+	//initialisation, including **Flag
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
+	init_flag(problem,imax,jmax,Flag);
 	
 	//going through all time steps
 	while(t < t_end){
@@ -75,7 +77,7 @@ int main(int argn, char** args){
 		calculate_dt(Re, tau, &dt, dx, dy, imax, jmax, U, V);
 		
 		//setting bound.values
-		boundaryvalues(imax, jmax, U, V);
+		boundaryvalues(imax, jmax, U, V, P, wl, wr, wt, wb, F, G, problem); //including P, wl, wr, wt, wb, F, G, problem
 		
 		//computing F, G and right hand side of pressue eq.
 		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G);
@@ -85,6 +87,7 @@ int main(int argn, char** args){
 		it = 0;
 		
 		do{
+			//
 			//perform SOR iteration, at same time set bound.values for P and new residual value
 			sor(omg, dx, dy, imax, jmax, P, RS, &res);
 			it++;
@@ -112,6 +115,7 @@ int main(int argn, char** args){
 	free_matrix(RS, 1, imax, 1, jmax);
 	free_matrix(F, 0, imax, 1, jmax);
 	free_matrix(G, 1, imax, 0, jmax);
+	free_imatrix(Flag, 0, imax+1, 0, jmax+1); //free_imatrix(Flag, 1, imax, 1, jmax);
 	
 	return -1;
 }

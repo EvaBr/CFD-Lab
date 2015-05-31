@@ -19,8 +19,14 @@
 #define NO_SLIP 1
 #define FREE_SLIP 2
 #define OUTFLOW 3
-#define C_F 4
-#define C_B 6
+
+#define C_F 100 //C_F value for fluid cells are temporarily set as 100
+#define C_B 0 //interior of the obstacle. flag 00000
+#define B_N 1 //northern edge cell. flag 00001
+#define B_O 8 //eastern edge cell. flag 01000
+#define B_NO 9 //northeastern edge cell. flag 01001
+/*more Flag values to be defined*/
+
 
 
 /**
