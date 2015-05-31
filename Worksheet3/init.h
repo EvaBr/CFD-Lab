@@ -37,6 +37,11 @@
  * @param eps        tolerance limit for pressure calculation
  * @param dt_value   time steps for output (after how many time steps one should
  *                   write into the output file)
+ * @param wl	     initial boundary for left wall
+ * @param wr	     initial boundary for right wall
+ * @param wt	     initial boundary for top wall
+ * @param wb	     initial boundary for bottom wall
+ * @param problem    problem to solve
  */
 int read_parameters( 
   const char *szFileName,
@@ -59,7 +64,12 @@ int read_parameters(
   double *tau,
   int  *itermax,
   double *eps,
-  double *dt_value
+  double *dt_value,
+  int *wl,
+  int *wr,
+  int *wt,
+  int *wb,
+  char *problem
 );
 
 /**

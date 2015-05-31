@@ -21,29 +21,31 @@ void calculate_fg(
 	int i, j;
 	for (i=1; i<imax+1; i++){
 		for  (j=1; j<jmax+1; j++){
-			uij = U[i][j];
-			uuj = U[i+1][j];
-			udj = U[i-1][j];
-			uiu = U[i][j+1];
-			uid = U[i][j-1];
-			udu = U[i-1][j+1];
+			if (Flag[i][j] == C_F){ // add this if-loop in double for-loop to ensure calculation is only on edges
+						// separating two fluid cells. Is it correct? If yes, how slow it is?
+				uij = U[i][j];
+				uuj = U[i+1][j];
+				udj = U[i-1][j];
+				uiu = U[i][j+1];
+				uid = U[i][j-1];
+				udu = U[i-1][j+1];
 
-			vij = V[i][j];
-			viu = V[i][j+1];
-			vid = V[i][j-1];
-			vuj = V[i+1][j];
-			vdj = V[i-1][j];
-			vud = V[i+1][j-1];
+				vij = V[i][j];
+				viu = V[i][j+1];
+				vid = V[i][j-1];
+				vuj = V[i+1][j];
+				vdj = V[i-1][j];
+				vud = V[i+1][j-1];
 
-			F[i][j] = uij + dt*(1/Re*((uuj-2*uij+udj)*Dx*Dx + (uiu-2*uij+uid)*Dy*Dy) -
-				0.25*Dx*(pow((uij+uuj),2)-pow((udj+uij),2) + alpha*(abs(uij+uuj)*(uij-uuj)-abs(udj+uij)*(udj-uij))) -
-				0.25*Dy*((vij+vuj)*(uij+uiu)-(vid+vud)*(uid+uij) + alpha*(abs(vij+vuj)*(uij-uiu)-abs(vid+vud)*(uid-uij))) +
-				GX);
-			G[i][j] = vij + dt*(1/Re*((vuj-2*vij+vdj)*Dx*Dx + (viu-2*vij+vid)*Dy*Dy) -
-				0.25*Dy*(pow((vij+viu),2)-pow((vid+vij),2) + alpha*(abs(vij+viu)*(vij-viu)-abs(vid+vij)*(vid-vij))) -
-				0.25*Dx*((uij+uiu)*(vij+vuj)-(udj+udu)*(vdj+vij) + alpha*(abs(uij+uiu)*(vij-vuj)-abs(udj+udu)*(vdj-vij))) +
-				GY);
-
+				F[i][j] = uij + dt*(1/Re*((uuj-2*uij+udj)*Dx*Dx + (uiu-2*uij+uid)*Dy*Dy) -
+					0.25*Dx*(pow((uij+uuj),2)-pow((udj+uij),2) + alpha*(abs(uij+uuj)*(uij-uuj)-abs(udj+uij)*(udj-uij))) -
+					0.25*Dy*((vij+vuj)*(uij+uiu)-(vid+vud)*(uid+uij) + alpha*(abs(vij+vuj)*(uij-uiu)-abs(vid+vud)*(uid-uij))) +
+					GX);
+				G[i][j] = vij + dt*(1/Re*((vuj-2*vij+vdj)*Dx*Dx + (viu-2*vij+vid)*Dy*Dy) -
+					0.25*Dy*(pow((vij+viu),2)-pow((vid+vij),2) + alpha*(abs(vij+viu)*(vij-viu)-abs(vid+vij)*(vid-vij))) -
+					0.25*Dx*((uij+uiu)*(vij+vuj)-(udj+udu)*(vdj+vij) + alpha*(abs(uij+uiu)*(vij-vuj)-abs(udj+udu)*(vdj-vij))) +
+					GY);
+			}
 		}
 		/* rewrite G(i,0) and G(i, jmax) with bound.cond. for G */
 		G[i][0] = V[i][0];

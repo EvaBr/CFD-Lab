@@ -56,7 +56,7 @@ int main(int argn, char** args){
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
 	read_parameters("problem.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax, 
-			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr, &wt, &wb);
+			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr, &wt, &wb, &problem);
 
 	//allocate memory, including Flag
 	U = matrix(0, imax+1, 0, jmax+1);
@@ -87,6 +87,7 @@ int main(int argn, char** args){
 		it = 0;
 		
 		do{
+			//
 			//perform SOR iteration, at same time set bound.values for P and new residual value
 			sor(omg, dx, dy, imax, jmax, P, RS, &res);
 			it++;

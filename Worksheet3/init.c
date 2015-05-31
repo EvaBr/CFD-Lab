@@ -1,14 +1,6 @@
 #include "helper.h"
 #include "init.h"
 
-#define C_F 100 //C_F value for fluid cells are temporarily set as 100
-#define C_B 0 //interior of the obstacle. flag 00000
-#define B_N 1 //northern edge cell. flag 00001
-#define B_O 8 //eastern edge cell. flag 01000
-#define B_NO 9 //northeastern edge cell. flag 01001
-/*more Flag values to be defined*/
-
-
 int read_parameters( const char *szFileName,       /* name of the file */
                     double *Re,                /* reynolds number   */
                     double *UI,                /* velocity x-direction */
@@ -35,7 +27,8 @@ int read_parameters( const char *szFileName,       /* name of the file */
 		    int *wl,			/*initial boundary for left wall*/
 		    int *wr,			/*initial boundary for right wall*/
 		    int *wt,			/*initial boundary for top wall*/
-		    int *wb)			/*initial boundary for bottom wall*/
+		    int *wb,			/*initial boundary for bottom wall*/
+		    char *problem)		/*problem to solve*/
 
 {
    READ_DOUBLE( szFileName, *xlength );
@@ -67,6 +60,8 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_INT   ( szFileName, *wt );
    READ_INT   ( szFileName, *wb );
 
+   READ_STRING( szFileName, problem );
+
    *dx = *xlength / (double)(*imax);
    *dy = *ylength / (double)(*jmax);
 
@@ -97,14 +92,14 @@ void init_uvp(
  * for obstacle cells as specified by the parameter problem.
  */
 void init_flag(
-  char *problem
+  char *problem,
   int imax,
   int jmax,
   int **Flag
 ) {
 	int i,j;
 	//initialisation to C_F and C_B
-	init_matrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set as 100
+	init_imatrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set as 100
 
 	for (i=0; i<=imax+1; i++){
 		Flag[i][0] = C_B;
@@ -116,12 +111,13 @@ void init_flag(
 	}
 	//looping over all cells where the boundary cells are marked with 
 	//the appropriate flags B_xy
-        switch(problem){ //
-                case KARMAN :
+        if (strcmp(problem,"KARMAN")!=0){
 			//TODO
-                case PLANE_SHEAR :
+	}
+        else if (strcmp(problem,"SHEAR")!=0){
 			//TODO
-                case STEP :
+	}
+        else if (strcmp(problem,"STEP")!=0){
 			for(i=1; i<jmax/2; i++){
 				for(j=1; j<jmax/2; j++){
 					Flag[i][j] = C_B; //interior of the obstacle. flag 00000
@@ -134,6 +130,6 @@ void init_flag(
 				Flag[jmax/2][j] = B_O; //eastern edge cell. flag 01000
 			}
 			Flag[jmax/2][jmax/2] = B_NO; //northeastern edge cell. flag 01001
-        }
+	}
 
 }
