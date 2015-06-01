@@ -72,7 +72,8 @@ int read_parameters(
   char *problem,
   double *presLeft,
   double *presRight,
-  double *presDelta
+  double *presDelta,
+  double *vel
 );
 
 /**

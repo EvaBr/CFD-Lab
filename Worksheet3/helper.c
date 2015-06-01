@@ -450,7 +450,7 @@ int **read_pgm(const char *filename)
     if ((input=fopen(filename,"rb"))==0)
     {
        char szBuff[80];
-	   sprintf( szBuff, "Can not read file %s !!!", filename );
+	   sprintf( szBuff, "Can not read file %s!", filename );
 	   ERROR( szBuff );
     }
 
@@ -458,7 +458,7 @@ int **read_pgm(const char *filename)
     if ( fread(line,1,3,input)!=3 )
     {
 	    fclose(input);
-	    ERROR("Error Wrong Magic field!");
+	    ERROR("Error: Wrong Magic field!");
     }
 
     /* skip the comments */
@@ -490,12 +490,12 @@ int **read_pgm(const char *filename)
 	        if (byte==EOF)
 	        {
 		        fclose(input);
-		        ERROR("read failed");
+		        ERROR("Read failed");
 	        }
 	        else
 	        {
 		        pic[i1][ysize+1-j1] = min(byte, 1);
-		        printf("%d,%d: %d\n", i1, ysize+1-j1, min(byte, 1));
+		        //printf("%d,%d: %d\n", i1, ysize+1-j1, min(byte, 1));
 	        }
 	     }
     }

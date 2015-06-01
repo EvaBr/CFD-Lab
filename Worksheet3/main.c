@@ -41,6 +41,13 @@
  * - calculate_uv() Calculate the velocity at the next time step.
  */
 int main(int argn, char** args){
+ 	if (argn !=2 ) {
+        	printf("When running the simulation, please give a valid file name for the problem!\n");
+        	return 1;
+        }
+	//set the scenario
+	char *filename = NULL;
+	filename = args[1];
 
 	//initialize variables
 	double t = 0; /*time start*/
@@ -60,7 +67,7 @@ int main(int argn, char** args){
 	double vel; //in case of a given inflow or wall velocity
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
-	read_parameters("problem.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax,
+	read_parameters(filename, &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax,
 			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr, &wt, &wb, problem, &presLeft, &presRight, &presDelta, &vel);
 
 	//allocate memory, including Flag
@@ -106,8 +113,10 @@ int main(int argn, char** args){
 		n++;
 		t += dt;
 		
+		//printf("into if");
 		//output of pics for animation
-		if (fmod(t, dt_value)==0.0){
+		if (n % 20 == 0){
+		//	printf("works");
 			write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
 		}
 	}
