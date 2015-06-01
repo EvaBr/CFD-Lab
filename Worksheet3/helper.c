@@ -494,8 +494,8 @@ int **read_pgm(const char *filename)
 	        }
 	        else
 	        {
-		        pic[i1][ysize+1-j1] = byte;
-		        printf("%d,%d: %d\n", i1,ysize+1-j1,byte);
+		        pic[i1][ysize+1-j1] = min(byte, 1);
+		        printf("%d,%d: %d\n", i1, ysize+1-j1, min(byte, 1));
 	        }
 	     }
     }

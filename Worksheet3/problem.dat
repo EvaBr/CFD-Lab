@@ -65,4 +65,4 @@ wb		3
 #     problem geometry
 #--------------------------------------------
 
-problem     "step"
+problem     "STEP.pgm"

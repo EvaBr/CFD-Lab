@@ -1,5 +1,6 @@
 #include "helper.h"
 #include "init.h"
+#include <math.h>
 
 int read_parameters( const char *szFileName,       /* name of the file */
                     double *Re,                /* reynolds number   */
@@ -99,8 +100,22 @@ void init_flag(
 ) {
 	int i,j;
 	//initialisation to C_F and C_B
+	int temp;
+	int **Pic = read_pgm(problem);
+
 	init_imatrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set as 100
 
+	for (int i=1; i<imax+1; i++){
+		for (int j=1; j<jmax+1; j++){
+			temp = min(Pic[i][j]*pow(2,4) + Pic[i+1][j]*pow(2,3) + Pic[i-1][j]*pow(2,2) + Pic[i][j-1]*2 + Pic[i][j+1], 16);
+			if (temp == 3 || temp ==7 || (temp > 10 && temp < 15))
+				ERROR("Invalid geometry! Forbidden boundary cell found.\n")
+			Flag[i][j] = temp;
+		}
+	}
+
+
+	//set outer boundary
 	for (i=0; i<=imax+1; i++){
 		Flag[i][0] = C_B;
 		Flag[i][jmax+1] = C_B;
@@ -108,28 +123,6 @@ void init_flag(
 	for (j=0; j<=jmax+1; j++){
 		Flag[0][j] = C_B;
 		Flag[imax+1][j] = C_B;
-	}
-	//looping over all cells where the boundary cells are marked with 
-	//the appropriate flags B_xy
-        if (strcmp(problem,"KARMAN")!=0){
-			//TODO
-	}
-        else if (strcmp(problem,"SHEAR")!=0){
-			//TODO
-	}
-        else if (strcmp(problem,"STEP")!=0){
-			for(i=1; i<jmax/2; i++){
-				for(j=1; j<jmax/2; j++){
-					Flag[i][j] = C_B; //interior of the obstacle. flag 00000
-				}
-			}
-			for(i=1; i<jmax/2; i++){
-				Flag[i][jmax/2] = B_N; //northern edge cell. flag 00001
-			}
-			for(j=1; j<jmax/2; j++){
-				Flag[jmax/2][j] = B_O; //eastern edge cell. flag 01000
-			}
-			Flag[jmax/2][jmax/2] = B_NO; //northeastern edge cell. flag 01001
 	}
 
 }

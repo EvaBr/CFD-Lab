@@ -17,7 +17,9 @@ void boundaryvalues(
 		    int wb,
 		    double **F,
 		    double **G,
-		    char *problem
+		    double **Flag,
+		    char *problem,
+		    double UI
                     ){
 
 	switch(wl){ //left wall indices:u(0,i), (v(0,i)+v(1,i))/2
@@ -92,41 +94,45 @@ void boundaryvalues(
 			}
 	}
 
+	//Boundary Values for F, G, P - discrete Neumann cond.
+/*	for (int j=1; j<=jmax; j++){
+		P[0][j] = P[1][j];
+		P[imax+1][j] = P[imax][j];
 
-	        if (strcmp(problem,"KARMAN")!=0){
-                	        //TODO
-        	}
-	        else if (strcmp(problem,"SHEAR")!=0){
-                	        //TODO
-        	}
-	        else if (strcmp(problem,"STEP")!=0){
+		F[0][j] = U[0][j];
+		F[imax][j] = U[imax][j];
+	}
+	for (int i=1; i<=imax; i++){
+		P[i][0] = P[i][1];
+		P[i][jmax+1] = P[i][jmax];
 
-			//ignore interior obstacles
-			for(int i=1; i<jmax/2; i++){ //B_N
-				V[i][jmax/2] = 0;
-				U[i-1][jmax/2] = -U[i-1][jmax/2+1];
-				U[i][jmax/2] = -U[i][jmax/2+1];
-				G[i][jmax/2] = V[i][jmax/2];
-				P[i][jmax/2] = P[i][jmax/2+1];
-			}
-			for(int j=1; j<jmax/2; j++){ //B_O
-				U[jmax/2][j] = 0;
-				V[jmax/2][j] = -V[jmax/2+1][j];
-				V[jmax/2][j-1] = -V[jmax/2+1][j-1];
-				F[jmax/2][j] = U[jmax/2][j];
-				P[jmax/2][j] = P[jmax/2+1][j];
-			}
-			//B_NO
-			U[jmax/2][jmax/2] = 0;
-			V[jmax/2][jmax/2] = 0;
-			U[jmax/2-1][jmax/2] = -U[jmax/2-1][jmax/2+1];
-			V[jmax/2][jmax/2-1] = -V[jmax/2+1][jmax/2-1];
-			F[jmax/2][jmax/2] = U[jmax/2][jmax/2];
-			G[jmax/2][jmax/2] = V[jmax/2][jmax/2];
-			P[jmax/2][jmax/2] = (P[jmax/2][jmax/2+1] + P[jmax/2+1][jmax])/2;
-		}
+		G[i][0] = V[i][0];
+		G[i][jmax] = V[i][jmax];
+	}*/
+
+
+	//special boundaries
+	spec_boundary_val(problem, imax, jmax, U, V, Flag, UI);
+
 }
 
-void spec_boundary_var(char *problem, int imax, int jmax, double **U, double **V){
-	
+void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V, double **Flag, double UI){
+	if (strcmp(problem,"KARMAN.pgm")!=0 || strcmp(problem, "SHEAR.pgm")!=0){
+		for (int j=1; j<=jmax; j++)
+			U[0][j] = UI;
+        } else if (strcmp(problem, "STEP.pgm")!=0){
+		for (int j=1; j<=jmax/2; j++){
+			U[0][j] = UI;
+			for (int i=1; i<=imax; i++){
+				U[i][j] = 0.0;
+			}
+		}
+		for (int j=jmax/2; j<=jmax; j++){
+			U[0][j] = UI;
+
+	}
+	//TODO case of pressure??
+
+	//TODO:  Take care of arbitrary geometries
+	//8 cases
 }
