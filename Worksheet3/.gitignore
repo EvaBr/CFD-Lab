@@ -1,6 +1,5 @@
 #object files:
 *.o
-# boundary_val.o
 
 #exec.
 *.out
