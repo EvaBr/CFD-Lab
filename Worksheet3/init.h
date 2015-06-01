@@ -69,7 +69,10 @@ int read_parameters(
   int *wr,
   int *wt,
   int *wb,
-  char *problem
+  char *problem,
+  double *presLeft,
+  double *presRight,
+  double *presDelta
 );
 
 /**
@@ -85,6 +88,14 @@ void init_uvp(
   double **U,
   double **V,
   double **P
+);
+
+void init_flag(
+  char *problem,
+  int imax,
+  int jmax,
+  double presDelta,
+  int **Flag
 );
 
 #endif

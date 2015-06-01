@@ -54,9 +54,14 @@ int main(int argn, char** args){
 	double Re, UI, VI, PI, GX, GY, t_end, xlength, ylength, dt, dx, dy, alpha, omg, tau, eps, dt_value;
 	int  imax, jmax, itermax;
 
+	double presLeft, presRight, presDelta; //for pressure stuff
+	int wl, wr, wt, wb;
+	char problem[32];
+	double vel; //in case of a given inflow or wall velocity
+
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
-	read_parameters("problem.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax, 
-			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr, &wt, &wb, &problem);
+	read_parameters("problem.dat", &Re, &UI, &VI, &PI, &GX, &GY, &t_end, &xlength, &ylength, &dt, &dx, &dy, &imax,
+			&jmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr, &wt, &wb, problem, &presLeft, &presRight, &presDelta, &vel);
 
 	//allocate memory, including Flag
 	U = matrix(0, imax+1, 0, jmax+1);
@@ -69,7 +74,7 @@ int main(int argn, char** args){
 
 	//initialisation, including **Flag
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
-	init_flag(problem,imax,jmax,Flag);
+	init_flag(problem, imax, jmax, presDelta, Flag);
 	
 	//going through all time steps
 	while(t < t_end){
@@ -77,10 +82,10 @@ int main(int argn, char** args){
 		calculate_dt(Re, tau, &dt, dx, dy, imax, jmax, U, V);
 		
 		//setting bound.values
-		boundaryvalues(imax, jmax, U, V, P, wl, wr, wt, wb, F, G, problem); //including P, wl, wr, wt, wb, F, G, problem
+		boundaryvalues(imax, jmax, U, V, P, wl, wr, wt, wb, F, G, problem, Flag, vel); //including P, wl, wr, wt, wb, F, G, problem
 		
 		//computing F, G and right hand side of pressue eq.
-		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G);
+		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G, Flag);
 		calculate_rs(dt, dx, dy, imax, jmax, F, G, RS);
 		
 		//iteration counter
@@ -89,19 +94,20 @@ int main(int argn, char** args){
 		do{
 			//
 			//perform SOR iteration, at same time set bound.values for P and new residual value
-			sor(omg, dx, dy, imax, jmax, P, RS, &res);
+			sor(omg, dx, dy, imax, jmax, P, RS, &res, Flag, presLeft, presRight);
+
 			it++;
 		}while(it<itermax && res>eps);
 		//printf("%f \n", res);
 		//calculate U and V of this time step
-		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P);
+		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		
 		//indent time and number of time steps
 		n++;
 		t += dt;
 		
 		//output of pics for animation
-		if (n%32==0){
+		if (fmod(t, dt_value)==0.0){
 			write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
 		}
 	}
@@ -115,7 +121,7 @@ int main(int argn, char** args){
 	free_matrix(RS, 1, imax, 1, jmax);
 	free_matrix(F, 0, imax, 1, jmax);
 	free_matrix(G, 1, imax, 0, jmax);
-	free_imatrix(Flag, 0, imax+1, 0, jmax+1); //free_imatrix(Flag, 1, imax, 1, jmax);
+	free_imatrix(Flag, 0, imax+1, 0, jmax+1);
 	
 	return -1;
 }

@@ -64,5 +64,20 @@ wb		3
 #--------------------------------------------
 #     problem geometry
 #--------------------------------------------
+problem		"STEP.pgm"
 
-problem     "STEP.pgm"
+
+#--------------------------------------------
+#	pressure parameters
+#--------------------------------------------
+presLeft	0
+presRight	0
+presDelta	0
+
+
+#-------------------------------------------
+#	additional velocity variable
+#	in case of given inflow velocity
+#	or moving wall velocity
+#-------------------------------------------
+vel		1.0

@@ -30,6 +30,7 @@
 #define B_NW 5
 #define B_SO 12
 #define B_SW 6
+#define C_P 32
 
 /*more Flag values to be defined*/
 

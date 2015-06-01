@@ -16,7 +16,10 @@ void sor(
   int    jmax,
   double **P,
   double **RS,
-  double *res
+  double *res,
+  int **Flag,
+  double presLeft,
+  double presRight
 );
 
 

@@ -17,7 +17,19 @@ void boundaryvalues(
   int wb,
   double **F,
   double **G,
-  char *problem
+  char *problem,
+  int **Flag,
+  double UI
+);
+
+void spec_boundary_val(
+  char *problem,
+  int imax,
+  int jmax,
+  double **U,
+  double **V,
+  int **Flag,
+  double UI
 );
 
 #endif

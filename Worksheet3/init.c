@@ -29,8 +29,13 @@ int read_parameters( const char *szFileName,       /* name of the file */
 		    int *wr,			/*initial boundary for right wall*/
 		    int *wt,			/*initial boundary for top wall*/
 		    int *wb,			/*initial boundary for bottom wall*/
-		    char *problem)		/*problem to solve*/
+		    char *problem,		/*problem to solve*/
 
+		    double *presLeft,		/*pressure at the left wall*/
+		    double *presRight,		/*pressure at the right wall*/
+		    double *presDelta,		/*pressure difference across the domain*/
+
+		    double *vel)		/*velocity of inflow or wall (in U direction)*/
 {
    READ_DOUBLE( szFileName, *xlength );
    READ_DOUBLE( szFileName, *ylength );
@@ -62,6 +67,35 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_INT   ( szFileName, *wb );
 
    READ_STRING( szFileName, problem );
+
+   READ_DOUBLE( szFileName, *presLeft);
+   READ_DOUBLE( szFileName, *presRight);
+   READ_DOUBLE( szFileName, *presDelta);
+
+   READ_DOUBLE( szFileName, *vel   );
+
+   //take care of (in)valid pressure input
+   if (*presDelta<=0.0){
+   //    if (fmin(presLeft, presRight)<0): we dont have pressure input
+	if  (fmin(*presLeft, *presRight)>=0){
+		*presDelta = *presRight-*presLeft;
+        }
+   } else { //deltaP is given
+	if  (*presLeft<0){
+		if (*presRight<0){
+			*presLeft = *presDelta;
+			*presRight = 0.0;
+		} else {
+			*presLeft = *presRight + *presDelta;
+		}
+	} else {//pressure on left wall is also given
+		*presRight = *presLeft - *presDelta;
+	}
+   }
+   if (*presDelta>0){ // if pressure given, left and right bound. set to outflow
+	*wl = 3;
+	*wr = 3;
+   }
 
    *dx = *xlength / (double)(*imax);
    *dy = *ylength / (double)(*jmax);
@@ -96,33 +130,45 @@ void init_flag(
   char *problem,
   int imax,
   int jmax,
+  double presDelta,
   int **Flag
 ) {
 	int i,j;
-	//initialisation to C_F and C_B
 	int temp;
+	//read the geometry
 	int **Pic = read_pgm(problem);
 
-	init_imatrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set as 100
+//	init_imatrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set
 
+	//initialisation to C_F and C_B
 	for (int i=1; i<imax+1; i++){
 		for (int j=1; j<jmax+1; j++){
 			temp = min(Pic[i][j]*pow(2,4) + Pic[i+1][j]*pow(2,3) + Pic[i-1][j]*pow(2,2) + Pic[i][j-1]*2 + Pic[i][j+1], 16);
-			if (temp == 3 || temp ==7 || (temp > 10 && temp < 15))
-				ERROR("Invalid geometry! Forbidden boundary cell found.\n")
+			if (temp == 3 || temp ==7 || (temp > 10 && temp < 15)){
+				ERROR("Invalid geometry! Forbidden boundary cell found.\n"); }
 			Flag[i][j] = temp;
 		}
 	}
 
 
-	//set outer boundary
+	//set outer boundary - we set to C_B if BC is given in terms of velocity, and C_P, if in terms of pressure
 	for (i=0; i<=imax+1; i++){
-		Flag[i][0] = C_B;
-		Flag[i][jmax+1] = C_B;
+		if (presDelta) {
+			Flag[i][0] = C_P;
+			Flag[i][jmax+1] = C_P;
+		} else {
+			Flag[i][0] = C_B;
+			Flag[i][jmax+1] = C_B;
+		}
 	}
 	for (j=0; j<=jmax+1; j++){
-		Flag[0][j] = C_B;
-		Flag[imax+1][j] = C_B;
+		if (presDelta) {
+			Flag[0][j] = C_P;
+			Flag[imax+1][j] = C_P;
+		} else {
+			Flag[0][j] = C_B;
+			Flag[imax+1][j] = C_B;
+		}
 	}
 
 }
