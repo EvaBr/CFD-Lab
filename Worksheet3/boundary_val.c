@@ -133,6 +133,69 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	}
 	//TODO case of pressure??
 
-	//TODO:  Take care of arbitrary geometries
+	//Take care of arbitrary geometries
 	//8 cases
+	for (int i=1; i<=imax; i++){
+		for (int j=1; j<=jmax; j++){
+		        switch(Flag[i][j]){
+                		case B_N:
+					V[i][j] = 0;
+					U[i-1][j] = -U[i-1][j+1];
+					U[i][j] = -U[i][j+1];
+					G[i][j] = V[i][j];
+					P[i][j] = P[i][j+1];
+                		case B_O:
+                                        U[i][j] = 0;
+                                        V[i][j-1] = -V[i+1][j-1];
+                                        V[i][j] = -V[i+1][j];
+                                        F[i][j] = U[i][j];
+                                        P[i][j] = P[i+1][j];
+	                	case B_S:
+                                        V[i][j-1] = 0;
+                                        U[i-1][j] = -U[i-1][j-1];
+                                        U[i][j] = -U[i-1][j-1];
+                                        G[i][j-1] = V[i][j-1];
+                                        P[i][j] = P[i][j-1];
+				case B_W:
+                                        U[i-1][j] = 0;
+                                        V[i][j-1] = -V[i-1][j];
+                                        V[i][j] = -V[i-1][j];
+                                        F[i-1][j] = U[i-1][j];
+                                        P[i][j] = P[i-1][j];
+
+                		case B_NO:
+					V[i][j] = 0;
+					U[i][j] = 0;
+					U[i-1][j] = -U[i-1][j+1];
+					V[i][j-1] = -V[i+1][j-1];
+					F[i][j] = U[i][j];
+					G[i][j] = V[i][j];
+					P[i][j] = (P[i+1][j] + P[i][j+1])*0.5;
+                		case B_NW:
+                                        V[i][j] = 0;
+                                        U[i-1][j] = 0;
+                                        U[i][j] = -U[i][j+1];
+                                        V[i][j-1] = -V[i-1][j-1];
+                                        F[i-1][j] = U[i-1][j];
+                                        G[i][j] = V[i][j];
+                                        P[i][j] = (P[i-1][j] + P[i][j+1])*0.5;
+		                case B_SO:
+                                        V[i][j-1] = 0;
+                                        U[i][j] = 0;
+                                        U[i-1][j] = -U[i-1][j-1];
+                                        V[i][j] = -V[i+1][j];
+                                        F[i][j] = U[i][j];
+                                        G[i][j-1] = V[i][j-1];
+                                        P[i][j] = (P[i+1][j] + P[i][j-1])*0.5;
+		                case B_SW:
+                                        V[i][j-1] = 0;
+                                        U[i-1][j] = 0;
+                                        U[i][j] = -U[i][j-1];
+                                        V[i][j] = -V[i-1][j];
+                                        F[i-1][j] = U[i-1][j];
+                                        G[i][j-1] = V[i][j-1];
+                                        P[i][j] = (P[i-1][j] + P[i][j-1])*0.5;
+			}
+		}
+	}
 }
