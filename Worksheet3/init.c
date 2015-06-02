@@ -74,23 +74,25 @@ int read_parameters( const char *szFileName,       /* name of the file */
 
    READ_DOUBLE( szFileName, *vel   );
 
+   printf("reading parametrs");
    //take care of (in)valid pressure input
-   if (*presDelta<=0.0){
+   if (*presDelta<=0){
    //    if (fmin(presLeft, presRight)<0): we dont have pressure input
 	if  (fmin(*presLeft, *presRight)>=0){
 		printf("we're in");
 		*presDelta = *presLeft - *presRight;
-        }
+        } else {printf("were out");}
    } else { //deltaP is given
-	if  (*presLeft<0){
+	if  (*presLeft< *presDelta){
 		if (*presRight<0){
+			printf("were here");
 			*presLeft = *presDelta;
 			*presRight = 0.0;
-		} else {
+		} else {printf("were innn");
 			*presLeft = *presRight + *presDelta;
 		}
 	} else {//pressure on left wall is also given
-		*presRight = *presLeft - *presDelta;
+		*presRight = *presLeft - *presDelta; printf("bla");
 	}
    }
    if (*presDelta>0){ // if pressure given, left and right bound. set to outflow

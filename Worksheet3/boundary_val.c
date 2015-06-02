@@ -128,7 +128,7 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 				U[0][j] = vel;
 			}
 		} else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
-			for (int i=0; i<=imax; i++){
+			for (int i=1; i<=imax; i++){
 				U[i][jmax+1] = vel*2.0 - U[i][jmax];
 			}
 		}
