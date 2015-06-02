@@ -183,11 +183,11 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
                                         U[i][j] = -U[i][j-1];
                                         V[i][j] = -V[i-1][j];
 					break;
-				case C_B://added so the step wont look red.... is it okay?
+				case C_B://added so the insides of obstacles wont be red
 					V[i][j] = 0;
 					U[i][j] = 0;
 					break;
 			}
-		}
+		}//adda nother forloops for setting outside boundary C_B's
 	}
 }

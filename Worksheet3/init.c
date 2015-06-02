@@ -116,7 +116,7 @@ void init_uvp(
   double **U,
   double **V,
   double **P
-) {//samo za U in V kjer flag ni C_B!!! TODO
+) {//samo za U in V kjer flag ni C_B!!! TODO?
 	init_matrix(U, 0, imax+1, 0, jmax+1, UI);
 	init_matrix(V, 0, imax+1, 0, jmax+1, VI);
 	init_matrix(P, 0, imax+1, 0, jmax+1, PI);
@@ -151,11 +151,39 @@ void init_flag(
 	}
 
 
-	//set outer boundary - we set to C_B if BC is given in terms of velocity, and C_P, if in terms of pressure
+	//set outer boundary - upper and lower:
 	for (i=0; i<=imax+1; i++){
+		if (Flag[i][1] == C_F) {
+			Flag[i][0] = B_N;
+		} else {
+			Flag[i][0] = C_B;
+		}
+		if (Flag[i][jmax] == C_F) {
+			Flag[i][jmax+1] = B_S;
+		} else {
+			Flag[i][jmax+1] = C_B;
+		}
+	}
+	//set the outer boundary - right and left:
+	for (j=0; j<=jmax+1; j++){
+		if (Flag[1][j]==C_F) {
+			Flag[0][j] = B_O;
+		} else {
+			Flag[0][j] = C_B;
+		}
+		if (Flag[imax][j] == C_F) {
+			Flag[imax+1][j] = B_W;
+		} else {
+			Flag[imax+1][j] = C_B;
+		}
+	}
+
+
+
+/*
 		if (presDelta) {
-			Flag[i][0] = C_P;
-			Flag[i][jmax+1] = C_P;
+			Flag[i][0] += 32; //= C_P;
+			Flag[i][jmax+1] += 32; //= C_P;
 		} else {
 			Flag[i][0] = C_B;
 			Flag[i][jmax+1] = C_B;
@@ -169,6 +197,6 @@ void init_flag(
 			Flag[0][j] = C_B;
 			Flag[imax+1][j] = C_B;
 		}
-	}
+	}*/
 
 }

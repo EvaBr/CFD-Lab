@@ -20,7 +20,7 @@
 #define FREE_SLIP 2
 #define OUTFLOW 3
 
-#define C_F 16 //C_F value for fluid cells
+#define C_F 16 //C_F treshold value for fluid cells (flags 1****)
 #define C_B 0 //interior of the obstacle. flag 00000
 #define B_N 1 //northern edge cell. flag 00001
 #define B_S 2
@@ -30,24 +30,22 @@
 #define B_NW 5
 #define B_SO 12
 #define B_SW 6
-#define C_P 32
-
-/*more Flag values to be defined*/
+#define C_P 32 //additional bit; case of given pressure
 
 
 
 /**
- * Maximum length of input lines 
+ * Maximum length of input lines
  */
-#define MAX_LINE_LENGTH 1024	   
+#define MAX_LINE_LENGTH 1024
 
 /**
- * Stores the last timer value 
+ * Stores the last timer value
  */
-extern clock_t last_timer_reset;   
+extern clock_t last_timer_reset;
 
 
-int min( int a, int b);	       
+int min( int a, int b);
 int max( int a, int b);
 double fmin( double a, double b);
 double fmax( double a, double b);
