@@ -151,11 +151,11 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	                	case B_S:
                                         V[i][j-1] = 0;
                                         U[i-1][j] = -U[i-1][j-1];
-                                        U[i][j] = -U[i-1][j-1];
+                                        U[i][j] = -U[i][j-1];
 					break;
 				case B_W:
                                         U[i-1][j] = 0;
-                                        V[i][j-1] = -V[i-1][j];
+                                        V[i][j-1] = -V[i-1][j-1];
                                         V[i][j] = -V[i-1][j];
 					break;
                 		case B_NO:
