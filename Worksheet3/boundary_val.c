@@ -137,7 +137,7 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	//take care of arbitrary boundaries
 	for (int i=1; i<=imax; i++){
 		for (int j=1; j<=jmax; j++){
-		        switch(Flag[i][j]){ //should there be a check for a case of given P? (see Eva's ws2 notes, pg13)
+		        switch(Flag[i][j]){
                 		case B_N:
 					V[i][j] = 0;
 					U[i-1][j] = -U[i-1][j+1];
@@ -188,5 +188,26 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 					break;
 			}
 		}//adda nother forloops for setting outside boundary C_B's
+	}
+	for (int i=0; i<=imax+1; i++){
+		if((Flag[i][0] & 31) == C_B){ //(Flag[i][0] & 31) gets rid of the C_P bit, for left boundary
+			V[i][0] = 0;
+			U[i][0] = 0;
+		}
+		if((Flag[i][jmax+1] & 31) == C_B){ //(Flag[i][0] & 31) gets rid of the C_P bit, for right boundary
+			V[i][jmax+1] = 0;
+			U[i][jmax+1] = 0;
+		}
+	}
+	for (int j=0; j<=jmax+1; j++){
+		if(Flag[0][j] == C_B){
+			V[0][j] = 0;
+			U[0][j] = 0;
+		}
+		if(Flag[imax+1][j] == C_B){
+			V[imax+1][j] = 0;
+			U[imax+1][j] = 0;
+		}
+
 	}
 }

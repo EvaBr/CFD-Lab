@@ -117,7 +117,7 @@ void init_uvp(
   double **U,
   double **V,
   double **P
-) {//samo za U in V kjer flag ni C_B!!! TODO?
+) {
 	init_matrix(U, 0, imax+1, 0, jmax+1, UI);
 	init_matrix(V, 0, imax+1, 0, jmax+1, VI);
 	init_matrix(P, 0, imax+1, 0, jmax+1, PI);
@@ -139,8 +139,6 @@ void init_flag(
 	//read the geometry
 	int **Pic = read_pgm(problem);
 
-//	init_imatrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set
-
 	//initialisation to C_F and C_B
 	for (int i=1; i<imax+1; i++){
 		for (int j=1; j<jmax+1; j++){
@@ -152,7 +150,7 @@ void init_flag(
 	}
 
 
-	//set outer boundary - upper and lower:
+	//set outer boundary flags - upper and lower:
 	for (i=0; i<=imax+1; i++){
 		if (Flag[i][1] == C_F) {
 			Flag[i][0] = B_N;
@@ -165,7 +163,7 @@ void init_flag(
 			Flag[i][jmax+1] = C_B;
 		}
 	}
-	//set the outer boundary - right and left:
+	//set the outer boundary flags - right and left:
 	for (j=0; j<=jmax+1; j++){
 		if (Flag[1][j]==C_F) {
 			Flag[0][j] = B_O;
@@ -180,7 +178,7 @@ void init_flag(
 	}
 
 
-
+	// take care of the case when pressure is given
 	for (i=0; i<=imax+1; i++){
 		if (presDelta) {
 			Flag[i][0] += 32;
