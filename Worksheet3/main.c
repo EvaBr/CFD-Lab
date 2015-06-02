@@ -85,11 +85,11 @@ int main(int argn, char** args){
 		
 		//output of pics for animation
 		if (n%pics==0 ){
-			write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);  
+			write_vtkFile(filename, n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
 		}
 	}
 	//output of U, V, P at the end for visualization
-	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P); 
+	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
 
 	//free memory
 	free_matrix(U, 0, imax+1, 0, jmax+1);

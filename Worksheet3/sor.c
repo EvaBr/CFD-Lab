@@ -19,7 +19,8 @@ void sor(
   double rloc;
   double coeff = omg/(2.0*(1.0/(dx*dx)+1.0/(dy*dy)));
 
-  int FluidCells = 0;
+  double FluidCells = 0.0;
+
   /* SOR iteration */
   for(i = 1; i <= imax; i++) {
     for(j = 1; j<=jmax; j++) {
@@ -41,7 +42,7 @@ void sor(
       }
     }
   }
-  rloc = rloc/(FluidCells);
+  rloc = rloc/FluidCells;
   rloc = sqrt(rloc);
   /* set residual */
   *res = rloc;
@@ -68,6 +69,7 @@ void sor(
 
   // if you want more arbitrary situations, if should be in forloop. For now, for the sake of speed, we leave it outside...
   if (Flag[0][jmax/2]==C_P){
+	printf("prepoznam presure\n");
       for(j = 1; j <= jmax; j++) { //Dirichlet BC for pressure
 	   P[0][j] = presLeft*2.0 - P[1][j];
       }

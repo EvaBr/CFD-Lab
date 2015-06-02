@@ -119,9 +119,9 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 			for (int j=1; j<=jmax; j++)
 				U[0][j] = vel;
 	        } else if (strcmp(problem, "STEP.pgm")!=0){
-			for (int j=1; j<=jmax/2; j++){
-				U[0][j] = vel;
-				for (int i=1; i<=imax; i++){ //behind the step velocity is zero
+			for (int j=0; j<=jmax/2; j++){//j=1
+				//U[0][j] = vel;
+				for (int i=0; i<=imax; i++){ //behind the step velocity is zero
 					U[i][j] = 0.0;
 				}
 			}
@@ -182,6 +182,10 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
                                         U[i-1][j] = 0;
                                         U[i][j] = -U[i][j-1];
                                         V[i][j] = -V[i-1][j];
+					break;
+				case C_B://added so the step wont look red.... is it okay?
+					V[i][j] = 0;
+					U[i][j] = 0;
 					break;
 			}
 		}

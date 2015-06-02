@@ -78,7 +78,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
    if (*presDelta<=0.0){
    //    if (fmin(presLeft, presRight)<0): we dont have pressure input
 	if  (fmin(*presLeft, *presRight)>=0){
-		*presDelta = *presRight-*presLeft;
+		*presDelta = *presLeft - *presRight;
         }
    } else { //deltaP is given
 	if  (*presLeft<0){
@@ -116,7 +116,7 @@ void init_uvp(
   double **U,
   double **V,
   double **P
-) {
+) {//samo za U in V kjer flag ni C_B!!! TODO
 	init_matrix(U, 0, imax+1, 0, jmax+1, UI);
 	init_matrix(V, 0, imax+1, 0, jmax+1, VI);
 	init_matrix(P, 0, imax+1, 0, jmax+1, PI);
