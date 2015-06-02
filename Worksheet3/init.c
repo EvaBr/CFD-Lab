@@ -78,6 +78,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
    if (*presDelta<=0.0){
    //    if (fmin(presLeft, presRight)<0): we dont have pressure input
 	if  (fmin(*presLeft, *presRight)>=0){
+		printf("we're in");
 		*presDelta = *presLeft - *presRight;
         }
    } else { //deltaP is given
@@ -180,23 +181,17 @@ void init_flag(
 
 
 
-/*
+	for (i=0; i<=imax+1; i++){
 		if (presDelta) {
-			Flag[i][0] += 32; //= C_P;
-			Flag[i][jmax+1] += 32; //= C_P;
-		} else {
-			Flag[i][0] = C_B;
-			Flag[i][jmax+1] = C_B;
+			Flag[i][0] += 32;
+			Flag[i][jmax+1] += 32;
 		}
 	}
 	for (j=0; j<=jmax+1; j++){
 		if (presDelta) {
-			Flag[0][j] = C_P;
-			Flag[imax+1][j] = C_P;
-		} else {
-			Flag[0][j] = C_B;
-			Flag[imax+1][j] = C_B;
+			Flag[0][j] += 32;
+			Flag[imax+1][j] += 32;
 		}
-	}*/
+	}
 
 }

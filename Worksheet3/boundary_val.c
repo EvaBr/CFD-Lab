@@ -114,13 +114,12 @@ void boundaryvalues(
 
 void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V, int **Flag, double vel){
 	//take care of inflow velocity in different scenarios
-	if(Flag[0][jmax/2]!=C_P){ //using 1 cell in left boundary to check if P given
+	if((Flag[0][jmax/2] & 32) == 0){ //using 1 cell in left boundary to check if P given
 		if (strcmp(problem,"KARMAN.pgm")!=0 || strcmp(problem, "SHEAR.pgm")!=0){
 			for (int j=1; j<=jmax; j++)
 				U[0][j] = vel;
 	        } else if (strcmp(problem, "STEP.pgm")!=0){
 			for (int j=0; j<=jmax/2; j++){//j=1
-				//U[0][j] = vel;
 				for (int i=0; i<=imax; i++){ //behind the step velocity is zero
 					U[i][j] = 0.0;
 				}
