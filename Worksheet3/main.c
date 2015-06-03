@@ -51,7 +51,7 @@ int main(int argn, char** args){
 
 	//initialisation, including **Flag
 	init_flag(problem, imax, jmax, presDelta, Flag);
-	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
+	init_uvp(UI, VI, PI, imax, jmax, U, V, P, problem);
 //VRSTNIRED?	
 	//going through all time steps
 	while(t < t_end){

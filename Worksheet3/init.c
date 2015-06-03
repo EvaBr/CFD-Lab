@@ -115,11 +115,16 @@ void init_uvp(
   int jmax,
   double **U,
   double **V,
-  double **P
+  double **P,
+  char * problem
 ) {
 	init_matrix(U, 0, imax+1, 0, jmax+1, UI);
 	init_matrix(V, 0, imax+1, 0, jmax+1, VI);
 	init_matrix(P, 0, imax+1, 0, jmax+1, PI);
+	
+	if (strcmp(problem, "STEP.pgm")!=0){
+		init_matrix(U, 0, imax+1, 0, jmax/2, 0); //set lower part of pipe to U=0, if scenario is step
+	}
 }
 
 /**
