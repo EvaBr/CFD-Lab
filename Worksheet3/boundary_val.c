@@ -114,22 +114,19 @@ void boundaryvalues(
 
 void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V, int **Flag, double vel){
 	//take care of inflow velocity in different scenarios
-	if(Flag[0][jmax/2]!=C_P){ //using 1 cell in left boundary to check if P given
+	if((Flag[0][jmax/2] & 32) == 0){ //using 1 cell in left boundary to check if P given
 		if (strcmp(problem,"KARMAN.pgm")!=0 || strcmp(problem, "SHEAR.pgm")!=0){
-			for (int j=1; j<=jmax; j++)
+			for (int j=1; j<=jmax; j++){
 				U[0][j] = vel;
-	        } else if (strcmp(problem, "STEP.pgm")!=0){
-			for (int j=0; j<=jmax/2; j++){//j=1
-				//U[0][j] = vel;
-				for (int i=0; i<=imax; i++){ //behind the step velocity is zero
-					U[i][j] = 0.0;
-				}
+				V[0][j] = -V[1][j]; //V is set to 0 on the boundary
 			}
+	        } else if (strcmp(problem, "STEP.pgm")!=0){
 			for (int j=jmax/2; j<=jmax; j++){
 				U[0][j] = vel;
+				V[0][j] = -V[1][j];
 			}
 		} else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
-			for (int i=0; i<=imax; i++){
+			for (int i=1; i<=imax; i++){
 				U[i][jmax+1] = vel*2.0 - U[i][jmax];
 			}
 		}
@@ -138,7 +135,7 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	//take care of arbitrary boundaries
 	for (int i=1; i<=imax; i++){
 		for (int j=1; j<=jmax; j++){
-		        switch(Flag[i][j]){ //should there be a check for a case of given P? (see Eva's ws2 notes, pg13)
+		        switch(Flag[i][j]){
                 		case B_N:
 					V[i][j] = 0;
 					U[i-1][j] = -U[i-1][j+1];
@@ -152,11 +149,11 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	                	case B_S:
                                         V[i][j-1] = 0;
                                         U[i-1][j] = -U[i-1][j-1];
-                                        U[i][j] = -U[i-1][j-1];
+                                        U[i][j] = -U[i][j-1];
 					break;
 				case B_W:
                                         U[i-1][j] = 0;
-                                        V[i][j-1] = -V[i-1][j];
+                                        V[i][j-1] = -V[i-1][j-1];
                                         V[i][j] = -V[i-1][j];
 					break;
                 		case B_NO:
@@ -183,11 +180,33 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
                                         U[i][j] = -U[i][j-1];
                                         V[i][j] = -V[i-1][j];
 					break;
-				case C_B://added so the step wont look red.... is it okay?
+				/*case C_B://added so the insides of obstacles wont be red
 					V[i][j] = 0;
 					U[i][j] = 0;
-					break;
+					break;*/
 			}
 		}
 	}
+	//added another forloops for setting outside boundary C_B cells to U=0 and V=0
+	/*for (int i=0; i<=imax+1; i++){
+		if((Flag[i][0] & 31) == C_B){ //(Flag[i][0] & 31) gets rid of the C_P bit, for left boundary
+			V[i][0] = 0;
+			U[i][0] = 0;
+		}
+		if((Flag[i][jmax+1] & 31) == C_B){ //(Flag[i][0] & 31) gets rid of the C_P bit, for right boundary
+			V[i][jmax+1] = 0;
+			U[i][jmax+1] = 0;
+		}
+	}
+	for (int j=0; j<=jmax+1; j++){
+		if(Flag[0][j] == C_B){
+			V[0][j] = 0;
+			U[0][j] = 0;
+		}
+		if(Flag[imax+1][j] == C_B){
+			V[imax+1][j] = 0;
+			U[imax+1][j] = 0;
+		}
+
+	}*/
 }

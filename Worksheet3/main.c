@@ -9,7 +9,7 @@
 
 int main(int argn, char** args){
  	if (argn !=2 ) {
-        	printf("When running the simulation, please give a valid file name for the problem!\n");
+        	printf("When running the simulation, please give a valid scenario file name!\n");
         	return 1;
         }
 	//set the scenario
@@ -50,9 +50,9 @@ int main(int argn, char** args){
 	Flag = imatrix(0, imax+1, 0, jmax+1); // or Flag = imatrix(1, imax, 1, jmax); 
 
 	//initialisation, including **Flag
-	init_uvp(UI, VI, PI, imax, jmax, U, V, P);
 	init_flag(problem, imax, jmax, presDelta, Flag);
-	
+	init_uvp(UI, VI, PI, imax, jmax, U, V, P, problem);
+//VRSTNIRED?	
 	//going through all time steps
 	while(t < t_end){
 		//adaptive time stepping
@@ -75,7 +75,9 @@ int main(int argn, char** args){
 
 			it++;
 		}while(it<itermax && res>eps);
-		//printf("%f \n", res);
+		if (it == itermax) {
+			printf("Warning: sor while loop exits because it reaches the itermax. res = %f, time =%f\n", res, t);
+		}
 		//calculate U and V of this time step
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		

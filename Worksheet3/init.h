@@ -88,7 +88,8 @@ void init_uvp(
   int jmax,
   double **U,
   double **V,
-  double **P
+  double **P,
+  char * problem
 );
 
 void init_flag(

@@ -49,10 +49,10 @@ void sor(
 
 
   /* set boundary values */
-  for(i = 1; i <= imax; i++) {
-    P[i][0] = P[i][1];
+  for(i = 0; i <= imax+1; i++) {
+    P[i][0] = P[i][1];		//boundary cond at lower and upper wall
     P[i][jmax+1] = P[i][jmax];
-    for(j=1; j <= jmax; j++) {
+    for(j=0; j <= jmax+1; j++) {
 	switch(Flag[i][j]){
 		case B_N: P[i][j] = P[i][j+1]; break;
 		case B_O: P[i][j] = P[i+1][j]; break;
@@ -63,29 +63,19 @@ void sor(
 		case B_NW: P[i][j] = (P[i-1][j] + P[i][j+1])*0.5; break;
 		case B_SO: P[i][j] = (P[i+1][j] + P[i][j-1])*0.5; break;
 		case B_SW: P[i][j] = (P[i-1][j] + P[i][j-1])*0.5; break;
+
+		//case C_B: P[i][j] = 0; break;
 	}
     }
   }
-
-  // if you want more arbitrary situations, if should be in forloop. For now, for the sake of speed, we leave it outside...
-  if (Flag[0][jmax/2]==C_P){
-	printf("prepoznam presure\n");
-      for(j = 1; j <= jmax; j++) { //Dirichlet BC for pressure
-	   P[0][j] = presLeft*2.0 - P[1][j];
-      }
-  } else {
-      for(j = 1; j <= jmax; j++) { //Neumann BC for pressure
- 	   P[0][j] = P[1][j];
-      }
-  }
-  if (Flag[imax+1][jmax/2]==C_P){
-      for(j = 1; j <= jmax; j++) { //Dirichlet BC for pressure
- 	   P[imax+1][j] = 2.0*presRight - P[imax][j];
-      }
-  } else {
-      for(j = 1; j <= jmax; j++) { //Neumann BC for pressure
- 	   P[imax+1][j] = P[imax][j];
-      }
+  //check if given pressure, set Dirichlet or Neuman BC according to that, for left and right wall
+  for (j=0; j<=jmax+1; j++) {
+	  if((Flag[0][j] & 32) != 0) {//pressure given -> overwrite with Dirichlet BC
+	        P[0][j] = presLeft*2.0 - P[1][j];
+	  }
+	  if((Flag[imax+1][j] & 32) != 0) {//pressure given -> overwrite with Dirichlet BC
+ 	        P[imax+1][j] = 2.0*presRight - P[imax][j];
+          }
   }
 }
 

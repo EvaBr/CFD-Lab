@@ -75,13 +75,13 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *vel   );
 
    //take care of (in)valid pressure input
-   if (*presDelta<=0.0){
+   if (*presDelta<=0){
    //    if (fmin(presLeft, presRight)<0): we dont have pressure input
 	if  (fmin(*presLeft, *presRight)>=0){
 		*presDelta = *presLeft - *presRight;
         }
    } else { //deltaP is given
-	if  (*presLeft<0){
+	if  (*presLeft< *presDelta){
 		if (*presRight<0){
 			*presLeft = *presDelta;
 			*presRight = 0.0;
@@ -115,11 +115,16 @@ void init_uvp(
   int jmax,
   double **U,
   double **V,
-  double **P
-) {//samo za U in V kjer flag ni C_B!!! TODO
+  double **P,
+  char * problem
+) {
 	init_matrix(U, 0, imax+1, 0, jmax+1, UI);
 	init_matrix(V, 0, imax+1, 0, jmax+1, VI);
 	init_matrix(P, 0, imax+1, 0, jmax+1, PI);
+	
+	if (strcmp(problem, "STEP.pgm")!=0){
+		init_matrix(U, 0, imax+1, 0, jmax/2, 0); //set lower part of pipe to U=0, if scenario is step
+	}
 }
 
 /**
@@ -138,8 +143,6 @@ void init_flag(
 	//read the geometry
 	int **Pic = read_pgm(problem);
 
-//	init_imatrix(Flag, 0, imax+1, 0, jmax+1, C_F); //C_F value for fluid cells are temporarily set
-
 	//initialisation to C_F and C_B
 	for (int i=1; i<imax+1; i++){
 		for (int j=1; j<jmax+1; j++){
@@ -151,23 +154,45 @@ void init_flag(
 	}
 
 
-	//set outer boundary - we set to C_B if BC is given in terms of velocity, and C_P, if in terms of pressure
+	//set outer boundary flags - upper and lower:
 	for (i=0; i<=imax+1; i++){
-		if (presDelta) {
-			Flag[i][0] = C_P;
-			Flag[i][jmax+1] = C_P;
+		if (Flag[i][1] == C_F) {
+			Flag[i][0] = B_N;
 		} else {
 			Flag[i][0] = C_B;
+		}
+		if (Flag[i][jmax] == C_F) {
+			Flag[i][jmax+1] = B_S;
+		} else {
 			Flag[i][jmax+1] = C_B;
+		}
+	}
+	//set the outer boundary flags - right and left:
+	for (j=0; j<=jmax+1; j++){
+		if (Flag[1][j]==C_F) {
+			Flag[0][j] = B_O;
+		} else {
+			Flag[0][j] = C_B;
+		}
+		if (Flag[imax][j] == C_F) {
+			Flag[imax+1][j] = B_W;
+		} else {
+			Flag[imax+1][j] = C_B;
+		}
+	}
+
+
+	// take care of the case when pressure is given
+	for (i=0; i<=imax+1; i++){
+		if (presDelta) {
+			Flag[i][0] += 32;
+			Flag[i][jmax+1] += 32;
 		}
 	}
 	for (j=0; j<=jmax+1; j++){
 		if (presDelta) {
-			Flag[0][j] = C_P;
-			Flag[imax+1][j] = C_P;
-		} else {
-			Flag[0][j] = C_B;
-			Flag[imax+1][j] = C_B;
+			Flag[0][j] += 32;
+			Flag[imax+1][j] += 32;
 		}
 	}
 
