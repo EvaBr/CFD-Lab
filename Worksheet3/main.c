@@ -75,8 +75,9 @@ int main(int argn, char** args){
 
 			it++;
 		}while(it<itermax && res>eps);
-		if (it == itermax)
-			printf("Warning: sor while loop exits because it reachesthe itermax. res = %f \n", res);
+		if (it == itermax) {
+			printf("Warning: sor while loop exits because it reaches the itermax. res = %f, time =%f\n", res, t);
+		}
 		//calculate U and V of this time step
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		

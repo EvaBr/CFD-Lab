@@ -116,16 +116,14 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 	//take care of inflow velocity in different scenarios
 	if((Flag[0][jmax/2] & 32) == 0){ //using 1 cell in left boundary to check if P given
 		if (strcmp(problem,"KARMAN.pgm")!=0 || strcmp(problem, "SHEAR.pgm")!=0){
-			for (int j=1; j<=jmax; j++)
+			for (int j=1; j<=jmax; j++){
 				U[0][j] = vel;
-	        } else if (strcmp(problem, "STEP.pgm")!=0){
-			for (int j=0; j<=jmax/2; j++){//j=1
-				for (int i=0; i<=imax; i++){ //behind the step velocity is zero
-					U[i][j] = 0.0;
-				}
+				V[0][j] = -V[1][j]; //V is set to 0 on the boundary
 			}
+	        } else if (strcmp(problem, "STEP.pgm")!=0){
 			for (int j=jmax/2; j<=jmax; j++){
 				U[0][j] = vel;
+				V[0][j] = -V[1][j];
 			}
 		} else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
 			for (int i=1; i<=imax; i++){
@@ -187,8 +185,9 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 					U[i][j] = 0;
 					break;
 			}
-		}//adda nother forloops for setting outside boundary C_B's
+		}
 	}
+	//added another forloops for setting outside boundary C_B cells to U=0 and V=0
 	for (int i=0; i<=imax+1; i++){
 		if((Flag[i][0] & 31) == C_B){ //(Flag[i][0] & 31) gets rid of the C_P bit, for left boundary
 			V[i][0] = 0;
