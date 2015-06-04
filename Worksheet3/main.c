@@ -47,12 +47,12 @@ int main(int argn, char** args){
 	RS = matrix(1, imax, 1, jmax);
 	F = matrix(0, imax, 1, jmax);
 	G = matrix(1, imax, 0, jmax);
-	Flag = imatrix(0, imax+1, 0, jmax+1); // or Flag = imatrix(1, imax, 1, jmax); 
+	Flag = imatrix(0, imax+1, 0, jmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
 	//initialisation, including **Flag
 	init_flag(problem, imax, jmax, presDelta, Flag);
 	init_uvp(UI, VI, PI, imax, jmax, U, V, P, problem);
-//VRSTNIRED?	
+
 	//going through all time steps
 	while(t < t_end){
 		//adaptive time stepping
@@ -75,10 +75,10 @@ int main(int argn, char** args){
 
 			it++;
 		}while(it<itermax && res>eps);
-		if (it == itermax) {
+/*		if (it == itermax) {
 			printf("Warning: sor while loop exits because it reaches the itermax. res = %f, time =%f\n", res, t);
 		}
-		//calculate U and V of this time step
+*/		//calculate U and V of this time step
 		calculate_uv(dt, dx, dy, imax, jmax, U, V, F, G, P, Flag);
 		
 		//indent time and number of time steps

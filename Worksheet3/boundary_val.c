@@ -125,11 +125,11 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 				U[0][j] = vel;
 				V[0][j] = -V[1][j];
 			}
-		} else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
+		}/* else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
 			for (int i=1; i<=imax; i++){
 				U[i][jmax+1] = vel*2.0 - U[i][jmax];
 			}
-		}
+		}*/
 	}
 
 	//take care of arbitrary boundaries
@@ -180,15 +180,15 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
                                         U[i][j] = -U[i][j-1];
                                         V[i][j] = -V[i-1][j];
 					break;
-				/*case C_B://added so the insides of obstacles wont be red
+				case C_B://added so the insides of obstacles wont be red
 					V[i][j] = 0;
 					U[i][j] = 0;
-					break;*/
+					break;
 			}
 		}
 	}
 	//added another forloops for setting outside boundary C_B cells to U=0 and V=0
-	/*for (int i=0; i<=imax+1; i++){
+	for (int i=0; i<=imax+1; i++){
 		if((Flag[i][0] & 31) == C_B){ //(Flag[i][0] & 31) gets rid of the C_P bit, for left boundary
 			V[i][0] = 0;
 			U[i][0] = 0;
@@ -208,5 +208,5 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 			U[imax+1][j] = 0;
 		}
 
-	}*/
+	}
 }
