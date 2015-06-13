@@ -1,7 +1,9 @@
 #--------------------------------------------
 #            domain size             
 #--------------------------------------------
-xlength                     50
+xlengthx                     50
+xlengthy                     50
+xlengthz                     50
 
 #--------------------------------------------
 #            relaxation factor
@@ -22,3 +24,10 @@ velocityWallz               0.0
 timesteps                   100
 timestepsPerPlotting        5
 
+
+#--------------------------------------------
+# 	number of processes
+#--------------------------------------------
+iProc			2
+jProc			2
+kProc			2

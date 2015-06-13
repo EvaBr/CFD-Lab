@@ -2,7 +2,7 @@
 #include "helper.h"
 #include "LBDefinitions.h"
 
-int readParameters(int *xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int argc, char *argv[]){
+int readParameters(int *xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int *proc,  int argc, char *argv[]){
         // argument handling
         if (argc !=2 ) {
                 printf("When running the simulation, please give a valid file name to read from!\n");
@@ -14,7 +14,9 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 	FileName = argv[1];
 
 	// read parameters, using read functions from helper
-	read_int ( FileName, "xlength", xlength );
+	read_int ( FileName, "xlengthx", xlength[0] );
+	read_int ( FileName, "xlengthy", xlength[1] );
+	read_int ( FileName, "xlengthz", xlength[2] );
 
 	read_double ( FileName, "tau", tau );
 
@@ -24,6 +26,10 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 
 	read_int ( FileName, "timesteps", timesteps );
 	read_int ( FileName, "timestepsPerPlotting", timestepsPerPlotting );
+
+	read_int ( FileName, "iProc", proc[0] );
+	read_int ( FileName, "jProc", proc[1] );
+	read_int ( FileName, "kProc", proc[2] );
 
 	return 0;
 }

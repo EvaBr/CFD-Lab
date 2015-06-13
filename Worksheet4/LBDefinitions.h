@@ -14,6 +14,8 @@
   static const int NO_SLIP = 1;
   static const int MOVING_WALL = 2;
 
+  static const int PARALLEL_BOUNDARY = 10;
+
   static const int D = 3;
   static const int Q = 19;
 
