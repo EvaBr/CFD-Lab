@@ -44,3 +44,9 @@ void Programm_Stop(char *txt)
    MPI_Finalize();
    exit(1);
 }
+
+
+void initialiseBuffers ( double *sendBuffer, double *readBuffer, int *xlength, int *proc) {
+
+
+}
