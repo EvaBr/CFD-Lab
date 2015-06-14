@@ -14,9 +14,9 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 	FileName = argv[1];
 
 	// read parameters, using read functions from helper
-	read_int ( FileName, "xlengthx", xlength[0] );
-	read_int ( FileName, "xlengthy", xlength[1] );
-	read_int ( FileName, "xlengthz", xlength[2] );
+	read_int ( FileName, "xlengthx", &xlength[0] );
+	read_int ( FileName, "xlengthy", &xlength[1] );
+	read_int ( FileName, "xlengthz", &xlength[2] );
 
 	read_double ( FileName, "tau", tau );
 
@@ -27,15 +27,15 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 	read_int ( FileName, "timesteps", timesteps );
 	read_int ( FileName, "timestepsPerPlotting", timestepsPerPlotting );
 
-	read_int ( FileName, "iProc", proc[0] );
-	read_int ( FileName, "jProc", proc[1] );
-	read_int ( FileName, "kProc", proc[2] );
+	read_int ( FileName, "iProc", &proc[0] );
+	read_int ( FileName, "jProc", &proc[1] );
+	read_int ( FileName, "kProc", &proc[2] );
 
 	return 0;
 }
 
 
-void initialiseFields(double *collideField, double *streamField, int *flagField, int xlength){
+void initialiseFields(double *collideField, double *streamField, int *flagField, int *xlength){
 	// initialization of particle distribution func fields
 	int xlen = xlength + 2;
 	int xlen2 = xlen*xlen;

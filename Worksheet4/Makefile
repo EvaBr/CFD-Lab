@@ -3,7 +3,8 @@ SOURCES=initLB.c visualLB.c boundary.c collision.c streaming.c computeCellValues
 
 # Compiler
 # --------
-CC=gcc
+CC=mpicc
+# CC=gcc
 
 CFLAGS=-Werror -pedantic -Wall -std=c99 # "-std=c99" added to allow ‘for’ loop initial declarations
 

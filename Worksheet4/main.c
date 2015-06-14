@@ -7,7 +7,7 @@
 #include "visualLB.h"
 #include "boundary.h"
 #include "LBDefinitions.h"
-#include <mpi.h>
+//#include <mpi.h> //do not need since it is already included in parallel.h?
 #include "materials/helper_functions/parallel.h"
 
 
