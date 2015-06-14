@@ -1,0 +1,2 @@
+In order to run the example with e.g. 17 processes, run
+  mpirun -np 17 ./sim

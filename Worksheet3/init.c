@@ -40,26 +40,28 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *xlength );
    READ_DOUBLE( szFileName, *ylength );
 
-   READ_DOUBLE( szFileName, *Re    );
-   READ_DOUBLE( szFileName, *t_end );
-   READ_DOUBLE( szFileName, *dt    );
-
    READ_INT   ( szFileName, *imax );
    READ_INT   ( szFileName, *jmax );
 
-   READ_DOUBLE( szFileName, *omg   );
-   READ_DOUBLE( szFileName, *eps   );
+   READ_DOUBLE( szFileName, *dt    );
+   READ_DOUBLE( szFileName, *t_end );
    READ_DOUBLE( szFileName, *tau   );
+
+   READ_DOUBLE( szFileName, *dt_value );
+   READ_INT   ( szFileName, *itermax );
+
+   READ_DOUBLE( szFileName, *eps   );
+   READ_DOUBLE( szFileName, *omg   );
    READ_DOUBLE( szFileName, *alpha );
 
-   READ_INT   ( szFileName, *itermax );
-   READ_DOUBLE( szFileName, *dt_value );
+   READ_DOUBLE( szFileName, *Re    );
 
-   READ_DOUBLE( szFileName, *UI );
-   READ_DOUBLE( szFileName, *VI );
    READ_DOUBLE( szFileName, *GX );
    READ_DOUBLE( szFileName, *GY );
+
    READ_DOUBLE( szFileName, *PI );
+   READ_DOUBLE( szFileName, *UI );
+   READ_DOUBLE( szFileName, *VI );
 
    READ_INT   ( szFileName, *wl );
    READ_INT   ( szFileName, *wr );
@@ -92,7 +94,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 		*presRight = *presLeft - *presDelta;
 	}
    }
-   if (*presDelta>0){ // if pressure given, left and right bound. set to outflow
+   if (*presDelta>0){ // if pressure given, left and right bound. set to outflow (they probably already are set in the input file, but just in case)
 	*wl = 3;
 	*wr = 3;
    }
@@ -122,9 +124,9 @@ void init_uvp(
 	init_matrix(V, 0, imax+1, 0, jmax+1, VI);
 	init_matrix(P, 0, imax+1, 0, jmax+1, PI);
 	
-	if (strcmp(problem, "STEP.pgm")!=0){
-		init_matrix(U, 0, imax+1, 0, jmax/2, 0); //set lower part of pipe to U=0, if scenario is step
-	}
+/*	if (strcmp(problem, "STEP.pgm")!=0){
+		init_matrix(U, 0, imax+1, 0, jmax/2, 0.0); //set lower part of pipe to U=0, if scenario is step
+	}*/
 }
 
 /**
@@ -145,7 +147,7 @@ void init_flag(
 
 	//initialisation to C_F and C_B
 	for (int i=1; i<imax+1; i++){
-		for (int j=1; j<jmax+1; j++){
+		for (int j=1; j<jmax+1; j++){ //in Pic, 1 is where it's fluid, and 0 where it's abstacle
 			temp = min(Pic[i][j]*pow(2,4) + Pic[i+1][j]*pow(2,3) + Pic[i-1][j]*pow(2,2) + Pic[i][j-1]*2 + Pic[i][j+1], 16);
 			if (temp == 3 || temp ==7 || (temp > 10 && temp < 15)){
 				ERROR("Invalid geometry! Forbidden boundary cell found.\n"); }
