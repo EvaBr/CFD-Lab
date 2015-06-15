@@ -36,17 +36,16 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 }
 
 
-void distributeParameters ( int * xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int *proc ){
-    
-    MPI_Bcast( xlength, 3, MPI_INT, 0, MPI_COMM_WORLD );
-    MPI_Bcast( tau, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    MPI_Bcast( velocityWall, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    MPI_Bcast( timesteps, 1, MPI_INT, 0, MPI_COMM_WORLD );
-    MPI_Bcast( timestepsPerPlotting, 1, MPI_INT, 0, MPI_COMM_WORLD );
-    MPI_Bcast( proc, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-    
-    return 0;
-    
+void distributeParameters ( int *xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int *proc ){
+	// broadcasting the read parameters to other ranks
+	MPI_Bcast( xlength, 3, MPI_INT, 0, MPI_COMM_WORLD );
+	MPI_Bcast( tau, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+	MPI_Bcast( velocityWall, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+	MPI_Bcast( timesteps, 1, MPI_INT, 0, MPI_COMM_WORLD );
+	MPI_Bcast( timestepsPerPlotting, 1, MPI_INT, 0, MPI_COMM_WORLD );
+	MPI_Bcast( proc, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+
+	return 0;
 }
 
 
@@ -108,7 +107,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 
 	// 3. FRONT BOUNDARY
-	if (rank%proc[1] < proc[0]) {
+	if (rank%(proc[1]*proc[0]) < proc[0]) {
 	//in this case, our front boundary is no slip:
 		for (int i=0;  i<subdomain[0]+2; i++){
 			for (int k=0; k<subdomain[2]+2; k++){
@@ -125,7 +124,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 
 	// 4. BACK BOUNDARY
-	if (rank%(proc[1]-1) < proc[0]) { //(y-1)*x<=rnk<y*x
+	if (rank%(proc[1]*proc[0]) >= proc[0]*(proc[1]-1)) { //(y-1)*x<=rnk<y*x
 	//in this case, our back boundary is no slip:
 		for (int i=0;  i<subdomain[0]+2; i++){
 			for (int k=0; k<subdomain[2]+2; k++){ 	//y=ymax
@@ -144,7 +143,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 
 	// 5. LEFT BOUNDARY
-	if (rank > proc[0]*proc[1]*(proc[2]-1)){ //we're outer: no slip
+	if (rank % proc[0] == 0){ //we're outer: no slip
 		for (int k=0; k<subdomain[2]+2; k++){
 			for (int j=0; j<subdomain[1]+2; j++){
 				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*k + j*(subdomain[0]+2) ] = NO_SLIP;
@@ -161,7 +160,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 
 	// 6. RIGHT BOUNDARY
-	if (rank > proc[0]*proc[1]*(proc[2]-1)){ //we're outer: no slip //TODO pogoj!
+	if (rank%proc[0] == proc[0]-1){ //we're outer: no slip
 		for (int k=0; k<subdomain[2]+2; k++){
 			for (int j=0; j<subdomain[1]+2; j++){
 				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*k + j*(subdomain[0]+2) + subdomain[0]+1 ] = NO_SLIP;
@@ -176,17 +175,48 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	}
 
 
-	//TODO
+
+	int ind;
 	//Take care of the edges between  surfaces: the edges between two that are flagged as PARALLEL_BOUNDARY need yet to be set.
+	//We will traverse through all these edges-points, just to avoid the if sentences... (see lower comment)
 	for (int i=0; i<subdomain[0]+2; i++){  //front-bottom, back-bottom, front-top, back-top
-				flagField[] = max(PARALLEL_BOUNDARY, flagField[ind]);
+				ind = compute_index(i, 0, 0, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]); // we use max just to avoid if sentences... this is better, right?
+
+				ind = compute_index(i, subdomain[1]+1, 0, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+
+				ind = compute_index(i, 0, subdomain[2]+1, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+
+				ind = compute_index(i, subdomain[1]+1, subdomain[2]+1, subdomain);
 				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
 	}
 	for (int j=0; j<subdomain[1]+2; j++){ //left-bottom, right-bottom, left-top, right-top
+				ind = compute_index(0, j, 0, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
 
+				ind = compute_index(subdomain[0]+1, j, 0, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+
+				ind = compute_index(0, j, subdomain[2]+1, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+
+				ind = compute_index(subdomain[0]+1, j, subdomain[2]+1, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
 	}
 	for (int k=0; k<subdomain[2]+2; k++){ //front-left, front-right, back-left, back-right
+				ind = compute_index(0, 0, k, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
 
+				ind = compute_index(subdomain[0]+1, 0, k, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+
+				ind = compute_index(0, subdomain[1]+1, k, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+
+				ind = compute_index(subdomain[0]+1, subdomain[1]+1, k, subdomain);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
 	}
 
 }

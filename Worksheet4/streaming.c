@@ -1,5 +1,6 @@
 #include "streaming.h"
 #include "LBDefinitions.h"
+#include "helper.h"
 
 void doStreaming(double *collideField, double *streamField, int *flagField, int *subdomain){
     int dx, dy, dz;
@@ -23,8 +24,8 @@ void doStreaming(double *collideField, double *streamField, int *flagField, int 
 
                      Position of that next particle is given by (x-dx, y-dy, z-dz)*/
 
-                    fi = collideField [ Q * ((z-dz)*(subdomain[0]+2)*(subdomain[1]+2) + (y-dy)*(subdomain[0]+2) + x - dx) + i ];
-                    streamField [Q * (z*(subdomain[0]+2)*(subdomain[1]+2) + y*(subdomain[0]+2) + x) + i ] = fi;
+                    fi = collideField [ Q * compute_index(x-dx, y-dy, z-dz, subdomain) + i ];
+                    streamField [Q * compute_index(x, y, z, subdomain) + i ] = fi;
                 }
             }
         }

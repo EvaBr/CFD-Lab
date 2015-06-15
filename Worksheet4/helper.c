@@ -30,6 +30,13 @@ double fmax( double a, double b)
     return b;
 }
 
+int compute_index( int x, int y, int z, int *subdomain)
+{
+        int idx = z*(subdomain[0]+2)*(subdomain[1]+2) + y*(subdomain[0]+2) + x;
+        return idx;
+}
+
+
 
 /* ----------------------------------------------------------------------- */
 /*                         local auxiliary functions                       */
@@ -504,18 +511,4 @@ int **read_pgm(const char *filename)
     return pic;
 }
 
-
-
-/* ----------------------------------------------------------------------- */
-/*          function to compute indices. added by Group 9                  */
-/*          input: x, y, z (sequence is important!)                        */
-/*          input: subdomain                                               */
-/*          output: the index of a certain Field                           */
-/* ----------------------------------------------------------------------- */
-
-int compute_index( int x, int y, int z, int *subdomain)
-{
-        int idx = z*(subdomain[0]+2)*(subdomain[1]+2) + y*(subdomain[0]+2) + x;
-        return idx;
-}
 

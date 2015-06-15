@@ -1,6 +1,7 @@
 #include "collision.h"
 #include "LBDefinitions.h"
 #include "stdlib.h"
+#include "helper.h"
 
 void computePostCollisionDistributions(double *currentCell, const double * const tau, const double *const feq){
         for (int i=0; i<Q; i++)
@@ -18,8 +19,7 @@ void doCollision(double *collideField, int *flagField,const double * const tau, 
 		for (int iy=1; iy<=subdomain[1]; iy++){
 			for (int ix=1; ix<=subdomain[0]; ix++){
 				// set pointer to current cell
-				currentCell = collideField + Q * ( iz * (subdomain[0]+2) * (subdomain[1]+2) + iy * (subdomain[0]+2) + ix); //should we have
-													// special func. to calculate the right index?
+				currentCell = collideField + Q * compute_index(ix, iy, iz, subdomain);
 
 				// compute density, velocity and equilibrium prob. distrib. for this cell
 				computeDensity ( currentCell, &density );
