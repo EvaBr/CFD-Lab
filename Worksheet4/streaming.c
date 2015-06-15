@@ -1,13 +1,13 @@
 #include "streaming.h"
 #include "LBDefinitions.h"
 
-void doStreaming(double *collideField, double *streamField,int *flagField,int xlength){
+void doStreaming(double *collideField, double *streamField, int *flagField, int *subdomain){
     int dx, dy, dz;
     double fi;
     // setting distribution function for each moving direction/lattice velocity of every particle
-    for (int z = 1; z < xlength + 1; ++z) {
-        for (int y = 1; y < xlength + 1; ++y) {
-            for (int x = 1; x < xlength + 1; ++x) {
+    for (int z = 1; z <= subdomain[0]; ++z) {
+        for (int y = 1; y <= subdomain[1]; ++y) {
+            for (int x = 1; x <= subdomain[2]; ++x) {
                 for (int i = 0; i < Q; ++i) {
 
                     // dx = c_i_x*dt, where dt = 1, etc.

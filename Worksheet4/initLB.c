@@ -35,39 +35,133 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 }
 
 
-void initialiseFields(double *collideField, double *streamField, int *flagField, int *xlength){
-	// initialization of particle distribution func fields
-	int xlen = xlength + 2;
-	int xlen2 = xlen*xlen;
+void initialiseFields(double *collideField, double *streamField, int *flagField, int *subdomain, int rank, int *proc){
+	// initialization of particle distribution func fields						TODO!!! change for xlength[3], add ghostlayer
+//	int xlen = xlength + 2;
+//	int xlen2 = xlen*xlen;
 
-	for (int a=0; a<=xlength+1; a++){
-		for (int b=0; b<=xlength+1; b++){
-			for (int c=0; c<=xlength+1; c++){
+	for (int a=0; a<subdomain[0]+2; a++){
+		for (int b=0; b<subdomain[1]+2; b++){
+			for (int c=0; c<subdomain[2]+2; c++){
 				for (int i=0; i<Q; i++){
 					// initialize streamField and collideField arrays
-					streamField [ Q*(c*xlen2 + b*xlen + a) + i ] = LATTICEWEIGHTS [i];
-					collideField [ Q*(c*xlen2 + b*xlen + a) + i ] = LATTICEWEIGHTS [i];
+					streamField [ Q*(c*(subdomain[0]+2)*(subdomain[1]+2) + b*(subdomain[0]+2) + a) + i ] = LATTICEWEIGHTS [i];
+					collideField [ Q*(c*(subdomain[0]+2)*(subdomain[1]+2) + b*(subdomain[0]+2) + a) + i ] = LATTICEWEIGHTS [i];
 				}
 				// set all as inner points
-				flagField [ c*xlen2 + b*xlen + a ] = FLUID;
+				flagField [ c*(subdomain[0]+2)*(subdomain[1]+2) + b*(subdomain[0]+2) + a ] = FLUID;
 			}
-			// if c==xlength+1, overwrite as moving wall:
-			flagField [ xlen2*(xlength+1) + b*xlen + a ] = MOVING_WALL;
 		}
 	}
-	// overwrite fluid to no-slip at other boundaries:
-	for (int k=0; k<xlen; k++){
-		for (int j=0; j<xlength+1; j++){
-			// if a||b||c==0 :
-			flagField [ j*xlen2 + k*xlen ] = NO_SLIP;
-			flagField [ j*xlen2 + k] = NO_SLIP;
-			flagField [ k*xlen +j ] = NO_SLIP;
 
-			// if a||b==xlength+1 :
-			flagField [ j*xlen2 + k*xlen + xlen - 1 ] = NO_SLIP;
-			flagField [ j*xlen2 + xlen2 - xlen + k ] = NO_SLIP;
+
+	// overwrite fluid to no-slip at other boundaries: this depends on the rank...
+
+	// 1. TOP BOUNDARY
+	// if c==xlength+1, overwrite as moving wall:  now you have to check rank, not xlength, to know where you are - since
+	// rank is growing with z coordinate (according to our numbering), c==xlength+1 arises at iproc*jproc*(kproc-1)<rank<=number_of_ranks
+	if (rank >= proc[0]*proc[1]*(proc[2]-1)){ //plus, the ranks go from zero!
+		for (int i=0; i<subdomain[0]+2; i++){
+			for (int j=0; j<subdomain[1]+2; j++){
+				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*(subdomain[2]+1) + j*subdomain[0] + i ] = MOVING_WALL;
+			}
 		}
-		// what remains for (if a||b==0) - case j==xlength+1:
-		flagField [ k*xlen + xlen -1 ] = NO_SLIP;
+	} else { //in this case we are on the interior ghost boundary
+		for (int i=1; i<subdomain[0]+1; i++){
+			for (int j=1; j<subdomain[1]+1; j++){
+				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*(subdomain[2]+1) + j*subdomain[0] + i ] = PARALLEL_BOUNDARY;
+			}
+		}
 	}
+
+
+	// 2. BOTTOM BOUNDARY
+	if (rank < proc[0]*proc[1]){ //then our bottom boundary is outer; so no slip.
+		for (int i=0; i<subdomain[0]+2; i++){
+			for (int j=0; j<subdomain[1]+2; j++){
+				flagField [ j*subdomain[0] + i ] = NO_SLIP;
+			}
+		}
+	} else { //in this case we are on the interior ghost boundary
+		for (int i=1; i<subdomain[0]+1; i++){
+			for (int j=1; j<subdomain[1]+1; j++){
+				flagField [ j*subdomain[0] + i ] = PARALLEL_BOUNDARY;
+			}
+		}
+	}
+
+
+
+
+	// 3. FRONT BOUNDARY
+	if (rank%proc[1] < proc[0]) {
+	//in this case, our front boundary is no slip:
+		for (int i=0;  i<subdomain[0]+2; i++){
+			for (int k=0; k<subdomain[2]+2; k++){
+				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + i ] = NO_SLIP;
+			}
+		}
+	} else { //we are on the inside boundary
+		for (int i=1; i<subdomain[0]+1; i++){
+			for (int k=1; k<subdomain[2]+1; k++){
+				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + i ] = PARALLEL_BOUNDARY;
+			}
+		}
+	}
+
+
+	// 4. BACK BOUNDARY
+	if (rank%(proc[1]-1) < proc[0]) { //(y-1)*x<=rnk<y*x
+	//in this case, our back boundary is no slip:
+		for (int i=0;  i<subdomain[0]+2; i++){
+			for (int k=0; k<subdomain[2]+2; k++){
+				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + (subdomain[0]+2)*(subdomain[1]+1) + i ] = NO_SLIP;
+			}
+		}
+	} else { //we are on the inside boundary
+		for (int i=1; i<subdomain[0]+1; i++){
+			for (int k=1; k<subdomain[2]+1; k++){
+				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + (subdomain[0]+2)*(subdomain[1]+1) + i ] = PARALLEL_BOUNDARY;
+			}
+		}
+	}
+
+
+
+
+	// 5. LEFT BOUNDARY
+	if (rank > proc[0]*proc[1]*(proc[2]-1)){ //we're outer: no slip
+		for (int k=0; k<subdomain[2]+2; k++){
+			for (int j=0; j<subdomain[1]+2; j++){
+				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*k + j*(subdomain[0]+2) ] = NO_SLIP;
+			}
+		}
+	} else { //in this case we are on the interior ghost boundary
+		for (int k=1; k<subdomain[2]+1; k++){
+			for (int j=1; j<subdomain[1]+1; j++){
+				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*k + j*(subdomain[0]+2) ] = PARALLEL_BOUNDARY;
+			}
+		}
+	}
+
+
+
+	// 6. RIGHT BOUNDARY
+	if (rank > proc[0]*proc[1]*(proc[2]-1)){ //we're outer: no slip //TODO pogoj!
+		for (int k=0; k<subdomain[2]+2; k++){
+			for (int j=0; j<subdomain[1]+2; j++){
+				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*k + j*(subdomain[0]+2) + subdomain[0]+1 ] = NO_SLIP;
+			}
+		}
+	} else { //in this case we are on the interior ghost boundary
+		for (int k=1; k<subdomain[2]+1; k++){
+			for (int j=1; j<subdomain[1]+1; j++){
+				flagField [ (subdomain[0]+2)*(subdomain[1]+2)*k + j*(subdomain[0]+2) + subdomain[0]+1 ] = PARALLEL_BOUNDARY;
+			}
+		}
+	}
+
+
+	//TODO Robne 'vrstice' cjubiclov; med tistimi surfaci, ki so parallel_boundaries, niso eki naštimani na isto! to še poštimej.
+
 }

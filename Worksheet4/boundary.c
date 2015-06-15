@@ -3,18 +3,18 @@
 #include "computeCellValues.h"
 
 void treatBoundary(double *collideField, int* flagField,
-                   const double * const wallVelocity, int xlength){
+                   const double * const wallVelocity, int *subdomain){
 	int x, y, z, dx, dy, dz, i;
-	int len = xlength + 2;
+	//int len = xlength + 2;
 	double cu = 0;
 	double density;
 	double *currentCell;
 	int index;
 
-	for (x = 0; x < len; x++){
-        	for (y = 0; y < len; y++) {
-			for (z = 0; z < len; z++) {
-				index = z*len*len + y*len + x;
+	for (x = 0; x < subdomain[0]+2; x++){
+        	for (y = 0; y < subdomain[1]+2; y++) {
+			for (z = 0; z < subdomain[2]+2; z++) {
+				index = z*len*len + y*len + x; //TODO
 				currentCell = collideField + Q*index;
 
 				for (i = 0; i < Q; ++i) {
