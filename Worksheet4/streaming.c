@@ -6,9 +6,9 @@ void doStreaming(double *collideField, double *streamField, int *flagField, int 
     double fi;
     // setting distribution function for each moving direction/lattice velocity of every particle
     // TODO: subdomain[2] for z instead??
-    for (int z = 1; z <= subdomain[0]; ++z) {
+    for (int z = 1; z <= subdomain[2]; ++z) {
         for (int y = 1; y <= subdomain[1]; ++y) {
-            for (int x = 1; x <= subdomain[2]; ++x) {
+            for (int x = 1; x <= subdomain[0]; ++x) {
                 for (int i = 0; i < Q; ++i) {
 
                     // dx = c_i_x*dt, where dt = 1, etc.
