@@ -59,13 +59,18 @@ int main(int argc, char *argv[]){
 			MPI_Abort(MPI_COMM_WORLD, 1);
 			return 1;
 		}
-		/* should we do the same for the case when xlen not divisible by num.of procesors? */
+		//do the same for the case when xlen not divisible by num.of procesors 
+		if (xlength[0]%proc[0]!=0 || xlength[1]%proc[1]!=0 || xlength[2]%proc[2]!=0) {
+			printf("Size of domain is not divisible by number of processes. \n Aborting the program. \n");
+			MPI_Abort(MPI_COMM_WORLD, 1);
+			return 1;
+		}
 
 
 		//if we got to here, parameters are read and ok. first: distribute them to all other procesors
 		printf("Done reading.\n Simulation started (with MPI, using %i ranks).\n", number_of_ranks);
 
-		//distribution of parameters:
+		//distribution of parameters: TODO
 		distributeParameters ( &xlength, &tau, &velocityWall, &timesteps, &timestepsPerPlotting, &proc );
 	}
 
@@ -83,13 +88,18 @@ int main(int argc, char *argv[]){
 	//initialise fields for this subdomain
 	initialiseFields ( collideField, streamField, flagField, subdomain, rank, proc );
 
-	//initialize buffers
+	//initialize buffers  TODO
 	initialiseBuffers(sendBuffer, readBuffer, subdomain);
 
 	int t;
 	for (t = 0; t < timesteps; t++){
 		//extraction, swap, injection for x
-		//TODO
+		if ( flagField[  index(0, subdomain[1]/2, subdomain[2]/2) ] ==PARALLEL_BOUNDARY) {
+			extraction(...);
+			swap(..); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
+			//USE Sendrecv!
+			injection(..);
+		}
 		//extraction, swap, injection for y
 		//TODO
 		//extraction, swap, injection for z

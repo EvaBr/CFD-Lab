@@ -37,8 +37,6 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 
 void initialiseFields(double *collideField, double *streamField, int *flagField, int *subdomain, int rank, int *proc){
 	// initialization of particle distribution func fields						TODO!!! change for xlength[3], add ghostlayer
-//	int xlen = xlength + 2;
-//	int xlen2 = xlen*xlen;
 
 	for (int a=0; a<subdomain[0]+2; a++){
 		for (int b=0; b<subdomain[1]+2; b++){
@@ -56,7 +54,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 
 	// overwrite fluid to no-slip at other boundaries: this depends on the rank...
-
+	//
 	// 1. TOP BOUNDARY
 	// if c==xlength+1, overwrite as moving wall:  now you have to check rank, not xlength, to know where you are - since
 	// rank is growing with z coordinate (according to our numbering), c==xlength+1 arises at iproc*jproc*(kproc-1)<rank<=number_of_ranks
