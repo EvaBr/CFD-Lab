@@ -30,3 +30,54 @@ void doStreaming(double *collideField, double *streamField, int *flagField, int 
         }
     }
 }
+
+
+void  swap( double ** sendBuffer, double ** readBuffer, int *subdomain, int *rank, int *proc ){
+    
+    // Left
+MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
+         MPI_COMM_WORLD);
+
+MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
+         MPI_COMM_WORLD, &status);
+    
+    // Right
+MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
+             MPI_COMM_WORLD);
+    
+MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
+             MPI_COMM_WORLD, &status);
+    
+    // Top
+MPI_Send(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,
+             MPI_COMM_WORLD);
+    
+MPI_Recv(&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,
+             MPI_COMM_WORLD, &status);
+    
+    // Bottom
+MPI_Send(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0,
+             MPI_COMM_WORLD);
+    
+MPI_Recv(&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0,
+             MPI_COMM_WORLD, &status);
+
+    // Front
+MPI_Send(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,
+             MPI_COMM_WORLD);
+    
+MPI_Recv(&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,
+             MPI_COMM_WORLD, &status);
+    
+    //Back
+MPI_Send(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0,
+             MPI_COMM_WORLD);
+    
+MPI_Recv(&readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,
+             MPI_COMM_WORLD, &status);
+    
+    
+    
+
+
+}

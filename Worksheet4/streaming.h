@@ -6,5 +6,7 @@
  */
 void doStreaming(double *collideField, double *streamField,int *flagField,int *subdomain);
 
+
+void swap( double ** sendBuffer, double ** readBuffer, int *subdomain, int *rank, int *proc);
 #endif
 
