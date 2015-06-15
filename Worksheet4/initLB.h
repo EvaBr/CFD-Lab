@@ -17,7 +17,7 @@ int readParameters(
 
 
 /* initialises the particle distribution functions and the flagfield */
-void initialiseFields(double *collideField, double *streamField,int *flagField, int xlength);
+void initialiseFields(double *collideField, double *streamField,int *flagField, int *subdomain, int rank, int *proc);
 
 #endif
 
