@@ -47,24 +47,22 @@ void Programm_Stop(char *txt)
 }
 
 
-void initialiseBuffers ( double *sendBuffer, double *readBuffer, int *xlength, int *proc) {
-	//*sendBuffer or **sendBuffer?
-	int n = proc[0]*proc[1]*proc[2]; //number of processes
+void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *xlength, int *proc) {
 	int kx = xlength[0]/proc[0] + 2; //size of buffer x
 	int ky = xlength[1]/proc[1] + 2; //size of buffer y
 	int kz = xlength[2]/proc[2] + 2; //size of buffer z
 
 	//top and bottom buffers
-	double *bt = calloc((n - proc[0]*proc[1])*kx*ky*5, sizeof(double));
-	double *bbo = calloc((n - proc[0]*proc[1])*kx*ky*5, sizeof(double));
+	double *bt = calloc(kx*ky*5, sizeof(double));
+	double *bbo = calloc(kx*ky*5, sizeof(double));
 
 	//left and right buffers
-	double *bl = calloc((n - proc[1]*proc[2])*kz*ky*5, sizeof(double));
-	double *br = calloc((n - proc[1]*proc[2])*kz*ky*5, sizeof(double));
+	double *bl = calloc(kz*ky*5, sizeof(double));
+	double *br = calloc(kz*ky*5, sizeof(double));
 
 	//front and back buffers
-	double *bf = calloc((n - proc[0]*proc[2])*kx*kz*5, sizeof(double));
-	double *bba = calloc((n - proc[0]*proc[2])*kx*kz*5, sizeof(double));
+	double *bf = calloc(kx*kz*5, sizeof(double));
+	double *bba = calloc(kx*kz*5, sizeof(double));
 
 	//gather all into the send buffer
 	sendBuffer[0] = bl;
