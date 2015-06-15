@@ -605,3 +605,10 @@ int **read_pgm(const char *filename);
 
 #endif
 
+/**
+ * compute_index(...) compute index for a certain field, e.g., flagField
+ *
+ * Example:
+ *    compute_index( a, b, c, subdomain );
+ */
+int compute_index( int x, int y, int z, int *subdomain);
