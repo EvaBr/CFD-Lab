@@ -42,14 +42,14 @@ void calculate_fg(
 							// separating two fluid cells.
 
 						F[i][j] = uij + dt*(1/Re*((uuj-2*uij+udj)*Dx*Dx + (uiu-2*uij+uid)*Dy*Dy) -
-							0.25*Dx*(pow((uij+uuj),2)-pow((udj+uij),2) + alpha*(abs(uij+uuj)*(uij-uuj)-abs(udj+uij)*(udj-uij))) -
-							0.25*Dy*((vij+vuj)*(uij+uiu)-(vid+vud)*(uid+uij) + alpha*(abs(vij+vuj)*(uij-uiu)-abs(vid+vud)*(uid-uij))) +
+							0.25*Dx*(pow((uij+uuj),2)-pow((udj+uij),2) + alpha*(fabs(uij+uuj)*(uij-uuj)-fabs(udj+uij)*(udj-uij))) -
+							0.25*Dy*((vij+vuj)*(uij+uiu)-(vid+vud)*(uid+uij) + alpha*(fabs(vij+vuj)*(uij-uiu)-fabs(vid+vud)*(uid-uij))) +
 							GX);
 					}
 					if (Flag[i][j+1] == C_F){
 						G[i][j] = vij + dt*(1/Re*((vuj-2*vij+vdj)*Dx*Dx + (viu-2*vij+vid)*Dy*Dy) -
-							0.25*Dy*(pow((vij+viu),2)-pow((vid+vij),2) + alpha*(abs(vij+viu)*(vij-viu)-abs(vid+vij)*(vid-vij))) -
-							0.25*Dx*((uij+uiu)*(vij+vuj)-(udj+udu)*(vdj+vij) + alpha*(abs(uij+uiu)*(vij-vuj)-abs(udj+udu)*(vdj-vij))) +
+							0.25*Dy*(pow((vij+viu),2)-pow((vid+vij),2) + alpha*(fabs(vij+viu)*(vij-viu)-fabs(vid+vij)*(vid-vij))) -
+							0.25*Dx*((uij+uiu)*(vij+vuj)-(udj+udu)*(vdj+vij) + alpha*(fabs(uij+uiu)*(vij-vuj)-fabs(udj+udu)*(vdj-vij))) +
 							GY);
 					break;
 				case (B_N):

@@ -1,6 +1,7 @@
 #include "initLB.h"
 #include "helper.h"
 #include "LBDefinitions.h"
+#include <mpi.h> // we need this right??
 
 int readParameters(int *xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int *proc,  int argc, char *argv[]){
         // argument handling
@@ -33,6 +34,21 @@ int readParameters(int *xlength, double *tau, double *velocityWall, int *timeste
 
 	return 0;
 }
+
+
+void distributeParameters ( int * xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int *proc ){
+    
+    MPI_Bcast( xlength, 3, MPI_INT, 0, MPI_COMM_WORLD );
+    MPI_Bcast( tau, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+    MPI_Bcast( velocityWall, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+    MPI_Bcast( timesteps, 1, MPI_INT, 0, MPI_COMM_WORLD );
+    MPI_Bcast( timestepsPerPlotting, 1, MPI_INT, 0, MPI_COMM_WORLD );
+    MPI_Bcast( proc, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
+    
+    return 0;
+    
+}
+
 
 
 void initialiseFields(double *collideField, double *streamField, int *flagField, int *subdomain, int rank, int *proc){
