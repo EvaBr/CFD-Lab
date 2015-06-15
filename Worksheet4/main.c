@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
 		printf("Done reading.\n Simulation started (with MPI, using %i ranks).\n", number_of_ranks);
 
 		//distribution of parameters: TODO
-		distributeParameters ( &xlength, &tau, &velocityWall, &timesteps, &timestepsPerPlotting, &proc );
+		distributeParameters ( xlength, &tau, velocityWall, &timesteps, &timestepsPerPlotting, proc );
 	}
 
 
