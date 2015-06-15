@@ -98,7 +98,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	//in this case, our front boundary is no slip:
 		for (int i=0;  i<subdomain[0]+2; i++){
 			for (int k=0; k<subdomain[2]+2; k++){
-				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + i ] = NO_SLIP;
+				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + i ] = NO_SLIP; //y=0
 			}
 		}
 	} else { //we are on the inside boundary
@@ -114,7 +114,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	if (rank%(proc[1]-1) < proc[0]) { //(y-1)*x<=rnk<y*x
 	//in this case, our back boundary is no slip:
 		for (int i=0;  i<subdomain[0]+2; i++){
-			for (int k=0; k<subdomain[2]+2; k++){
+			for (int k=0; k<subdomain[2]+2; k++){ 	//y=ymax
 				flagField [k*(subdomain[0]+2)*(subdomain[1]+2) + (subdomain[0]+2)*(subdomain[1]+1) + i ] = NO_SLIP;
 			}
 		}
@@ -162,6 +162,17 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	}
 
 
-	//TODO Robne 'vrstice' cjubiclov; med tistimi surfaci, ki so parallel_boundaries, niso eki naštimani na isto! to še poštimej.
+	//TODO
+	//Take care of the edges between  surfaces: the edges between two that are flagged as PARALLEL_BOUNDARY need yet to be set.
+	for (int i=0; i<subdomain[0]+2; i++){  //front-bottom, back-bottom, front-top, back-top
+				flagField[] = max(PARALLEL_BOUNDARY, flagField[ind]);
+				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
+	}
+	for (int j=0; j<subdomain[1]+2; j++){ //left-bottom, right-bottom, left-top, right-top
+
+	}
+	for (int k=0; k<subdomain[2]+2; k++){ //front-left, front-right, back-left, back-right
+
+	}
 
 }
