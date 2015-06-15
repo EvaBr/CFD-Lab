@@ -81,7 +81,7 @@ int main(int argc, char *argv[]){
 	flagField = calloc ( vol, sizeof(int) );
 
 	//initialise fields for this subdomain
-	initialiseFields ( collideField, streamField, flagField, subdomain, rank, number_of_ranks );
+	initialiseFields ( collideField, streamField, flagField, subdomain, rank, proc );
 
 	//initialize buffers
 	initialiseBuffers(sendBuffer, readBuffer, subdomain);
