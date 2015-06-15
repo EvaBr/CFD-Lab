@@ -16,4 +16,5 @@ void Programm_Sync(char *txt);
 void Programm_Stop(char *txt);
 /* all processes will produce a text output, be synchronized and finished */
 
-void initialiseBuffers( double *sendBuffer, double *readBuffer, int *xlength, int *proc);
+void initialiseBuffers( double **sendBuffer, double **readBuffer, int *xlength, int *proc);
+/* initialises buffers for one process */
