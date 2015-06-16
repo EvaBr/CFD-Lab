@@ -1,11 +1,11 @@
 #include "boundary.h"
 #include "LBDefinitions.h"
 #include "computeCellValues.h"
+#include "helper.h"
 
 void treatBoundary(double *collideField, int* flagField,
                    const double * const wallVelocity, int *subdomain){
 	int x, y, z, dx, dy, dz, i;
-	//int len = xlength + 2;
 	double cu = 0;
 	double density;
 	double *currentCell;
@@ -14,7 +14,7 @@ void treatBoundary(double *collideField, int* flagField,
 	for (x = 0; x < subdomain[0]+2; x++){
         	for (y = 0; y < subdomain[1]+2; y++) {
 			for (z = 0; z < subdomain[2]+2; z++) {
-				index = z*(subdomain[0]+2)*(subdomain[1]+2) + y*(subdomain[0]+2) + x; //TODO
+				index = compute_index(x, y, z, subdomain); //TODO
 				currentCell = collideField + Q*index;
 
 				for (i = 0; i < Q; ++i) {
@@ -31,12 +31,12 @@ void treatBoundary(double *collideField, int* flagField,
 								wallVelocity[2]*LATTICEVELOCITIES[i][2];
 							computeDensity(currentCell, &density);
 
-							*(currentCell + i) = *(currentCell + Q*(dz*(subdomain[0]+2)*(subdomain[1]+2) + dy*(subdomain[0]+2) + dx) + Q-1-i)
+							*(currentCell + i) = *(currentCell + Q*compute_index(dx, dy, dz, subdomain) + Q-1-i)
 										+ 2*LATTICEWEIGHTS[i]*density*cu/(C_S*C_S);
 						}
 						// deal with no-slip boundary condition
 						else if (flagField[index] == NO_SLIP){
-							*(currentCell + i) = *(currentCell + Q*(dz*(subdomain[0]+2)*(subdomain[1]+2) + dy*(subdomain[0]+2) + dx) + Q-1-i);
+							*(currentCell + i) = *(currentCell + Q*compute_index(dx, xy, dz, subdomain) + Q-1-i);
 						}
 					}
 				}

@@ -19,7 +19,8 @@ int readParameters(
 /* initialises the particle distribution functions and the flagfield */
 void initialiseFields(double *collideField, double *streamField,int *flagField, int *subdomain, int rank, int *proc);
 
-
+/* broadcasts the given parameters, read by rank 0, to all other ranks */
 void distributeParameters ( int *xlength, double *tau, double *velocityWall, int *timesteps, int *timestepsPerPlotting, int *proc );
+
 #endif
 

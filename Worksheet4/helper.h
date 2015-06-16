@@ -31,6 +31,7 @@ int min( int a, int b);
 int max( int a, int b);
 double fmin( double a, double b);
 double fmax( double a, double b);
+int compute_index( int x, int y, int z, int *subdomain);
 
 
 /**
@@ -605,10 +606,4 @@ int **read_pgm(const char *filename);
 
 #endif
 
-/**
- * compute_index(...) compute index for a certain field, e.g., flagField
- *
- * Example:
- *    compute_index( a, b, c, subdomain );
- */
-int compute_index( int x, int y, int z, int *subdomain);
+
