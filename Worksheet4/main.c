@@ -113,7 +113,6 @@ int main(int argc, char *argv[]){
 		// 3. FRONT; check, that rank doesn't have a no-slip at the front
 		if (rank%(proc[0]*proc[1])>=proc[0]){
 			extractionYfront ( sendBuffer, collideField, subdomain );
-
 			swapYfront ( sendBuffer, readBuffer, subdomain );
 			injectionYfront ( readBuffer, collideField, subdomain );
 		}

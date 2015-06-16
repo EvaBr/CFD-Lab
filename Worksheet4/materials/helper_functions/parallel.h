@@ -2,6 +2,8 @@
 #include "mpi.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "../../helper.h"
+#include "../../LBDefinitions.h"
 
 void Program_Message ( char *txt );
 /* produces a stderr text output  */
@@ -28,12 +30,12 @@ void extractionZtop	( double **sendBuffer, double *collideField, int *subdomain 
 void extractionZbottom	( double **sendBuffer, double *collideField, int *subdomain );
 /* functions for extracting the pdfs that are to be streamed into neighbouring process' region */
 
-void swapXleft( double **sendBuffer, double **readBuffer, int *subdomain);
-void swapXright( double **sendBuffer, double **readBuffer, int *subdomain);
-void swapYfront( double **sendBuffer, double **readBuffer, int *subdomain);
-void swapYback( double **sendBuffer, double **readBuffer, int *subdomain);
-void swapZtop( double **sendBuffer, double **readBuffer, int *subdomain);
-void swapZbottom( double **sendBuffer, double **readBuffer, int *subdomain);
+void swapXleft		( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank);
+void swapXright		( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank);
+void swapYfront		( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank);
+void swapYback		( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank);
+void swapZtop 		( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank);
+void swapZbottom	( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank);
 /* funtions for the pdfs to send to the neighbor's readbuffer, and receive from neighbor's sendbuffer*/
 
 
