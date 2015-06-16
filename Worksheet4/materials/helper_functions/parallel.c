@@ -81,7 +81,7 @@ void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomai
 //	E X T R A C T I O N     F U N C T I O N S
 
 // Here we extract the five pdfs that would be streamed into our neighbour, x direction.
-void extractionX ( double **sendBuffer, double *collideField, int *subdomain){
+void extractionXleft ( double **sendBuffer, double *collideField, int *subdomain){
 	// 1. EXTRACT TO LEFT
 	// pdfs, that need to be extracted are the ones with indices 1, 5, 8, 11, 15.
 	int i = 0;
@@ -123,11 +123,11 @@ void extractionYfront (double **sendBuffer, double *collideField, int *subdomain
 /* before calling it, we need to check that front boundary is not a no-slip: if (rank%proc[0]*proc[1]>=proc[0]){  */
 	for (int z=0; z<subdomain[2]+2; z++){
 		for (int x=0; x<subdomain[0]+2; x++){
-			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(1, y, z, subdomain)  ];
-			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 5 ];
-			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 6 ];
-			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 7 ];
-			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 14 ];
+			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(x, 1, z, subdomain)  ];
+			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(x, 1, z, subdomain) + 5 ];
+			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(x, 1, z, subdomain) + 6 ];
+			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(x, 1, z, subdomain) + 7 ];
+			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(x, 1, z, subdomain) + 14 ];
 		}
 	}
 }
@@ -138,11 +138,11 @@ void extractionYback (double **sendBuffer, double *collideField, int *subdomain)
 /* before calling it, we need to check that front boundary is not a no-slip: if (rank%proc[0]*proc[1]<proc[0]*(proc[1]-1)){  */
 	for (int z=0; z<subdomain[2]+2; z++){
 		for (int x=0; x<subdomain[0]+2; x++){
-			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 4 ];
-			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 11 ];
-			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 12 ];
-			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 13 ];
-			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 18 ];
+			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(x, subdomain[1], z, subdomain) + 4 ];
+			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(x, subdomain[1], z, subdomain) + 11 ];
+			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(x, subdomain[1], z, subdomain) + 12 ];
+			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(x, subdomain[1], z, subdomain) + 13 ];
+			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(x, subdomain[1], z, subdomain) + 18 ];
 		}
 	}
 }
@@ -157,11 +157,11 @@ void extractionZtop (double **sendBuffer, double *collideField, int *subdomain){
 /* before calling it, we need to check that front boundary is not a no-slip: if (rank>=proc[0]*proc[1]*(proc[2]-1)){ */
 	for (int y=0; y<subdomain[1]+2; y++){
 		for (int x=0; x<subdomain[0]+2; x++){
-			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 14 ];
-			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 15 ];
-			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 16 ];
-			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 17 ];
-			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 18 ];
+			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(x, y, subdomain[2], subdomain) + 14 ];
+			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(x, y, subdomain[2], subdomain) + 15 ];
+			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(x, y, subdomain[2], subdomain) + 16 ];
+			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(x, y, subdomain[2], subdomain) + 17 ];
+			*(sendBuffer[2] + i++) = collideField [ Q*compute_index(x, y, subdomain[2], subdomain) + 18 ];
 		}
 	}
 }
@@ -172,11 +172,11 @@ void extractionZbottom (double **sendBuffer, double *collideField, int *subdomai
 /* before calling it, we need to check that front boundary is not a no-slip: if (rank<proc[0]*proc[1]){ */
 	for (int y=0; y<subdomain[1]+2; y++){
 		for (int x=0; x<subdomain[0]+2; x++){
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 1 ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 2 ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 3 ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 4 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 1 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 2 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 3 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 4 ];
 		}
 	}
 }
