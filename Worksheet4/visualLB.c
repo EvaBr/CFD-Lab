@@ -3,7 +3,6 @@
 #include "LBDefinitions.h"
 #include "helper.h"
 #include "computeCellValues.h"
-#include <vtkAppendPolyData.h>
 
 
 
