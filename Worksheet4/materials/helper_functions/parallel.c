@@ -1,4 +1,5 @@
 #include "parallel.h"
+#include <mpi.h>
 
 #define N_BORDER_VEL 5
 
@@ -47,38 +48,71 @@ void Programm_Stop(char *txt)
 }
 
 
-void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *xlength, int *proc) {
-	int kx = xlength[0]/proc[0] + 2; //size of buffer x
-	int ky = xlength[1]/proc[1] + 2; //size of buffer y
-	int kz = xlength[2]/proc[2] + 2; //size of buffer z
+void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomain) {
+	int kx = subdomain[0] + 2; //size of buffer x
+	int ky = subdomain[1] + 2; //size of buffer y
+	int kz = subdomain[2] + 2; //size of buffer z
 
-	//top and bottom buffers
-	double *bt = calloc(kx*ky*5, sizeof(double));
-	double *bbo = calloc(kx*ky*5, sizeof(double));
 
 	//left and right buffers
-	double *bl = calloc(kz*ky*5, sizeof(double));
-	double *br = calloc(kz*ky*5, sizeof(double));
+	sendBuffer[0] = calloc(kz*ky*5, sizeof(double));
+	sendBuffer[1] = calloc(kz*ky*5, sizeof(double));
+
+	//top and bottom buffers
+	sendBuffer[2] = calloc(kx*ky*5, sizeof(double));
+	sendBuffer[3] = calloc(kx*ky*5, sizeof(double));
 
 	//front and back buffers
-	double *bf = calloc(kx*kz*5, sizeof(double));
-	double *bba = calloc(kx*kz*5, sizeof(double));
-
-	//gather all into the send buffer
-	sendBuffer[0] = bl;
-	sendBuffer[1] = br;
-	sendBuffer[2] = bt;
-	sendBuffer[3] = bbo;
-	sendBuffer[4] = bf;
-	sendBuffer[5] = bba;
+	sendBuffer[4] = calloc(kx*kz*5, sizeof(double));
+	sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
 
 
-	//read buffer only contains pointers to right send buffers
-	readBuffer[0] = sendBuffer[1]; //left read buffer
-	readBuffer[1] = sendBuffer[0]; //right read buffer
-	readBuffer[2] = sendBuffer[3]; //top read buffer (reads from [index+xProc*yProc])
-	readBuffer[3] = sendBuffer[2]; //bottom read buffer (reads from [index-xProc*yProc])
-	readBuffer[4] = sendBuffer[5]; //front read buffer (reads from [index-xProc])
-	readBuffer[5] = sendBuffer[4]; //back read buffer (reads from [index+xProc])
-	//be careful - in the code, where you have explicit reading or writing of a buffer, change indices accordingly...
+	//read buffers - analogously
+	readBuffer[0] = calloc(kz*ky*5, sizeof(double));
+	readBuffer[1] = calloc(kz*ky*5, sizeof(double));
+	sendBuffer[2] = calloc(kx*ky*5, sizeof(double));
+	sendBuffer[3] = calloc(kx*ky*5, sizeof(double));
+	sendBuffer[4] = calloc(kx*kz*5, sizeof(double));
+	sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
+}
+
+void extractionX ( double **sendBuffer, int rank, int *subdomain){
+	//here we extract the five pdfs that would be streamed into our neighbour, x direction.  /just a comment - should extract left and right be their own functions?
+	// 1. EXTRACT TO LEFT
+	// pdfs, that need to be extracted are the ones with indices 1, 5, 8, 11, 15.
+	int i = 0;
+	if (rank%subdomain[0]!=0){ //check if left boundary is not a no-slip
+		for (int z=0; z<subdomain[2]+2; z++){
+			for (int y=0; y<subdomain[1]+2; y++){
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 1 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 5 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 8 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 11 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(1, y, z, subdomain) + 15 ];
+			}
+		}
+	}
+
+	// 2. EXTRACT TO RIGHT
+	// here, we extract pdfs with indeces 3, 7, 10, 13, 17.
+	if (rank%subdomain[0]!=subdomain[0]-1){ //check if right boundary is not a no-slip
+		i = 0;
+		for (int z=0; z<subdomain[2]+2; z++){
+			for (int z=0; z<subdomain[2]+2; z++){
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(subdomain[0], y, z, subdomain) + 3 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(subdomain[0], y, z, subdomain) + 7 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(subdomain[0], y, z, subdomain) + 10 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(subdomain[0], y, z, subdomain) + 13 ];
+				*(sendBuffer[0] + i++) = collideField [ Q*compute_index(subdomain[0], y, z, subdomain) + 17 ];
+			}
+		}
+	}
+}
+void extractionY ( ){
+	//here we extract the five pdfs that would be streamed into our neighbour, y direction.
+	//TODO
+}
+void extractionZ ( ){
+	//here we extract the five pdfs that would be streamed into our neighbour, z direction.
+	//TODO
 }
