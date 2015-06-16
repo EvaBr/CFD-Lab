@@ -99,49 +99,49 @@ int main(int argc, char *argv[]){
 
 			swap(sendBuffer, readBuffer, subdomain, flagField, rank, proc); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
 			//USE Sendrecv!
-			injection(..);
+			injectionXleft ( readBuffer, collideField, subdomain );
 		}
 		// 2. RIGHT; check, that rank doesn't have a no-slip on the right
 		if (rank%proc[0]!=proc[0]-1){
 			extractionXright ( sendBuffer, collideField, subdomain );
 
 			swap( ... )
-			injection (...)
+			injectionXright( readBuffer, collideField, subdomain );
 		}
 
 
 		//extraction, swap, injection for y
-<		// 1. FRONT; check, that rank doesn't have a no-slip at the front
+		// 3. FRONT; check, that rank doesn't have a no-slip at the front
 		if (rank%(proc[0]*proc[1])>=proc[0]){
 			extractionYfront ( sendBuffer, collideField, subdomain );
 
 			swap( ... )
-			injection (...)
+			injectionYfront ( readBuffer, collideField, subdomain );
 		}
-		// 2. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
+		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
 		if (flagField[calculate_index(x/2, subdomain[1]+1, z/2, subdomain)] == PARALLEL_BOUNDARY){
 			extractionYback ( sendBuffer, collideField, subdomain );
 
 			swap( ... )
-			injection (...)
+			injectionYback ( readBuffer, collideField, subdomain );
 		}
 
 
 
 		//extraction, swap, injection for z
-		// 1. TOP; check, that rank doesn't have a no-slip at the top
+		// 5. TOP; check, that rank doesn't have a no-slip at the top
 		if (rank<(proc[0]*proc[1]*(proc[2]-1)){
 			extractionZtop ( sendBuffer, collideField, subdomain );
 
 			swap( ... )
-			injection (...)
+			injectionZtop ( readBuffer, collideField, subdomain );
 		}
-		// 2. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
+		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
 		if (flagField[calculate_index(x/2, y/2, 0, subdomain)] == PARALLEL_BOUNDARY){
 			extractionZbottom ( sendBuffer, collideField, subdomain );
 
 			swap( ... )
-			injection (...)
+			injectionZbottom ( readBuffer, collideField, subdomain );
 		}
 
 
