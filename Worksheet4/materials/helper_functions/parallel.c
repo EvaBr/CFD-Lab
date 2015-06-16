@@ -172,16 +172,16 @@ void extractionZbottom (double **sendBuffer, double *collideField, int *subdomai
 /* before calling it, we need to check that front boundary is not a no-slip: if (rank<proc[0]*proc[1]){ */
 	for (int y=0; y<subdomain[1]+2; y++){
 		for (int x=0; x<subdomain[0]+2; x++){
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 1 ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 2 ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 3 ];
-			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 0, subdomain) + 4 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 1, subdomain) ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 1, subdomain) + 1 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 1, subdomain) + 2 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 1, subdomain) + 3 ];
+			*(sendBuffer[3] + i++) = collideField [ Q*compute_index(x, y, 1, subdomain) + 4 ];
 		}
 	}
 }
 
-//Injecion
+//	I N J E C T I O N     F U N C T I O N S
 //here we inject the five pdfs that would be streamed into our neighbour, x direction.
 
 void injectionXright ( double **readBuffer, double *collideField, int *subdomain){

@@ -82,7 +82,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	} else { //in this case we are on the interior ghost boundary
 		for (int i=1; i<subdomain[0]+1; i++){
 			for (int j=1; j<subdomain[1]+1; j++){
-				flagField [ compute_index(i, j, subdomain[2]+1) ] = PARALLEL_BOUNDARY;
+				flagField [ compute_index(i, j, subdomain[2]+1, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
 	}
@@ -92,13 +92,13 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	if (rank < proc[0]*proc[1]){ //then our bottom boundary is outer; so no slip.
 		for (int i=0; i<subdomain[0]+2; i++){
 			for (int j=0; j<subdomain[1]+2; j++){
-				flagField [ compute_index(i, j, 0) ] = NO_SLIP;
+				flagField [ compute_index(i, j, 0, subdomain) ] = NO_SLIP;
 			}
 		}
 	} else { //in this case we are on the interior ghost boundary
 		for (int i=1; i<subdomain[0]+1; i++){
 			for (int j=1; j<subdomain[1]+1; j++){
-				flagField [ compute_index(i, j, 0) ] = PARALLEL_BOUNDARY;
+				flagField [ compute_index(i, j, 0, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
 	}
