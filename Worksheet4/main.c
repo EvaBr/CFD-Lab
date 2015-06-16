@@ -7,7 +7,6 @@
 #include "visualLB.h"
 #include "boundary.h"
 #include "LBDefinitions.h"
-//#include <mpi.h> //do not need since it is already included in parallel.h?
 #include "materials/helper_functions/parallel.h"
 
 
@@ -89,24 +88,66 @@ int main(int argc, char *argv[]){
 	initialiseFields ( collideField, streamField, flagField, subdomain, rank, proc );
 
 	//initialize buffers
-	initialiseBuffers(sendBuffer, readBuffer, subdomain);
+	initialiseBuffers ( sendBuffer, readBuffer, subdomain );
 
 	int t;
 	for (t = 0; t < timesteps; t++){
 		//extraction, swap, injection for x
-		if ( flagField[  index(0, subdomain[1]/2, subdomain[2]/2) ] ==PARALLEL_BOUNDARY) {
-			extraction(...);
+		// 1. LEFT; check, that rank doesn't have a no-slip on the left
+		if (rank%proc[0]!=0) {
+			extractionXleft ( sendBuffer, collideField, subdomain );
+
 			swap(sendBuffer, readBuffer, subdomain, flagField, rank, proc); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
 			//USE Sendrecv!
 			injection(..);
 		}
+		// 2. RIGHT; check, that rank doesn't have a no-slip on the right
+		if (rank%proc[0]!=proc[0]-1){
+			extractionXright ( sendBuffer, collideField, subdomain );
+
+			swap( ... )
+			injection (...)
+		}
+
+
 		//extraction, swap, injection for y
-		//TODO
+<		// 1. FRONT; check, that rank doesn't have a no-slip at the front
+		if (rank%(proc[0]*proc[1])>=proc[0]){
+			extractionYfront ( sendBuffer, collideField, subdomain );
+
+			swap( ... )
+			injection (...)
+		}
+		// 2. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
+		if (flagField[calculate_index(x/2, subdomain[1]+1, z/2, subdomain)] == PARALLEL_BOUNDARY){
+			extractionYback ( sendBuffer, collideField, subdomain );
+
+			swap( ... )
+			injection (...)
+		}
+
+
+
 		//extraction, swap, injection for z
-		//TODO
+		// 1. TOP; check, that rank doesn't have a no-slip at the top
+		if (rank<(proc[0]*proc[1]*(proc[2]-1)){
+			extractionZtop ( sendBuffer, collideField, subdomain );
+
+			swap( ... )
+			injection (...)
+		}
+		// 2. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
+		if (flagField[calculate_index(x/2, y/2, 0, subdomain)] == PARALLEL_BOUNDARY){
+			extractionZbottom ( sendBuffer, collideField, subdomain );
+
+			swap( ... )
+			injection (...)
+		}
 
 
 
+
+		// do the actual streaming step
 		doStreaming ( collideField, streamField, flagField, subdomain );
 
 		// swap the stream and collide arrays
@@ -137,7 +178,7 @@ int main(int argc, char *argv[]){
 	//(dont forget the buffers)
 	for (int i = 0; i < 6; ++i) {
 		free ( sendBuffer[i] );
-		free ( readBuffer[i] ); //a je treba tegale tko, če daš samo kazalce notr?
+		free ( readBuffer[i] );
 	}
 
 
