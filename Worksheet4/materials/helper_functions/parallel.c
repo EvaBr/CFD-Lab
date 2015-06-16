@@ -188,7 +188,6 @@ void swapXleft( double **sendBuffer, double **readBuffer, int *subdomain, int *p
 
     /*MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
      MPI_COMM_WORLD);
-
      MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
      MPI_COMM_WORLD, &status);*/
 
@@ -202,7 +201,6 @@ void swapXright( double **sendBuffer, double **readBuffer, int *subdomain, int *
 
     /*MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
      MPI_COMM_WORLD);
-
      MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
      MPI_COMM_WORLD, &status);*/
 
@@ -217,7 +215,6 @@ void swapYfront( double **sendBuffer, double **readBuffer, int *subdomain, int *
     MPI_Status status;
 
     /*MPI_Send(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD);
-
      MPI_Recv(&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD, &status);*/
 
 
@@ -231,7 +228,6 @@ void swapYback( double **sendBuffer, double **readBuffer, int *subdomain, int *p
     MPI_Status status;
 
     /* MPI_Send(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0, MPI_COMM_WORLD);
-
      MPI_Recv(&readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,MPI_COMM_WORLD, &status);*/
 
 
@@ -244,7 +240,6 @@ void swapZtop( double **sendBuffer, double **readBuffer, int *subdomain, int *pr
     MPI_Status status;
 
     /*MPI_Send(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD);
-
      MPI_Recv(&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);*/
 
     MPI_Sendrecv(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
@@ -256,7 +251,6 @@ void swapZbottom( double **sendBuffer, double **readBuffer, int *subdomain, int 
     MPI_Status status;
 
     /*MPI_Send(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD);
-
      MPI_Recv(&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);*/
 
     MPI_Sendrecv(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, 
