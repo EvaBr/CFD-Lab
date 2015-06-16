@@ -120,7 +120,7 @@ void extractionYfront (double **sendBuffer, double *collideField, int *subdomain
 	// 1. EXTRACT TO FRONT
 	// pdfs, that need to be extracted are the ones with indices 0, 5, 6, 7, 14.
 	int i = 0;
-/* before calling it, we need to check that front boundary is not a no-slip: if (rank%proc[0]*proc[1]>=proc[0]){  */
+/* before calling it, we need to check that front boundary is not a no-slip: if (rank%(proc[0]*proc[1])>=proc[0]){  */
 	for (int z=0; z<subdomain[2]+2; z++){
 		for (int x=0; x<subdomain[0]+2; x++){
 			*(sendBuffer[4] + i++) = collideField [ Q*compute_index(x, 1, z, subdomain)  ];
@@ -135,7 +135,7 @@ void extractionYback (double **sendBuffer, double *collideField, int *subdomain)
 	// 2. EXTRACT TO BACK
 	// we need to extract pdfs with indices 4, 11, 12, 13, 18.
 	int i = 0;
-/* before calling it, we need to check that front boundary is not a no-slip: if (rank%proc[0]*proc[1]<proc[0]*(proc[1]-1)){  */
+/* before calling it, we need to check that front boundary is not a no-slip: if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){  */
 	for (int z=0; z<subdomain[2]+2; z++){
 		for (int x=0; x<subdomain[0]+2; x++){
 			*(sendBuffer[5] + i++) = collideField [ Q*compute_index(x, subdomain[1], z, subdomain) + 4 ];
@@ -181,6 +181,85 @@ void extractionZbottom (double **sendBuffer, double *collideField, int *subdomai
 	}
 }
 
+/* the MPI_Send and MPI_Recv are kept in comments, because we wanna check the deadlock!*/
+//Swap for left layer
+void swapXleft( double **sendBuffer, double **readBuffer, int *subdomain){
+    /*MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
+     MPI_COMM_WORLD);
+     
+     MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
+     MPI_COMM_WORLD, &status);*/
+    
+    MPI_Sendrecv(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
+                 &readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
+                 MPI_COMM_WORLD, &status);
+}
+//Swap for right layer
+void swapXright( double **sendBuffer, double **readBuffer, int *subdomain){
+    /*MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
+     MPI_COMM_WORLD);
+     
+     MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
+     MPI_COMM_WORLD, &status);*/
+    
+    
+    MPI_Sendrecv(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
+                 &readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
+                 MPI_COMM_WORLD, &status);
+}
+
+//Swap for front layer
+void swapYfront( double **sendBuffer, double **readBuffer, int *subdomain){
+    
+    /*MPI_Send(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD);
+     
+     MPI_Recv(&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD, &status);*/
+    
+    
+    MPI_Sendrecv(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD, &status);
+    
+    
+}
+
+//Swap for back layer
+void swapYback( double **sendBuffer, double **readBuffer, int *subdomain){
+    
+    /* MPI_Send(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0, MPI_COMM_WORLD);
+     
+     MPI_Recv(&readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,MPI_COMM_WORLD, &status);*/
+    
+    
+    MPI_Sendrecv(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0, &readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,MPI_COMM_WORLD, &status);
+    
+}
+
+//Swap for top layer
+void swapZtop( double **sendBuffer, double **readBuffer, int *subdomain){
+    /*MPI_Send(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD);
+     
+     MPI_Recv(&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);*/
+    
+    MPI_Sendrecv(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
+    
+}
+
+//Swap for bottom layer
+void swapZbottom( double **sendBuffer, double **readBuffer, int *subdomain){
+    /*MPI_Send(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD);
+     
+     MPI_Recv(&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);*/
+    
+    
+    
+    MPI_Sendrecv(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, &readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
+    
+}
+
+
+
+
+
+
 //	I N J E C T I O N     F U N C T I O N S
 //here we inject the five pdfs that would be streamed into our neighbour, x direction.
 
@@ -222,7 +301,7 @@ void injectionYback ( double **readBuffer, double *collideField, int *subdomain)
 	// 3. INJECT FROM BACK
 	// pdfs, that need to be extracted are the ones with indices 0, 5, 6, 7, 14.
 	int i = 0;
-/* before calling it, we need to check that back boundary is not a no-slip: if (rank%proc[0]*proc[1]<(proc[1]-1)){  */
+/* before calling it, we need to check that back boundary is not a no-slip: if (rank%(proc[0]*proc[1])<(proc[1]-1)){  */
 	for (int z=0; z<subdomain[2]+2; z++){
 		for (int x=0; x<subdomain[0]+2; x++){
 			//at the back boundary layer, the y index is subdomain[0]+1
@@ -239,7 +318,7 @@ void injectionYfront ( double **readBuffer, double *collideField, int *subdomain
 	// 4. INJECT FROM FRONT
 	// pdfs, that need to be extracted are the ones with indices 4, 11, 12, 13, 18.
 	int i = 0;
-/* before calling it, we need to check that back boundary is not a no-slip: if (rank%proc[0]*proc[1]>=proc[0]){  */
+/* before calling it, we need to check that back boundary is not a no-slip: if (rank%(proc[0]*proc[1])>=proc[0]){  */
 	for (int z=0; z<subdomain[2]+2; z++){
 		for (int x=0; x<subdomain[0]+2; x++){
 			//at the front boundary layer, the y index is 0

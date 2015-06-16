@@ -28,6 +28,15 @@ void extractionZtop	( double **sendBuffer, double *collideField, int *subdomain 
 void extractionZbottom	( double **sendBuffer, double *collideField, int *subdomain );
 /* functions for extracting the pdfs that are to be streamed into neighbouring process' region */
 
+void swapXleft( double **sendBuffer, double **readBuffer, int *subdomain);
+void swapXright( double **sendBuffer, double **readBuffer, int *subdomain);
+void swapYfront( double **sendBuffer, double **readBuffer, int *subdomain);
+void swapYback( double **sendBuffer, double **readBuffer, int *subdomain);
+void swapZtop( double **sendBuffer, double **readBuffer, int *subdomain);
+void swapZbottom( double **sendBuffer, double **readBuffer, int *subdomain);
+/* funtions for the pdfs to send to the neighbor's readbuffer, and receive from neighbor's sendbuffer*/
+
+
 void injectionXleft	( double **readBuffer, double *collideField, int *subdomain );
 void injectionXright	( double **readBuffer, double *collideField, int *subdomain );
 void injectionYfront	( double **readBuffer, double *collideField, int *subdomain );

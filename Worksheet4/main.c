@@ -97,7 +97,7 @@ int main(int argc, char *argv[]){
 		if (rank%proc[0]!=0) {
 			extractionXleft ( sendBuffer, collideField, subdomain );
 
-			swap(sendBuffer, readBuffer, subdomain, flagField, rank, proc); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
+			swapXleft( sendBuffer, readBuffer, subdomain); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
 			//USE Sendrecv!
 			injectionXleft ( readBuffer, collideField, subdomain );
 		}
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
 		if (rank%proc[0]!=proc[0]-1){
 			extractionXright ( sendBuffer, collideField, subdomain );
 
-			swap( ... )
+			swapXright( sendBuffer, readBuffer, subdomain);
 			injectionXright( readBuffer, collideField, subdomain );
 		}
 
@@ -115,14 +115,14 @@ int main(int argc, char *argv[]){
 		if (rank%(proc[0]*proc[1])>=proc[0]){
 			extractionYfront ( sendBuffer, collideField, subdomain );
 
-			swap( ... )
+			swapYfront( sendBuffer, readBuffer, subdomain);
 			injectionYfront ( readBuffer, collideField, subdomain );
 		}
 		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
 		if (flagField[calculate_index(x/2, subdomain[1]+1, z/2, subdomain)] == PARALLEL_BOUNDARY){
 			extractionYback ( sendBuffer, collideField, subdomain );
 
-			swap( ... )
+			swapYback( sendBuffer, readBuffer, subdomain);
 			injectionYback ( readBuffer, collideField, subdomain );
 		}
 
@@ -133,14 +133,14 @@ int main(int argc, char *argv[]){
 		if (rank<(proc[0]*proc[1]*(proc[2]-1)){
 			extractionZtop ( sendBuffer, collideField, subdomain );
 
-			swap( ... )
+			swapZtop( sendBuffer, readBuffer, subdomain);
 			injectionZtop ( readBuffer, collideField, subdomain );
 		}
 		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
 		if (flagField[calculate_index(x/2, y/2, 0, subdomain)] == PARALLEL_BOUNDARY){
 			extractionZbottom ( sendBuffer, collideField, subdomain );
 
-			swap( ... )
+			swapZbottom( sendBuffer, readBuffer, subdomain);
 			injectionZbottom ( readBuffer, collideField, subdomain );
 		}
 
