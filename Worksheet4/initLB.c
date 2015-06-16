@@ -44,9 +44,7 @@ void distributeParameters ( int *xlength, double *tau, double *velocityWall, int
 	MPI_Bcast( timesteps, 1, MPI_INT, 0, MPI_COMM_WORLD );
 	MPI_Bcast( timestepsPerPlotting, 1, MPI_INT, 0, MPI_COMM_WORLD );
 	MPI_Bcast( proc, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD );
-
 }
-
 
 
 void initialiseFields(double *collideField, double *streamField, int *flagField, int *subdomain, int rank, int *proc){
