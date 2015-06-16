@@ -96,7 +96,7 @@ int main(int argc, char *argv[]){
 		//extraction, swap, injection for x
 		if ( flagField[  index(0, subdomain[1]/2, subdomain[2]/2) ] ==PARALLEL_BOUNDARY) {
 			extraction(...);
-			swap(sendBuffer, readBuffer, subdomain, rank, proc); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
+			swap(sendBuffer, readBuffer, subdomain, flagField, rank, proc); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
 			//USE Sendrecv!
 			injection(..);
 		}

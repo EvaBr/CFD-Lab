@@ -1,5 +1,6 @@
 #include "streaming.h"
 #include "LBDefinitions.h"
+#include "helper.h"
 
 void doStreaming(double *collideField, double *streamField, int *flagField, int *subdomain){
     int dx, dy, dz;
@@ -32,49 +33,72 @@ void doStreaming(double *collideField, double *streamField, int *flagField, int 
 }
 
 
-void  swap( double ** sendBuffer, double ** readBuffer, int *subdomain, int *rank, int *proc ){
+void  swap( double ** sendBuffer, double ** readBuffer, int *subdomain, int *flagField , int *rank, int *proc ){
+    
+    int x= subdomain[0];
+    int y= subdomain[1];
+    int z= subdomain[2];
     
     // Left
-MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
-         MPI_COMM_WORLD);
+    if (flagField[compute_index(0, y/2, z/2, subdomain)] == PARALLEL_BOUNDARY) {
+        MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
+                 MPI_COMM_WORLD);
+        
+        MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
+                 MPI_COMM_WORLD, &status);
+    }
 
-MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
-         MPI_COMM_WORLD, &status);
     
     // Right
-MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
-             MPI_COMM_WORLD);
-    
-MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
-             MPI_COMM_WORLD, &status);
+    if (flagField[compute_index(x, y/2, z/2, subdomain)] == PARALLEL_BOUNDARY) {
+        MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
+                 MPI_COMM_WORLD);
+        
+        MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
+                 MPI_COMM_WORLD, &status);
+    }
+
     
     // Top
-MPI_Send(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,
-             MPI_COMM_WORLD);
-    
-MPI_Recv(&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,
-             MPI_COMM_WORLD, &status);
+    if (flagField[compute_index(x/2, y/2, z, subdomain] == PARALLEL_BOUNDARY) {
+        MPI_Send(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD);
+        
+        MPI_Recv(&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
+    }
+
     
     // Bottom
-MPI_Send(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0,
-             MPI_COMM_WORLD);
-    
-MPI_Recv(&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0,
-             MPI_COMM_WORLD, &status);
+    if(flagField[compute_index(x/2, y/2, 0, subdomain] == PARALLEL_BOUNDARY){
+       MPI_Send(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD);
+                  
+       MPI_Recv(&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
+                  
+    }
+            
+
 
     // Front
-MPI_Send(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,
-             MPI_COMM_WORLD);
-    
-MPI_Recv(&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,
-             MPI_COMM_WORLD, &status);
+    if(flagField[compute_index(x/2, 0, z/2, subdomain] == PARALLEL_BOUNDARY){
+                 
+       MPI_Send(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD);
+                 
+       MPI_Recv(&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD, &status);
+                              
+                              
+    }
+                 
     
     //Back
-MPI_Send(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0,
-             MPI_COMM_WORLD);
-    
-MPI_Recv(&readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,
-             MPI_COMM_WORLD, &status);
+                 
+    if(flagField[compute_index(x/2, y, z/2, subdomain] == PARALLEL_BOUNDARY){
+        
+       MPI_Send(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0, MPI_COMM_WORLD);
+                              
+       MPI_Recv(&readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,MPI_COMM_WORLD, &status);
+                 
+    }
+                 
+
     
     
     
