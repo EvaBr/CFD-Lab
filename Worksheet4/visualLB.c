@@ -3,11 +3,9 @@
 #include "LBDefinitions.h"
 #include "helper.h"
 #include "computeCellValues.h"
-#include <vtkAppendPolyData.h>
 
 
-
-void writeVtkOutput(const double * const collideField, const int * const flagField, const char * filename, int rank, unsigned int t, int *subdomain, double *xlength, int *proc) {
+void writeVtkOutput(const double * const collideField, const int * const flagField, const char * filename, int rank, unsigned int t, int *subdomain, int *xlength, int *proc) {
 
     char fn[120];
 
@@ -36,12 +34,12 @@ void writeVtkOutput(const double * const collideField, const int * const flagFie
 
     int startx = (rank%proc[0]) * subdomain[0];
     int starty = ((rank%(proc[0]*proc[1])) / proc[0]) * subdomain[1];
-    int startz = (rank/(proc[0]*proc[1]) * subdomain[2];
+    int startz = (rank/(proc[0]*proc[1])) * subdomain[2];
 
     for (double x = 0; x <= subdomain[0]-1; x+=1) {			// (x = startx*subdomain[0]*stepx; x < startx*(subdomain[0]+1)*stepx;)
         for (double y = 0; y <= subdomain[1]-1; y+=1) {			// (y = starty*subdomain[1]*stepy; y <= starty*(subdomain[1]+1)*stepy;)
             for (double z = 0; z <= subdomain[2]-1; z+=1) {		// ...
-                fprintf(fp, "%d %d %d\n", (startx + x)*stepx, (starty + y)*stepy, (startz + z)*stepz);
+                fprintf(fp, "%f %f %f\n", (startx + x)*stepx, (starty + y)*stepy, (startz + z)*stepz);
             }
         }
     }

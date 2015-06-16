@@ -36,7 +36,7 @@ void treatBoundary(double *collideField, int* flagField,
 						}
 						// deal with no-slip boundary condition
 						else if (flagField[index] == NO_SLIP){
-							*(currentCell + i) = *(currentCell + Q*compute_index(dx, xy, dz, subdomain) + Q-1-i);
+							*(currentCell + i) = *(currentCell + Q*compute_index(dx, dy, dz, subdomain) + Q-1-i);
 						}
 					}
 				}

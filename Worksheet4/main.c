@@ -8,7 +8,7 @@
 #include "boundary.h"
 #include "LBDefinitions.h"
 #include "materials/helper_functions/parallel.h"
-
+#include "helper.h"
 
 int main(int argc, char *argv[]){
 
@@ -92,21 +92,20 @@ int main(int argc, char *argv[]){
 
 	int t;
 	for (t = 0; t < timesteps; t++){
+
+		//########################################################################################
 		//extraction, swap, injection for x
 		// 1. LEFT; check, that rank doesn't have a no-slip on the left
 		if (rank%proc[0]!=0) {
 			extractionXleft ( sendBuffer, collideField, subdomain );
-
-			swapXleft( sendBuffer, readBuffer, subdomain); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
-			//USE Sendrecv!
+			swapXleft ( sendBuffer, readBuffer, subdomain); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
 			injectionXleft ( readBuffer, collideField, subdomain );
 		}
 		// 2. RIGHT; check, that rank doesn't have a no-slip on the right
 		if (rank%proc[0]!=proc[0]-1){
 			extractionXright ( sendBuffer, collideField, subdomain );
-
-			swapXright( sendBuffer, readBuffer, subdomain);
-			injectionXright( readBuffer, collideField, subdomain );
+			swapXright ( sendBuffer, readBuffer, subdomain);
+			injectionXright ( readBuffer, collideField, subdomain );
 		}
 
 
@@ -115,36 +114,31 @@ int main(int argc, char *argv[]){
 		if (rank%(proc[0]*proc[1])>=proc[0]){
 			extractionYfront ( sendBuffer, collideField, subdomain );
 
-			swapYfront( sendBuffer, readBuffer, subdomain);
+			swapYfront ( sendBuffer, readBuffer, subdomain );
 			injectionYfront ( readBuffer, collideField, subdomain );
 		}
 		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
-		if (flagField[calculate_index(x/2, subdomain[1]+1, z/2, subdomain)] == PARALLEL_BOUNDARY){
+		if (flagField[calculate_index(subdomain[0]/2, subdomain[1]+1, subdomain[2]/2, subdomain)] == PARALLEL_BOUNDARY){
 			extractionYback ( sendBuffer, collideField, subdomain );
-
-			swapYback( sendBuffer, readBuffer, subdomain);
+			swapYback ( sendBuffer, readBuffer, subdomain );
 			injectionYback ( readBuffer, collideField, subdomain );
 		}
 
 
-
 		//extraction, swap, injection for z
 		// 5. TOP; check, that rank doesn't have a no-slip at the top
-		if (rank<(proc[0]*proc[1]*(proc[2]-1)){
+		if (rank<(proc[0]*proc[1]*(proc[2]-1))){
 			extractionZtop ( sendBuffer, collideField, subdomain );
-
-			swapZtop( sendBuffer, readBuffer, subdomain);
+			swapZtop ( sendBuffer, readBuffer, subdomain );
 			injectionZtop ( readBuffer, collideField, subdomain );
 		}
 		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
-		if (flagField[calculate_index(x/2, y/2, 0, subdomain)] == PARALLEL_BOUNDARY){
+		if (flagField[calculate_index(subdomain[0]/2, subdomain[1]/2, 0, subdomain)] == PARALLEL_BOUNDARY){
 			extractionZbottom ( sendBuffer, collideField, subdomain );
-
-			swapZbottom( sendBuffer, readBuffer, subdomain);
+			swapZbottom ( sendBuffer, readBuffer, subdomain );
 			injectionZbottom ( readBuffer, collideField, subdomain );
 		}
-
-
+		//####################################################################################
 
 
 		// do the actual streaming step
@@ -159,7 +153,7 @@ int main(int argc, char *argv[]){
 
 		treatBoundary ( collideField, flagField, velocityWall, subdomain);
 
-		// write vtk data   TODO!
+		// write vtk data   TODO?
 		if (t%timestepsPerPlotting==0){
 			writeVtkOutput ( collideField, flagField, "DrivenCavity", rank, t, subdomain, xlength, proc );
 		}
