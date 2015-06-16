@@ -180,3 +180,109 @@ void extractionZbottom (double **sendBuffer, double *collideField, int *subdomai
 		}
 	}
 }
+
+//Injecion
+//here we inject the five pdfs that would be streamed into our neighbour, x direction.
+
+void injectionXright ( double **readBuffer, double *collideField, int *subdomain){
+	// 1. INJECT FROM RIGHT
+	// pdfs, that need to be extracted are the ones with indices 1, 5, 8, 11, 15.
+	int i = 0;
+/* before calling it, we need to check that right boundary is not a no-slip: if (rank%proc[0]!=proc[0]-1){ */
+	for (int z=0; z<subdomain[2]+2; z++){
+		for (int y=0; y<subdomain[1]+2; y++){
+			//at the right boundary layer, the x index is subdomain[0]+1
+			collideField [ Q*compute_index(subdomain[0]+1, y, z, subdomain) + 1 ] = *(readBuffer[1] + i++);
+			collideField [ Q*compute_index(subdomain[0]+1, y, z, subdomain) + 5 ] = *(readBuffer[1] + i++);
+			collideField [ Q*compute_index(subdomain[0]+1, y, z, subdomain) + 8 ] = *(readBuffer[1] + i++);
+			collideField [ Q*compute_index(subdomain[0]+1, y, z, subdomain) + 11 ] = *(readBuffer[1] + i++);
+			collideField [ Q*compute_index(subdomain[0]+1, y, z, subdomain) + 15 ] = *(readBuffer[1] + i++);
+		}
+	}
+}
+
+void injectionXleft ( double **readBuffer, double *collideField, int *subdomain){
+	// 2. INJECT FROM LEFT
+	// here, we extract pdfs with indices 3, 7, 10, 13, 17.
+	int i = 0;
+/* before calling it, we need to check that left boundary is not a no-slip: if (rank%proc[0]!=0){ */
+	for (int z=0; z<subdomain[2]+2; z++){
+		for (int y=0; y<subdomain[1]+2; y++){
+			//at the left boundary layer, the x index is 0
+			collideField [ Q*compute_index(0, y, z, subdomain) + 3 ] = *(readBuffer[0] + i++);
+			collideField [ Q*compute_index(0, y, z, subdomain) + 7 ] = *(readBuffer[0] + i++);
+			collideField [ Q*compute_index(0, y, z, subdomain) + 10 ] = *(readBuffer[0] + i++);
+			collideField [ Q*compute_index(0, y, z, subdomain) + 13 ] = *(readBuffer[0] + i++);
+			collideField [ Q*compute_index(0, y, z, subdomain) + 17 ] = *(readBuffer[0] + i++);
+		}
+	}
+}
+
+void injectionYback ( double **readBuffer, double *collideField, int *subdomain){
+	// 3. INJECT FROM BACK
+	// pdfs, that need to be extracted are the ones with indices 0, 5, 6, 7, 14.
+	int i = 0;
+/* before calling it, we need to check that back boundary is not a no-slip: if (rank%proc[0]*proc[1]<(proc[1]-1)){  */
+	for (int z=0; z<subdomain[2]+2; z++){
+		for (int x=0; x<subdomain[0]+2; x++){
+			//at the back boundary layer, the y index is subdomain[0]+1
+			collideField [ Q*compute_index(x, subdomain[0]+1, z, subdomain) ] = *(readBuffer[5] + i++);
+			collideField [ Q*compute_index(x, subdomain[0]+1, z, subdomain) + 5 ] = *(readBuffer[5] + i++);
+			collideField [ Q*compute_index(x, subdomain[0]+1, z, subdomain) + 6 ] = *(readBuffer[5] + i++);
+			collideField [ Q*compute_index(x, subdomain[0]+1, z, subdomain) + 7 ] = *(readBuffer[5] + i++);
+			collideField [ Q*compute_index(x, subdomain[0]+1, z, subdomain) + 14 ] = *(readBuffer[5] + i++);
+		}
+	}
+}
+
+void injectionYfront ( double **readBuffer, double *collideField, int *subdomain){
+	// 4. INJECT FROM FRONT
+	// pdfs, that need to be extracted are the ones with indices 4, 11, 12, 13, 18.
+	int i = 0;
+/* before calling it, we need to check that back boundary is not a no-slip: if (rank%proc[0]*proc[1]>=proc[0]){  */
+	for (int z=0; z<subdomain[2]+2; z++){
+		for (int x=0; x<subdomain[0]+2; x++){
+			//at the front boundary layer, the y index is 0
+			collideField [ Q*compute_index(x, 0, z, subdomain) + 4 ] = *(readBuffer[4] + i++);
+			collideField [ Q*compute_index(x, 0, z, subdomain) + 11 ] = *(readBuffer[4] + i++);
+			collideField [ Q*compute_index(x, 0, z, subdomain) + 12 ] = *(readBuffer[4] + i++);
+			collideField [ Q*compute_index(x, 0, z, subdomain) + 13 ] = *(readBuffer[4] + i++);
+			collideField [ Q*compute_index(x, 0, z, subdomain) + 18 ] = *(readBuffer[4] + i++);
+		}
+	}
+}
+
+void injectionZbottom ( double **readBuffer, double *collideField, int *subdomain){
+	// 5. INJECT FROM BOTTOM
+	// pdfs, that need to be extracted are the ones with indices 14, 15, 16, 17, 18.
+	int i = 0;
+/* before calling it, we need to check that bottom boundary is not a no-slip: if (rank<proc[0]*proc[1]){ */
+	for (int y=0; y<subdomain[1]+2; y++){
+		for (int x=0; x<subdomain[0]+2; x++){
+			//at the bottom boundary layer, the z index is 0
+			collideField [ Q*compute_index(x, y, 0, subdomain) + 14] = *(readBuffer[3] + i++);
+			collideField [ Q*compute_index(x, y, 0, subdomain) + 15 ] = *(readBuffer[3] + i++);
+			collideField [ Q*compute_index(x, y, 0, subdomain) + 16 ] = *(readBuffer[3] + i++);
+			collideField [ Q*compute_index(x, y, 0, subdomain) + 17 ] = *(readBuffer[3] + i++);
+			collideField [ Q*compute_index(x, y, 0, subdomain) + 18 ] = *(readBuffer[3] + i++);
+		}
+	}
+}
+
+void injectionZtop ( double **readBuffer, double *collideField, int *subdomain){
+	// 6. INJECT FROM TOP
+	// pdfs, that need to be extracted are the ones with indices 0, 1, 2, 3, 4.
+	int i = 0;
+/* before calling it, we need to check that top boundary is not a no-slip: if (rank>=proc[0]*proc[1]*(proc[2]-1)){ */
+	for (int y=0; y<subdomain[1]+2; y++){
+		for (int x=0; x<subdomain[0]+2; x++){
+			//at the top boundary layer, the z index is subdomain[0]+1
+			collideField [ Q*compute_index(x, y, subdomain[0]+1, subdomain) ] = *(readBuffer[2] + i++);
+			collideField [ Q*compute_index(x, y, subdomain[0]+1, subdomain) + 1 ] = *(readBuffer[2] + i++);
+			collideField [ Q*compute_index(x, y, subdomain[0]+1, subdomain) + 2 ] = *(readBuffer[2] + i++);
+			collideField [ Q*compute_index(x, y, subdomain[0]+1, subdomain) + 3 ] = *(readBuffer[2] + i++);
+			collideField [ Q*compute_index(x, y, subdomain[0]+1, subdomain) + 4 ] = *(readBuffer[2] + i++);
+		}
+	}
+}
+

@@ -27,3 +27,11 @@ void extractionYback	( double **sendBuffer, double *collideField, int *subdomain
 void extractionZtop	( double **sendBuffer, double *collideField, int *subdomain );
 void extractionZbottom	( double **sendBuffer, double *collideField, int *subdomain );
 /* functions for extracting the pdfs that are to be streamed into neighbouring process' region */
+
+void injectionXleft	( double **readBuffer, double *collideField, int *subdomain );
+void injectionXright	( double **readBuffer, double *collideField, int *subdomain );
+void injectionYfront	( double **readBuffer, double *collideField, int *subdomain );
+void injectionYback	( double **readBuffer, double *collideField, int *subdomain );
+void injectionZtop	( double **readBuffer, double *collideField, int *subdomain );
+void injectionZbottom	( double **readBuffer, double *collideField, int *subdomain );
+/* functions for extracting the pdfs that are to be streamed into neighbouring process' region */
