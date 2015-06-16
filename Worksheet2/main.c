@@ -15,19 +15,19 @@ int main(int argc, char *argv[]){
 	int *flagField = NULL;
 	double *swap = NULL;
 
-	int xlength;
-	double tau;
-	double velocityWall[3];
-	int timesteps;
-	int timestepsPerPlotting;
+	int xlength=100;
+	double tau=1.4;
+	double velocityWall[3]={1.0, 0.0, 0.0};
+	int timesteps=14;
+//	int timestepsPerPlotting;
 
 
-	//read parameters, exit if program call not valid
+	/*//read parameters, exit if program call not valid
 	int fail;
 	fail = readParameters ( &xlength, &tau, velocityWall, &timesteps, &timestepsPerPlotting, argc, argv );
 	if (fail) {
 		return 1;
-	}
+	}*/
 
 	int len = (xlength + 2)*(xlength + 2)*(xlength + 2);
 
@@ -52,9 +52,9 @@ int main(int argc, char *argv[]){
 		treatBoundary ( collideField, flagField, velocityWall, xlength);
 
 		// write vtk data
-		if (t%timestepsPerPlotting==0){
-			writeVtkOutput ( collideField, flagField, "DrivenCavity", t, xlength );
-		}
+	//	if (t%timestepsPerPlotting==0){
+	//		writeVtkOutput ( collideField, flagField, "DrivenCavity", t, xlength );
+	//	}
 	}
 	// free the initialized space
 	free ( collideField );
