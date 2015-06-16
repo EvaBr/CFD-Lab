@@ -118,7 +118,7 @@ int main(int argc, char *argv[]){
 			injectionYfront ( readBuffer, collideField, subdomain );
 		}
 		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
-		if (flagField[calculate_index(subdomain[0]/2, subdomain[1]+1, subdomain[2]/2, subdomain)] == PARALLEL_BOUNDARY){
+		if (flagField[compute_index(subdomain[0]/2, subdomain[1]+1, subdomain[2]/2, subdomain)] == PARALLEL_BOUNDARY){
 			extractionYback ( sendBuffer, collideField, subdomain );
 			swapYback ( sendBuffer, readBuffer, subdomain );
 			injectionYback ( readBuffer, collideField, subdomain );
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]){
 			injectionZtop ( readBuffer, collideField, subdomain );
 		}
 		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
-		if (flagField[calculate_index(subdomain[0]/2, subdomain[1]/2, 0, subdomain)] == PARALLEL_BOUNDARY){
+		if (flagField[compute_index(subdomain[0]/2, subdomain[1]/2, 0, subdomain)] == PARALLEL_BOUNDARY){
 			extractionZbottom ( sendBuffer, collideField, subdomain );
 			swapZbottom ( sendBuffer, readBuffer, subdomain );
 			injectionZbottom ( readBuffer, collideField, subdomain );
