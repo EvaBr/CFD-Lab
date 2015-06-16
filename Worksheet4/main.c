@@ -98,13 +98,13 @@ int main(int argc, char *argv[]){
 		// 1. LEFT; check, that rank doesn't have a no-slip on the left
 		if (rank%proc[0]!=0) {
 			extractionXleft ( sendBuffer, collideField, subdomain );
-			swapXleft ( sendBuffer, readBuffer, subdomain); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
+			swapXleft ( sendBuffer, readBuffer, subdomain, proc, rank); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
 			injectionXleft ( readBuffer, collideField, subdomain );
 		}
 		// 2. RIGHT; check, that rank doesn't have a no-slip on the right
 		if (rank%proc[0]!=proc[0]-1){
 			extractionXright ( sendBuffer, collideField, subdomain );
-			swapXright ( sendBuffer, readBuffer, subdomain);
+			swapXright ( sendBuffer, readBuffer, subdomain, proc, rank);
 			injectionXright ( readBuffer, collideField, subdomain );
 		}
 
@@ -113,13 +113,13 @@ int main(int argc, char *argv[]){
 		// 3. FRONT; check, that rank doesn't have a no-slip at the front
 		if (rank%(proc[0]*proc[1])>=proc[0]){
 			extractionYfront ( sendBuffer, collideField, subdomain );
-			swapYfront ( sendBuffer, readBuffer, subdomain );
+			swapYfront ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionYfront ( readBuffer, collideField, subdomain );
 		}
 		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
 		if (flagField[compute_index(subdomain[0]/2, subdomain[1]+1, subdomain[2]/2, subdomain)] == PARALLEL_BOUNDARY){
 			extractionYback ( sendBuffer, collideField, subdomain );
-			swapYback ( sendBuffer, readBuffer, subdomain );
+			swapYback ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionYback ( readBuffer, collideField, subdomain );
 		}
 
@@ -128,13 +128,13 @@ int main(int argc, char *argv[]){
 		// 5. TOP; check, that rank doesn't have a no-slip at the top
 		if (rank<(proc[0]*proc[1]*(proc[2]-1))){
 			extractionZtop ( sendBuffer, collideField, subdomain );
-			swapZtop ( sendBuffer, readBuffer, subdomain );
+			swapZtop ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionZtop ( readBuffer, collideField, subdomain );
 		}
 		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
 		if (flagField[compute_index(subdomain[0]/2, subdomain[1]/2, 0, subdomain)] == PARALLEL_BOUNDARY){
 			extractionZbottom ( sendBuffer, collideField, subdomain );
-			swapZbottom ( sendBuffer, readBuffer, subdomain );
+			swapZbottom ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionZbottom ( readBuffer, collideField, subdomain );
 		}
 		//####################################################################################
