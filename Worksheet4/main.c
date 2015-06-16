@@ -160,11 +160,15 @@ int main(int argc, char *argv[]){
 		treatBoundary ( collideField, flagField, velocityWall, subdomain);
 
 		// write vtk data   TODO!
-		/*if (t%timestepsPerPlotting==0){
-			writeVtkOutput ( collideField, flagField, "DrivenCavity", t, xlength );
-		}*/
+		if (t%timestepsPerPlotting==0){
+			writeVtkOutput ( collideField, flagField, "DrivenCavity", rank, t, xlength, proc );
+		}
 	}
 
+	//stitch together the vtk files from different ranks
+	/*if (rank==0){
+		stitch_vtk()
+	}*/
 
 	//we finished with the simulation and output
 	if (rank==0){
