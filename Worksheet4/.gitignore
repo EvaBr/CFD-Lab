@@ -1,0 +1,21 @@
+#object files:
+*.o
+# boundary_val.o
+
+#exec.
+*.out
+
+#latex stuff
+*.aux
+*.log
+/results/*.aux
+/results/*.log
+
+#builded simulation:
+lbsim
+
+#vtk:
+*.vtk
+
+#directory of pics
+simulation*
