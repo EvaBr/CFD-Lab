@@ -161,13 +161,17 @@ int main(int argc, char *argv[]){
 
 		// write vtk data   TODO!
 		if (t%timestepsPerPlotting==0){
-			writeVtkOutput ( collideField, flagField, "DrivenCavity", rank, t, xlength, proc );
+			writeVtkOutput ( collideField, flagField, "DrivenCavity", rank, t, subdomain, xlength, proc );
 		}
 	}
 
-	//stitch together the vtk files from different ranks
-	/*if (rank==0){
-		stitch_vtk()
+
+
+	//stitch together the vtk files from different ranks.
+	//...to be able to do that, all ranks should have finished writing.... so we set an MPIbarrier here.
+/*	MPI_Barrier(MPI_COMM_WORLD);
+	if (rank==0){
+		stitch_vtk();
 	}*/
 
 	//we finished with the simulation and output

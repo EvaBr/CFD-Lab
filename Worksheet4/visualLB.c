@@ -3,16 +3,17 @@
 #include "LBDefinitions.h"
 #include "helper.h"
 #include "computeCellValues.h"
+#include <vtkAppendPolyData.h>
 
 
 
+void writeVtkOutput(const double * const collideField, const int * const flagField, const char * filename, int rank, unsigned int t, int *subdomain, double *xlength, int *proc) {
 
-void writeVtkOutput(const double * const collideField, const int * const flagField, const char * filename, int rank, unsigned int t, int *subdomain, int *proc) {
-    char fn[80];
-//    int len = xlength+2;
+    char fn[120];
+
     // save filename as a combination of passed filename and timestep
-    sprintf(fn, "%s.%i.%i.vtk", filename, rank, t);
-    
+    sprintf(fn, "%s_%i.%i.vtk", filename, rank, t);
+
     FILE *fp = NULL;
     fp = fopen(fn, "w");
     if (fp == NULL) {
@@ -27,13 +28,20 @@ void writeVtkOutput(const double * const collideField, const int * const flagFie
     fprintf(fp, "DATASET STRUCTURED_GRID\n");
     fprintf(fp, "DIMENSIONS %d %d %d \n", subdomain[0], subdomain[1], subdomain[2]);
     fprintf(fp, "POINTS %d float\n\n", (subdomain[0]) * (subdomain[1]) * (subdomain[2]));
-   
+
     // print lattice points
-    double step = 1.0 / (xlength - 1); //TODO
-    for (double x = 0; x <= subdomain[0]-1; x+=1) {
-        for (double y = 0; y <= subdomain[1]-1; y+=1) {
-            for (double z = 0; z <= subdomain[2]-1; z+=1) {
-                fprintf(fp, "%f %f %f\n", x*step, y*step, z*step);
+    double stepx = 1.0 / (xlength[0] - 1);
+    double stepy = 1.0 / (xlength[1] - 1);
+    double stepz = 1.0 / (xlength[2] - 1);
+
+    int startx = (rank%proc[0]) * subdomain[0];
+    int starty = ((rank%(proc[0]*proc[1])) / proc[0]) * subdomain[1];
+    int startz = (rank/(proc[0]*proc[1]) * subdomain[2];
+
+    for (double x = 0; x <= subdomain[0]-1; x+=1) {			// (x = startx*subdomain[0]*stepx; x < startx*(subdomain[0]+1)*stepx;)
+        for (double y = 0; y <= subdomain[1]-1; y+=1) {			// (y = starty*subdomain[1]*stepy; y <= starty*(subdomain[1]+1)*stepy;)
+            for (double z = 0; z <= subdomain[2]-1; z+=1) {		// ...
+                fprintf(fp, "%d %d %d\n", (startx + x)*stepx, (starty + y)*stepy, (startz + z)*stepz);
             }
         }
     }
@@ -43,14 +51,14 @@ void writeVtkOutput(const double * const collideField, const int * const flagFie
     const double *currentCell;
 
     // write density data
-    fprintf(fp, "\nPOINT_DATA %d \n", (xlength) * (xlength) * (xlength));
+    fprintf(fp, "\nPOINT_DATA %d \n", (subdomain[0]) * (subdomain[1]) * (subdomain[2]));
     fprintf(fp, "SCALARS density float 1 \n");
     fprintf(fp, "LOOKUP_TABLE default \n");
     
-    for (int x = 1; x < xlength+1; ++x) {
-        for (int y = 1; y < xlength+1; ++y) {
-            for (int z = 1; z < xlength+1; ++z) {
-                currentCell = collideField + Q*( z*len*len + y*len + x);
+    for (int x = 1; x < subdomain[0]+1; ++x) {
+        for (int y = 1; y < subdomain[1]+1; ++y) {
+            for (int z = 1; z < subdomain[2]+1; ++z) {
+                currentCell = collideField + Q*(compute_index(x, y, z, subdomain));
                 computeDensity(currentCell, &density);
                 fprintf(fp, "%f\n", density);
             }
@@ -60,10 +68,10 @@ void writeVtkOutput(const double * const collideField, const int * const flagFie
     // compute velocities for all cells
     fprintf(fp, "\nVECTORS velocity float\n");
     
-    for (int x = 1; x < xlength+1; ++x) {
-        for (int y = 1; y < xlength+1; ++y) {
-            for (int z = 1; z < xlength+1; ++z) {
-                currentCell = collideField + Q*( z*len*len + y*len + x );
+    for (int x = 1; x < subdomain[0]+1; ++x) {
+        for (int y = 1; y < subdomain[1]+1; ++y) {
+            for (int z = 1; z < subdomain[2]+1; ++z) {
+                currentCell = collideField + Q*(compute_index(x, y, z, subdomain));
                 computeDensity(currentCell, &density);
                 computeVelocity(currentCell, &density, vel);
                 fprintf(fp, "%f %f %f\n", vel[0], vel[1], vel[2]);
@@ -77,3 +85,4 @@ void writeVtkOutput(const double * const collideField, const int * const flagFie
         return;
     }
 }
+
