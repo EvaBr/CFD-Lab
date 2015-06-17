@@ -93,7 +93,7 @@ int main(int argc, char *argv[]){
 	initialiseFields ( collideField, streamField, flagField, subdomain, rank, proc );
 
 	//initialize buffers
-	initialiseBuffers ( sendBuffer, readBuffer, subdomain );
+	initialiseBuffers ( sendBuffer, readBuffer, subdomain, flagField );
 
 
 
@@ -172,8 +172,13 @@ int main(int argc, char *argv[]){
 
 
 	//we finished with the simulation and output
-	if (rank==0){
+	if (rank==2){
 		printf("Simulation finished. Visualisation data written. \n Freeing allocated memory...\n");
+		for (int i =0; i<6; i++){
+			for (int j = 0; j<subdomain[0]*subdomain[1]; j++){
+				printf("sendBuff [%d,%d] =  %f\n", i,j,sendBuffer[i][j]);
+			}
+		}
 	}
 
 

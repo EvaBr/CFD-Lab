@@ -48,32 +48,46 @@ void Programm_Stop(char *txt)
 }
 
 
-void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomain) {
+void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomain, int *flagField) {
 	int kx = subdomain[0] + 2; //size of buffer x
 	int ky = subdomain[1] + 2; //size of buffer y
 	int kz = subdomain[2] + 2; //size of buffer z
 
+	if (flagField[compute_index(0, ky/2, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+		//left buffers
+		sendBuffer[0] = calloc(kz*ky*5, sizeof(double));
+		readBuffer[0] = calloc(kz*ky*5, sizeof(double));
+	}
 
-	//left and right buffers
-	sendBuffer[0] = calloc(kz*ky*5, sizeof(double));
-	sendBuffer[1] = calloc(kz*ky*5, sizeof(double));
+	if (flagField[compute_index(kx-1, ky/2, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+		// right buffers
+		sendBuffer[1] = calloc(kz*ky*5, sizeof(double));
+		readBuffer[1] = calloc(kz*ky*5, sizeof(double));
+	}
 
-	//top and bottom buffers
-	sendBuffer[2] = calloc(kx*ky*5, sizeof(double));
-	sendBuffer[3] = calloc(kx*ky*5, sizeof(double));
+	if (flagField[compute_index(kx/2, ky/2, kz-1, subdomain)]==PARALLEL_BOUNDARY){
+		//top  buffers
+		sendBuffer[2] = calloc(kx*ky*5, sizeof(double));
+		readBuffer[2] = calloc(kx*ky*5, sizeof(double));
+	}
 
-	//front and back buffers
-	sendBuffer[4] = calloc(kx*kz*5, sizeof(double));
-	sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
+	if (flagField[compute_index(kx/2, ky/2, 0, subdomain)]==PARALLEL_BOUNDARY){
+		//bottom buffers
+		sendBuffer[3] = calloc(kx*ky*5, sizeof(double));
+		readBuffer[3] = calloc(kx*ky*5, sizeof(double));
+	}
 
+	if (flagField[compute_index(kx/2, 0, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+		//front buffers
+		sendBuffer[4] = calloc(kx*kz*5, sizeof(double));
+		readBuffer[4] = calloc(kx*kz*5, sizeof(double));
+	}
 
-	//read buffers - analogously
-	readBuffer[0] = calloc(kz*ky*5, sizeof(double));
-	readBuffer[1] = calloc(kz*ky*5, sizeof(double));
-	readBuffer[2] = calloc(kx*ky*5, sizeof(double));
-	readBuffer[3] = calloc(kx*ky*5, sizeof(double));
-	readBuffer[4] = calloc(kx*kz*5, sizeof(double));
-	readBuffer[5] = calloc(kx*kz*5, sizeof(double));
+	if (flagField[compute_index(kx/2, ky-1, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+		//back buffers
+		sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
+		readBuffer[5] = calloc(kx*kz*5, sizeof(double));
+	}
 }
 
 
