@@ -90,10 +90,10 @@ int main(int argc, char *argv[]){
 	flagField = calloc ( vol, sizeof(int) );
 
 	//initialise fields for this subdomain
-	initialiseFields ( collideField, streamField, flagField, subdomain, rank, proc );
+	initialiseFields ( collideField, streamField, flagField, subdomain, rank, proc, sendBuffer, readBuffer);
 
-	//initialize buffers
-	initialiseBuffers ( sendBuffer, readBuffer, subdomain, flagField );
+	//initialize buffers - this is done in initialise fields
+//	initialiseBuffers ( sendBuffer, readBuffer, subdomain, flagField );
 
 
 
@@ -172,13 +172,13 @@ int main(int argc, char *argv[]){
 
 
 	//we finished with the simulation and output
-	if (rank==2){
+	if (rank==0){
 		printf("Simulation finished. Visualisation data written. \n Freeing allocated memory...\n");
-		for (int i =0; i<6; i++){
+		/*for (int i =0; i<6; i++){
 			for (int j = 0; j<subdomain[0]*subdomain[1]; j++){
 				printf("sendBuff [%d,%d] =  %f\n", i,j,sendBuffer[i][j]);
 			}
-		}
+		}*/
 	}
 
 
@@ -190,10 +190,49 @@ int main(int argc, char *argv[]){
 	free ( streamField );
 	free ( flagField );
 	// (dont forget the buffers)
-	for (int i = 0; i < 6; ++i) {
-		free ( sendBuffer[i] );
-		free ( readBuffer[i] );
-	}
+/*	for (int i = 0; i < 6; ++i) {
+                sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
+                readBuffer[5] = calloc(kx*kz*5, sizeof(double));
+	}*/
+	int kx = subdomain[0]+2;
+	int ky = subdomain[1]+2;
+	int kz = subdomain[2]+2;
+ 	if (flagField[compute_index(0, subdomain[1]/2, subdomain[2]/2, subdomain)]==PARALLEL_BOUNDARY){
+                //left buffers
+		free ( sendBuffer[0] );
+		free ( readBuffer[0] );
+        }
+
+        if (flagField[compute_index(kx-1, ky/2, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+                // right buffers
+		free ( sendBuffer[1] );
+		free ( readBuffer[1] );
+        }
+
+        if (flagField[compute_index(kx/2, ky/2, kz-1, subdomain)]==PARALLEL_BOUNDARY){
+                //top  buffers
+		free ( sendBuffer[2] );
+		free ( readBuffer[2] );
+        }
+
+        if (flagField[compute_index(kx/2, ky/2, 0, subdomain)]==PARALLEL_BOUNDARY){
+                //bottom buffers
+		free ( sendBuffer[3] );
+		free ( readBuffer[3] );
+        }
+
+        if (flagField[compute_index(kx/2, 0, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+		//front buffers
+		free ( sendBuffer[4] );
+		free ( readBuffer[4] );
+        }
+
+        if (flagField[compute_index(kx/2, ky-1, kz/2, subdomain)]==PARALLEL_BOUNDARY){
+                //back buffers
+		free ( sendBuffer[5] );
+		free ( readBuffer[5] );
+        }
+
 
 
 	// program is done.

@@ -1,9 +1,9 @@
 #--------------------------------------------
 #            domain size             
 #--------------------------------------------
-xlengthx                     10
-xlengthy                     10
-xlengthz                     10
+xlengthx                     50
+xlengthy                     50
+xlengthz                     50
 
 #--------------------------------------------
 #            relaxation factor
@@ -21,7 +21,7 @@ velocityWallz               0.0
 #--------------------------------------------
 #               time steps
 #--------------------------------------------
-timesteps                   5
+timesteps                   100
 timestepsPerPlotting        5
 
 

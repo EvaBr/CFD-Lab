@@ -48,7 +48,7 @@ void Programm_Stop(char *txt)
 }
 
 
-void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomain, int *flagField) {
+/*void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomain, int *flagField) {
 	int kx = subdomain[0] + 2; //size of buffer x
 	int ky = subdomain[1] + 2; //size of buffer y
 	int kz = subdomain[2] + 2; //size of buffer z
@@ -88,7 +88,7 @@ void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomai
 		sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
 		readBuffer[5] = calloc(kx*kz*5, sizeof(double));
 	}
-}
+}*/
 
 
 

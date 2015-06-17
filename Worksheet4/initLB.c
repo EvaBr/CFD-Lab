@@ -47,12 +47,15 @@ void distributeParameters ( int *xlength, double *tau, double *velocityWall, int
 }
 
 
-void initialiseFields(double *collideField, double *streamField, int *flagField, int *subdomain, int rank, int *proc){
-	// initialization of particle distribution func fields						TODO!!! change for xlength[3], add ghostlayer
+void initialiseFields(double *collideField, double *streamField, int *flagField, int *subdomain, int rank, int *proc, double **sendBuffer, double **readBuffer){
+	// initialization of particle distribution func field
+	int kx = subdomain[0] + 2; //size of buffer x
+        int ky = subdomain[1] + 2; //size of buffer y
+        int kz = subdomain[2] + 2; //size of buffer z
 
-	for (int a=0; a<subdomain[0]+2; a++){
-		for (int b=0; b<subdomain[1]+2; b++){
-			for (int c=0; c<subdomain[2]+2; c++){
+	for (int a=0; a<kx; a++){
+		for (int b=0; b<ky; b++){
+			for (int c=0; c<kz; c++){
 				for (int i=0; i<Q; i++){
 					// initialize streamField and collideField arrays
 					streamField [ Q*compute_index(a, b, c, subdomain) + i ] = LATTICEWEIGHTS [i];
@@ -71,69 +74,80 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 	// if c==xlength+1, overwrite as moving wall:  now you have to check rank, not xlength, to know where you are - since
 	// rank is growing with z coordinate (according to our numbering), c==xlength+1 arises at iproc*jproc*(kproc-1)<rank<=number_of_ranks
 	if (rank >= proc[0]*proc[1]*(proc[2]-1)){ //plus, the ranks go from zero!
-		for (int i=0; i<subdomain[0]+2; i++){
-			for (int j=0; j<subdomain[1]+2; j++){
+		for (int i=0; i<kx; i++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index(i, j, subdomain[2]+1, subdomain)] = MOVING_WALL;
 			}
 		}
 	} else { //in this case we are on the interior ghost boundary
-		for (int i=1; i<subdomain[0]+1; i++){
-			for (int j=1; j<subdomain[1]+1; j++){
+		for (int i=0; i<kx; i++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index(i, j, subdomain[2]+1, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
+		//top  buffers
+                sendBuffer[2] = calloc(kx*ky*5, sizeof(double));
+                readBuffer[2] = calloc(kx*ky*5, sizeof(double));
 	}
 
 
 	// 2. BOTTOM BOUNDARY
 	if (rank < proc[0]*proc[1]){ //then our bottom boundary is outer; so no slip.
-		for (int i=0; i<subdomain[0]+2; i++){
-			for (int j=0; j<subdomain[1]+2; j++){
+		for (int i=0; i<kx; i++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index(i, j, 0, subdomain) ] = NO_SLIP;
 			}
 		}
 	} else { //in this case we are on the interior ghost boundary
-		for (int i=1; i<subdomain[0]+1; i++){
-			for (int j=1; j<subdomain[1]+1; j++){
+		for (int i=0; i<kx; i++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index(i, j, 0, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
+                //bottom buffers
+                sendBuffer[3] = calloc(kx*ky*5, sizeof(double));
+                readBuffer[3] = calloc(kx*ky*5, sizeof(double));
 	}
-
 
 
 
 	// 3. FRONT BOUNDARY
 	if (rank%(proc[1]*proc[0]) < proc[0]) {
 	//in this case, our front boundary is no slip:
-		for (int i=0;  i<subdomain[0]+2; i++){
-			for (int k=0; k<subdomain[2]+2; k++){
+		for (int i=0;  i<kx; i++){
+			for (int k=0; k<kz; k++){
 				flagField [ compute_index(i, 0, k, subdomain) ] = NO_SLIP; //y=0
 			}
 		}
 	} else { //we are on the inside boundary
-		for (int i=1; i<subdomain[0]+1; i++){
-			for (int k=1; k<subdomain[2]+1; k++){
+		for (int i=0; i<kx; i++){
+			for (int k=0; k<kz; k++){
 				flagField [ compute_index(i, 0, k, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
+                //front buffers
+                sendBuffer[4] = calloc(kx*kz*5, sizeof(double));
+                readBuffer[4] = calloc(kx*kz*5, sizeof(double));
 	}
 
 
 	// 4. BACK BOUNDARY
 	if (rank%(proc[1]*proc[0]) >= proc[0]*(proc[1]-1)) { //(y-1)*x<=rnk<y*x
 	//in this case, our back boundary is no slip:
-		for (int i=0;  i<subdomain[0]+2; i++){
-			for (int k=0; k<subdomain[2]+2; k++){ 	//y=ymax
+		for (int i=0;  i<kx; i++){
+			for (int k=0; k<kz; k++){ 	//y=ymax
 				flagField [compute_index(i, (subdomain[1]+1), k, subdomain) ] = NO_SLIP;
 			}
 		}
 	} else { //we are on the inside boundary
-		for (int i=1; i<subdomain[0]+1; i++){
-			for (int k=1; k<subdomain[2]+1; k++){
+		for (int i=0; i<kx; i++){
+			for (int k=0; k<kz; k++){
 				flagField [ compute_index(i, (subdomain[1]+1), k, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
+                //back buffers
+                sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
+                readBuffer[5] = calloc(kx*kz*5, sizeof(double));
 	}
 
 
@@ -141,34 +155,40 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 	// 5. LEFT BOUNDARY
 	if (rank % proc[0] == 0){ //we're outer: no slip
-		for (int k=0; k<subdomain[2]+2; k++){
-			for (int j=0; j<subdomain[1]+2; j++){
+		for (int k=0; k<kz; k++){
+			for (int j=0; j<ky; j++){
 				flagField [compute_index(0, j, k, subdomain) ] = NO_SLIP;
 			}
 		}
 	} else { //in this case we are on the interior ghost boundary
-		for (int k=1; k<subdomain[2]+1; k++){
-			for (int j=1; j<subdomain[1]+1; j++){
+		for (int k=0; k<kz; k++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index(0, j, k, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
+                //left buffers
+                sendBuffer[0] = calloc(kz*ky*5, sizeof(double));
+                readBuffer[0] = calloc(kz*ky*5, sizeof(double));
 	}
 
 
 
 	// 6. RIGHT BOUNDARY
 	if (rank%proc[0] == proc[0]-1){ //we're outer: no slip
-		for (int k=0; k<subdomain[2]+2; k++){
-			for (int j=0; j<subdomain[1]+2; j++){
+		for (int k=0; k<kz; k++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index( subdomain[0]+1, j, k, subdomain) ] = NO_SLIP;
 			}
 		}
 	} else { //in this case we are on the interior ghost boundary
-		for (int k=1; k<subdomain[2]+1; k++){
-			for (int j=1; j<subdomain[1]+1; j++){
+		for (int k=0; k<kz; k++){
+			for (int j=0; j<ky; j++){
 				flagField [ compute_index( subdomain[0]+1, j, k, subdomain) ] = PARALLEL_BOUNDARY;
 			}
 		}
+		// right buffers
+		readBuffer[1] = calloc(kz*ky*5, sizeof(double));
+		sendBuffer[1] = calloc(kz*ky*5, sizeof(double));
 	}
 
 
