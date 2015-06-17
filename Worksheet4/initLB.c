@@ -173,7 +173,7 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 
 
 
-	int ind;
+/*	int ind;
 	//Take care of the edges between  surfaces: the edges between two that are flagged as PARALLEL_BOUNDARY need yet to be set.
 	//We will traverse through all these edges-points, just to avoid the if sentences... (see lower comment)
 	for (int i=0; i<subdomain[0]+2; i++){  //front-bottom, back-bottom, front-top, back-top
@@ -215,5 +215,5 @@ void initialiseFields(double *collideField, double *streamField, int *flagField,
 				ind = compute_index(subdomain[0]+1, subdomain[1]+1, k, subdomain);
 				flagField[ind] = max(PARALLEL_BOUNDARY, flagField[ind]);
 	}
-
+*/
 }

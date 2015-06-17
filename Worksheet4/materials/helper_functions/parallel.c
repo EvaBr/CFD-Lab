@@ -44,7 +44,7 @@ void Programm_Stop(char *txt)
    fflush(stderr);
    MPI_Barrier(MPI_COMM_WORLD);
    MPI_Finalize();
-   exit(1);
+   exit(0);
 }
 
 
@@ -70,10 +70,10 @@ void initialiseBuffers ( double **sendBuffer, double **readBuffer, int *subdomai
 	//read buffers - analogously
 	readBuffer[0] = calloc(kz*ky*5, sizeof(double));
 	readBuffer[1] = calloc(kz*ky*5, sizeof(double));
-	sendBuffer[2] = calloc(kx*ky*5, sizeof(double));
-	sendBuffer[3] = calloc(kx*ky*5, sizeof(double));
-	sendBuffer[4] = calloc(kx*kz*5, sizeof(double));
-	sendBuffer[5] = calloc(kx*kz*5, sizeof(double));
+	readBuffer[2] = calloc(kx*ky*5, sizeof(double));
+	readBuffer[3] = calloc(kx*ky*5, sizeof(double));
+	readBuffer[4] = calloc(kx*kz*5, sizeof(double));
+	readBuffer[5] = calloc(kx*kz*5, sizeof(double));
 }
 
 
@@ -184,77 +184,67 @@ void extractionZbottom (double **sendBuffer, double *collideField, int *subdomai
 /* the MPI_Send and MPI_Recv are kept in comments, because we wanna check the deadlock!*/
 //Swap for left layer
 void swapXleft( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank){
-    MPI_Status status;
+    /*MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD);
+     MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0, MPI_COMM_WORLD, &status);*/
 
-    /*MPI_Send(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
-     MPI_COMM_WORLD);
-     MPI_Recv(&readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
-     MPI_COMM_WORLD, &status);*/
 
-    MPI_Sendrecv(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - 1, 0,
-                 &readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
-                 MPI_COMM_WORLD, &status);
+    MPI_Sendrecv(&sendBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 0,
+                 &readBuffer[0][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - 1, 1,
+                 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }
 //Swap for right layer
 void swapXright( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank){
-    MPI_Status status;
-
-    /*MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
-     MPI_COMM_WORLD);
-     MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
-     MPI_COMM_WORLD, &status);*/
+    /*MPI_Send(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD);
+     MPI_Recv(&readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0, MPI_COMM_WORLD, &status);*/
 
 
-    MPI_Sendrecv(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + 1, 0,
+    MPI_Sendrecv(&sendBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 1,
                  &readBuffer[1][0], 5 * (subdomain[1] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + 1, 0,
-                 MPI_COMM_WORLD, &status);
+                 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }
 
 //Swap for front layer
 void swapYfront( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank){
-    MPI_Status status;
-
     /*MPI_Send(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD);
      MPI_Recv(&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD, &status);*/
 
 
-    MPI_Sendrecv(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank - proc[1], 0,&readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 0,MPI_COMM_WORLD, &status);
-
+    MPI_Sendrecv(&sendBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 2,
+		 &readBuffer[4][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank - proc[1], 3,
+		 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 }
 
 //Swap for back layer
 void swapYback( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank){
-    MPI_Status status;
-
     /* MPI_Send(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0, MPI_COMM_WORLD);
      MPI_Recv(&readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,MPI_COMM_WORLD, &status);*/
 
 
-    MPI_Sendrecv(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2]+ 2), MPI_DOUBLE, rank + proc[1], 0, &readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 0,MPI_COMM_WORLD, &status);
-
+    MPI_Sendrecv(&sendBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 3,
+		 &readBuffer[5][0], 5 * (subdomain[0] + 2) * (subdomain[2] + 2), MPI_DOUBLE, rank + proc[1], 2,
+		 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }
 
 //Swap for top layer
 void swapZtop( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank){
-    MPI_Status status;
-
     /*MPI_Send(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD);
      MPI_Recv(&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);*/
 
-    MPI_Sendrecv(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0,&readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
+    MPI_Sendrecv(&sendBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 4,
+		 &readBuffer[2][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank + proc[0]*proc[1], 5,
+		 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 }
 
 //Swap for bottom layer
 void swapZbottom( double **sendBuffer, double **readBuffer, int *subdomain, int *proc, int rank){
-    MPI_Status status;
-
     /*MPI_Send(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD);
      MPI_Recv(&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);*/
 
-    MPI_Sendrecv(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1]+ 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, 
-	&readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 0, MPI_COMM_WORLD, &status);
+    MPI_Sendrecv(&sendBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 5,
+		 &readBuffer[3][0], 5 * (subdomain[0] + 2) * (subdomain[1] + 2), MPI_DOUBLE, rank - proc[0]*proc[1], 4,
+		 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }
 
 
@@ -266,7 +256,7 @@ void swapZbottom( double **sendBuffer, double **readBuffer, int *subdomain, int 
 //here we inject the five pdfs that would be streamed into our neighbour, x direction.
 
 void injectionXright ( double **readBuffer, double *collideField, int *subdomain){
-	// 1. INJECT FROM RIGHT
+	// 1. INJECT TO RIGHT
 	// pdfs, that need to be extracted are the ones with indices 1, 5, 8, 11, 15.
 	int i = 0;
 /* before calling it, we need to check that right boundary is not a no-slip: if (rank%proc[0]!=proc[0]-1){ */

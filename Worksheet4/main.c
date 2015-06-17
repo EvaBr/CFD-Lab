@@ -32,17 +32,22 @@ int main(int argc, char *argv[]){
 	double *readBuffer[6];
 
 	//initialize MPI run
-	//initializeMPI (&rank, &number_of_ranks, argc, argv );   ????
+	//initializeMPI (&rank, &number_of_ranks, argc, argv );
+	//#############################
 	MPI_Init ( &argc, &argv);
 	MPI_Comm_size ( MPI_COMM_WORLD, &number_of_ranks);
 	MPI_Comm_rank ( MPI_COMM_WORLD, &rank);
+	//############################
+
 
 	//first processor reads parameters, exits if program call not valid
 	if (rank == 0) {
+
 		//announce the start of simulation
-		printf("LBM Simulation of Lid Driven Cavity (by CFD Lab group 9)\n");
+		printf("\nLBM Simulation of Lid Driven Cavity (by CFD Lab group 9)\n");
 		printf("----------------------------------------------------------\n");
 		printf("Reading the parameters... \n");
+
 
 		int fail;
 		fail = readParameters ( xlength, &tau, velocityWall, &timesteps, &timestepsPerPlotting, proc, argc, argv );
@@ -70,9 +75,9 @@ int main(int argc, char *argv[]){
 		printf("Done reading.\n Simulation started (with MPI, using %i ranks).\n", number_of_ranks);
 
 	}
+
 	//distribution of parameters to other ranks:
 	distributeParameters ( xlength, &tau, velocityWall, &timesteps, &timestepsPerPlotting, proc );
-
 
 	//calculate dimensions of subdomain, dealt with by one process
 	int subdomain[3] = { xlength[0] / proc[0], xlength[1] / proc[1], xlength[2] / proc[2] };
@@ -90,15 +95,21 @@ int main(int argc, char *argv[]){
 	//initialize buffers
 	initialiseBuffers ( sendBuffer, readBuffer, subdomain );
 
+
+
+// Program_Message("after initialisations");
+
+
+
 	int t;
 	for (t = 0; t < timesteps; t++){
 
-		//########################################################################################
+	//########################################################################################
 		//extraction, swap, injection for x
 		// 1. LEFT; check, that rank doesn't have a no-slip on the left
 		if (rank%proc[0]!=0) {
 			extractionXleft ( sendBuffer, collideField, subdomain );
-			swapXleft ( sendBuffer, readBuffer, subdomain, proc, rank); //copy our send buffer to neighbour's read buffer, and copy neighbour's send buffer to our read buffer.
+			swapXleft ( sendBuffer, readBuffer, subdomain, proc, rank); //copy our send buffer to neighbour's read buffer, and vice-versa
 			injectionXleft ( readBuffer, collideField, subdomain );
 		}
 		// 2. RIGHT; check, that rank doesn't have a no-slip on the right
@@ -116,7 +127,7 @@ int main(int argc, char *argv[]){
 			swapYfront ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionYfront ( readBuffer, collideField, subdomain );
 		}
-		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (e.g.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
+		// 4. BACK; check, that rank doesn't have a no-slip  at the back    (i.e.   if (rank%(proc[0]*proc[1])<proc[0]*(proc[1]-1)){ )
 		if (flagField[compute_index(subdomain[0]/2, subdomain[1]+1, subdomain[2]/2, subdomain)] == PARALLEL_BOUNDARY){
 			extractionYback ( sendBuffer, collideField, subdomain );
 			swapYback ( sendBuffer, readBuffer, subdomain, proc, rank );
@@ -131,13 +142,13 @@ int main(int argc, char *argv[]){
 			swapZtop ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionZtop ( readBuffer, collideField, subdomain );
 		}
-		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (e.g.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
+		// 6. BOTTOM; check, that rank doesn't have a no-slip at the bottom   (i.e.   if (rank%(proc[0]*proc[1])>=proc[0]){ )
 		if (flagField[compute_index(subdomain[0]/2, subdomain[1]/2, 0, subdomain)] == PARALLEL_BOUNDARY){
 			extractionZbottom ( sendBuffer, collideField, subdomain );
 			swapZbottom ( sendBuffer, readBuffer, subdomain, proc, rank );
 			injectionZbottom ( readBuffer, collideField, subdomain );
 		}
-		//####################################################################################
+	//#########################################################################################
 
 
 		// do the actual streaming step
@@ -152,7 +163,7 @@ int main(int argc, char *argv[]){
 
 		treatBoundary ( collideField, flagField, velocityWall, subdomain);
 
-		// write vtk data   TODO?
+		// write vtk (partial) data
 		if (t%timestepsPerPlotting==0){
 			writeVtkOutput ( collideField, flagField, "DrivenCavity", rank, t, subdomain, xlength, proc );
 		}
@@ -160,38 +171,36 @@ int main(int argc, char *argv[]){
 
 
 
-	//stitch together the vtk files from different ranks.
-	//...to be able to do that, all ranks should have finished writing.... so we set an MPIbarrier here.
-/*	MPI_Barrier(MPI_COMM_WORLD);
-	if (rank==0){
-		stitch_vtk();
-	}*/
-
 	//we finished with the simulation and output
 	if (rank==0){
 		printf("Simulation finished. Visualisation data written. \n Freeing allocated memory...\n");
 	}
 
+
+
+	MPI_Barrier(MPI_COMM_WORLD);  // to make sure we don't free too quickly
+
 	// free the initialized space
 	free ( collideField );
 	free ( streamField );
 	free ( flagField );
-	//(dont forget the buffers)
+	// (dont forget the buffers)
 	for (int i = 0; i < 6; ++i) {
 		free ( sendBuffer[i] );
 		free ( readBuffer[i] );
 	}
 
 
-	//program is done.
+	// program is done.
 	if (rank==0){
 		printf("...done.  :) \n\n");
 	}
 
 
-	//synchronization of processes and end of the MPI session
-	//finalizeMPI(); 				 ????
-	Programm_Stop("op_log.txt");
+	// synchronization of processes and end of the MPI session
+	MPI_Barrier(MPI_COMM_WORLD);
+	MPI_Finalize();
+	/*Programm_Stop("done");*/
 
   	return 0;
 }
