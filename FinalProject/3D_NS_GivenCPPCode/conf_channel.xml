@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <flow Re="2000" />
+    <simulation finalTime="5.0" >
+        <type>turbulence</type>
+        <scenario>channel</scenario>
+    </simulation>
+    <backwardFacingStep xRatio="0." yRatio="0." />
+    <timestep dt="1" tau="0.5" />
+    <solver gamma="0.5" />
+    <geometry dx="0.1" dy="0.1" dz="0.1" sizeX="5" sizeY="5" sizeZ="0" />
+    <environment gx="0" gy="0" gz="0" />
+    <walls>
+        <left>
+            <vector x="0" y="0" z="0" />
+            <scalar value="0.01"/>
+        </left>
+        <right>
+            <vector x="0" y="0" z="0" />
+        </right>
+        <top>
+            <vector x="0" y="0" z="0" />
+        </top>
+        <bottom>
+            <vector x="0" y="0" z="0" />
+        </bottom>
+        <front>
+            <vector x="0" y="0" z="0" />
+        </front>
+        <back>
+            <vector x="0" y="0" z="0" />
+        </back>
+    </walls>
+    <vtk interval="1.0">channel_result</vtk>
+    <stdOut interval="0.000001" />
+    <parallel numProcessorsX="1" numProcessorsY="1" numProcessorsZ="1" />
+</configuration>
