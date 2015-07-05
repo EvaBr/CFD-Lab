@@ -27,17 +27,22 @@ void calculate_fg(
   double Re,
   double GX,
   double GY,
+  double GZ,
   double alpha,
   double dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **U,
-  double **V,
-  double **F,
-  double **G,
-  int **Flag
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***F,
+  double ***G,
+  double ***H,
+  int ***Flag
 );
 
 
@@ -52,11 +57,14 @@ void calculate_rs(
   double dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **F,
-  double **G,
-  double **RS
+  int kmax,
+  double ***F,
+  double ***G,
+  double ***H,
+  double ***RS
 );
 
 
@@ -74,12 +82,14 @@ void calculate_dt(
   double *dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **U,
-  double **V
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W
 );
-
 
 /**
  * Calculates the new velocity values according to the formula
@@ -98,14 +108,18 @@ void calculate_uv(
   double dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **U,
-  double **V,
-  double **F,
-  double **G,
-  double **P,
-  int **Flag
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***F,
+  double ***G,
+  double ***H,
+  double ***P,
+  int ***Flag
 );
 
 #endif

@@ -38,7 +38,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 //                  double *presLeft,		       /*pressure at the left wall*/
 //                  double *presRight,		     /*pressure at the right wall*/
 //                  double *presDelta,		     /*pressure difference across the domain*/
-		                double *velIN;             /*velocity of inflow*/
+		                double *velIN,             /*velocity of inflow*/
                     double *velMW )		         /*velocity of wall (in U direction)*/
 {
    READ_DOUBLE( szFileName, *xlength );
@@ -123,7 +123,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 void init_uvp(
   double UI,
   double VI,
-  double WI
+  double WI,
   double PI,
   int imax,
   int jmax,
@@ -134,15 +134,19 @@ void init_uvp(
   double ***P,
   char * problem
 ) {
-  init_matrix(U, 0, imax+1, 0, jmax+1, 0, kmax+1, UI);
-  init_matrix(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
-	init_matrix(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
-	init_matrix(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
-
-/*	if (strcmp(problem, "STEP.pgm")!=0){
-		init_matrix(U, 0, imax+1, 0, jmax/2, 0.0); //set lower part of pipe to U=0, if scenario is step
-	}*/
+  init_matrix2(U, 0, imax+1, 0, jmax+1, 0, kmax+1, UI);
+  init_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
+	init_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
+	init_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
 }
+
+
+/*helper function for getting the right bit represent. of edges.*/
+int getbit (int wall) {
+  int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
+  return (tarr[wall]*pow(2, 12)+3*(pow(2,10)+pow(2,8)+pow(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
+}
+
 
 /**
  * The integer array Flag is initialized to constants C_F for fluid cells and C_B
@@ -154,56 +158,98 @@ void init_flag(
   int jmax,
   int kmax,
 //  double presDelta,
-  int ***Flag
+  int ***Flag,
+  int wl,
+  int wr,
+  int wf,
+  int wh,
+  int wt,
+  int wb
 ) {
 	int i,j,k;
 	int temp;
 
+  //temporary array of mapping, for easier computation of flags
+  int tarr[] = {1, 2, 0, 3, 4, 7, 8};
 	//read the geometry
+  int **Pic = read_pgm(problem);
 	for (k=1; k<kmax+1; k++) {
-    int **Pic = read_pgm(problem);
-
-	  //initialisation to C_F and C_B
-	  for (int i=1; i<imax+1; i++){
-		    for (int j=1; j<jmax+1; j++){ //in Pic, 1 is where it's fluid, and 0 where it's obstacle
-			     temp = min(Pic[i][j]*pow(2,4) + Pic[i+1][j]*pow(2,3) + Pic[i-1][j]*pow(2,2) + Pic[i][j-1]*2 + Pic[i][j+1], 16);
-			     if (temp == 3 || temp ==7 || (temp > 10 && temp < 15)){
-				      ERROR("Invalid geometry! Forbidden boundary cell found.\n"); }
-			     Flag[i][j] = temp;
+	  //initialisation to C_F and C_B  Flag[i][0][0]
+	  for (int i=1; i<jmax+1; i++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
+		    for (int j=1; j<imax+1; j++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
+			     temp = tarr[Pic[i][j]]*pow2(2, 12) + min(Pic[i][j+1]+1, 3)*pow2(2, 10) + min(Pic[i][j-1]+1, 3)*pow2(2, 8) + min(Pic[i+1][j]+1, 3)*pow2(2, 6) +  min(Pic[i-1][j]+1, 3)*pow2(2, 4) + min(Pic[i-k*(jmax+2)][j]+1, 3)*4 + min(Pic[i+k*(jmax+2)][j]+1, 3); //use min() bcs obstacle neighbours will have numbrs 3-6 in the picture, but they should be flagged with (11)_2 = 3 in the flag field.
+			     //if (temp ....) {} TODO:check for verboten boundary cells
+           Flag[j][jmax+1-i][k] = temp;
 		    }
-	  }
+	  } //da bo to delal more bit slika tk narjena, da ma vsaka 2D podslika okoliinokoli ghost boundary. (s poljubno boundary cifro, tj med 2 in 6)
+  }
+  //set outer boundary vortices, so you wont use them uninitialised.
+  for (k=0; k<kmax+2; k++) {
+    Flag[0][0][k] = getbit(wf);            //xz0
+    Flag[0][jmax+1][k] = getbit(wh);       //xz1
+    Flag[imax+1][0][k] = getbit(wf);       //xz0
+    Flag[imax+1][jmax+1][k] = getbit(wh);  //xz1
+  }
+  for (j=0; j<jmax+2; j++) {
+    Flag[0][j][0] = getbit(wb);            //xy0
+    Flag[0][j][kmax+1] = getbit(wt);       //xy1
+    Flag[imax+1][j][0] = getbit(wb);       //xy0
+    Flag[imax+1][j][kmax+1] = getbit(wt);  //xy1
+  }
+  for (i=0; i<imax+2; i++) {
+    Flag[i][0][0] = getbit(wf);            //xy0
+    Flag[i][jmax+1][0] = getbit(wh);       //xy0
+    Flag[i][0][kmax+1] = getbit(wf);       //xy1
+    Flag[i][jmax+1][kmax+1] = getbit(wh);  //xy1
+	}
 
-
-	//set outer boundary flags - upper and lower:
-	for (i=0; i<=imax+1; i++){
-		if (Flag[i][1] == C_F) {
-			Flag[i][0] = B_N;
-		} else {
-			Flag[i][0] = C_B;
-		}
-		if (Flag[i][jmax] == C_F) {
-			Flag[i][jmax+1] = B_S;
-		} else {
-			Flag[i][jmax+1] = C_B;
-		}
+  //set outer boundary flags - top and bottom:
+	for (i=1; i<=imax; i++){
+    for (j=1; j<=jmax; j++){
+		    if ((Flag[i][j][1]&pow2(2,12))==(Flag[i][j][1]&pow2(2,13))) {//if our only inner cell neighbour is a boundary(obstacle), we set this cell to the same kind of boundary.
+			       Flag[i][j][0] = getbit(0)/*3*(pow(2,10)+pow(2,8)+pow(2,6)+pow(2,4)+4+1)*/ + (Flag[i][j][1]&(pow2(2,12)*15)/*info bout the boundary at the beginning*/);
+		    } else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
+			       Flag[i][j][0] = getbit(wb);
+		    }
+        if ((Flag[i][j][kmax]&pow2(2,12))==(Flag[i][j][kmax]&pow2(2,13))) {//if our only inner cell neighbour is a boundary(obstacle), we set this cell to the same kind of bc.
+             Flag[i][j][kmax+1] = getbit(0) + (Flag[i][j][kmax]&(pow2(2,12)*15)); /*info bout the boundary at the beginning*/
+        } else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
+             Flag[i][j][kmax+1] = getbit(wt);
+        }
+    }
 	}
 	//set the outer boundary flags - right and left:
-	for (j=0; j<=jmax+1; j++){
-		if (Flag[1][j]==C_F) {
-			Flag[0][j] = B_O;
-		} else {
-			Flag[0][j] = C_B;
-		}
-		if (Flag[imax][j] == C_F) {
-			Flag[imax+1][j] = B_W;
-		} else {
-			Flag[imax+1][j] = C_B;
-		}
-	}
-
-
+  for (j=1; j<=jmax; j++){
+    for (k=1; k<=kmax; k++){
+        if ((Flag[1][j][k]&pow2(2,12))==(Flag[1][j][k]&pow2(2,13))) {
+             Flag[0][j][k] = getbit(0) + (Flag[1][j][k]&(pow2(2,12)*15));
+        } else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
+             Flag[0][j][k] = getbit(wl);
+        }
+        if ((Flag[imax][j][k]&pow2(2,12))==(Flag[imax][j][k]&pow2(2,13))) {
+             Flag[imax+1][j][k] = getbit(0) + (Flag[imax][j][k]&(pow2(2,12)*15));
+        } else {
+             Flag[imax+1][j][k] = getbit(wr);
+        }
+    }
+  }
+  //set the outer boundary flags - front and back:
+  for (i=1; i<=imax; i++){
+    for (k=1; k<=kmax; k++){
+        if ((Flag[i][1][k]&pow2(2,12))==(Flag[i][1][k]&pow2(2,13))) {
+             Flag[i][0][k] = getbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
+        } else {
+             Flag[i][0][k] = getbit(wf);
+        }
+        if ((Flag[i][jmax][k]&pow2(2,12))==(Flag[i][jmax][k]&pow2(2,13))) {
+             Flag[i][jmax+1][k] = getbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
+        } else {
+             Flag[i][jmax+1][k] = getbit(wh);
+        }
+    }
+  }
 	// take care of the case when pressure is given
-	for (i=0; i<=imax+1; i++){
+/*	for (i=0; i<=imax+1; i++){
 		if (presDelta) {
 			Flag[i][0] += 32;
 			Flag[i][jmax+1] += 32;
@@ -214,6 +260,5 @@ void init_flag(
 			Flag[0][j] += 32;
 			Flag[imax+1][j] += 32;
 		}
-	}
-
+	}*/
 }

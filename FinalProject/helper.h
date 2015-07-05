@@ -50,7 +50,10 @@ int max( int a, int b);
 double fmin( double a, double b);
 double fmax( double a, double b);
 double mmax(double **M, int imax, int jmax);
-
+double tmax(double ***M, int imax, int jmax, int kmax);
+/*Just a helper function, to have less writing*/
+int isfluid(int i, int j, int k, int ***Flag);
+int pow2 (int en, int dva);
 
 /**
  * Error handling:
@@ -93,7 +96,7 @@ void  errhandler( int nLine, const char *szFile, const char *szString );
  * READ_INT( "MyFile.dat", imax );
  * READ_STRING( szFile, szProblem );
  */
-#define READ_INT( szFileName, VarName)    read_int   ( szFileName, #VarName, &(VarName) ) 
+#define READ_INT( szFileName, VarName)    read_int   ( szFileName, #VarName, &(VarName) )
 
 /**
  * Reading from a datafile.
@@ -175,7 +178,7 @@ void read_double( const char* szFilename, const char* szName, double*  Value);
  * @param xlength             size of the geometry in x-direction
  * @param fFirst              0 == append, else overwrite
  */
-void write_matrix( 
+void write_matrix(
   const char* szFileName,
   double **m,
   int nrl,
@@ -183,8 +186,8 @@ void write_matrix(
   int ncl,
   int nch,
   double xlength,
-  double ylength,	       
-  int fFirst 
+  double ylength,
+  int fFirst
 );
 
 /**
@@ -216,6 +219,7 @@ void read_matrix( const char* szFileName,	               /* filehandle */
  *    free_matrix( U,  0, imax+1, 0, jmax+1 );
  */
 double **matrix( int nrl, int nrh, int ncl, int nch );
+double ***matrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh );
 /**
  * matrix(...)        storage allocation for a matrix (nrl..nrh, ncl..nch)
  * free_matrix(...)   storage deallocation
@@ -229,6 +233,7 @@ double **matrix( int nrl, int nrh, int ncl, int nch );
  *    free_matrix( U,  0, imax+1, 0, jmax+1 );
  */
 void free_matrix( double **m, int nrl, int nrh, int ncl, int nch );
+void free_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh );
 /**
  * matrix(...)        storage allocation for a matrix (nrl..nrh, ncl..nch)
  * free_matrix(...)   storage deallocation
@@ -242,6 +247,7 @@ void free_matrix( double **m, int nrl, int nrh, int ncl, int nch );
  *    free_matrix( U,  0, imax+1, 0, jmax+1 );
  */
 void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a);
+void init_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, double a);
 
 /**
  * matrix(...)        storage allocation for a matrix (nrl..nrh, ncl..nch)
@@ -256,6 +262,8 @@ void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a);
  *    free_matrix( U,  0, imax+1, 0, jmax+1 );
  */
 int  **imatrix( int nrl, int nrh, int ncl, int nch );
+int  ***imatrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh );
+
 /**
  * matrix(...)        storage allocation for a matrix (nrl..nrh, ncl..nch)
  * free_matrix(...)   storage deallocation
@@ -269,6 +277,7 @@ int  **imatrix( int nrl, int nrh, int ncl, int nch );
  *    free_matrix( U,  0, imax+1, 0, jmax+1 );
  */
 void free_imatrix( int **m, int nrl, int nrh, int ncl, int nch );
+void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh );
 /**
  * matrix(...)        storage allocation for a matrix (nrl..nrh, ncl..nch)
  * free_matrix(...)   storage deallocation
@@ -286,7 +295,7 @@ void init_imatrix( int **m, int nrl, int nrh, int ncl, int nch, int a);
 
 /**
  * reads in a ASCII pgm-file and returns the colour information in a two-dimensional integer array.
- * At this, a boundary layer around the image is additionally stored and initialised with 0. 
+ * At this, a boundary layer around the image is additionally stored and initialised with 0.
  */
 int **read_pgm(const char *filename);
 
@@ -622,5 +631,4 @@ int **read_pgm(const char *filename);
 	   ++nCount; \
         }
 
-#endif     
-
+#endif

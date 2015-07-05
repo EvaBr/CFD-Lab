@@ -7,23 +7,29 @@
  */
 
 void boundaryvalues(
-                    int imax,
-                    int jmax,
-                    double **U,
-                    double **V,
-                    double **P,
+        int imax,
+        int jmax,
+        int kmax,
+        double ***U,
+        double ***V,
+        double ***W,
+        double ***P,
 		    int wl,
 		    int wr,
+        int wf,
+        int wh,
 		    int wt,
 		    int wb,
-		    double **F,
-		    double **G,
+		    double ***F,
+		    double ***G,
+        double ***H,
 		    char *problem,
-		    int **Flag,
-		    double vel
+		    int ***Flag,
+		    double velIN,
+        double velMW
                     ){
 
-	switch(wl){ //left wall indices:u(0,i), (v(0,i)+v(1,i))/2
+/*	switch(wl){ //left wall indices:u(0,i), (v(0,i)+v(1,i))/2
 		case NO_SLIP :
 			for(int j=1; j<=jmax; j++){
 				U[0][j] = 0.0;
@@ -106,9 +112,9 @@ void boundaryvalues(
 			}
 			break;
 	}
-
+*/
 	//special boundaries
-	spec_boundary_val(problem, imax, jmax, U, V, Flag, vel);
+	//spec_boundary_val(problem, imax, jmax, U, V, Flag, vel);
 
 }
 

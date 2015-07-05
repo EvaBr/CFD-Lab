@@ -5,24 +5,29 @@ void calculate_fg(
   double Re,
   double GX,
   double GY,
+  double GZ,
   double alpha,
   double dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **U,
-  double **V,
-  double **F,
-  double **G,
-  int **Flag
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***F,
+  double ***G,
+  double ***H,
+  int ***Flag
 ){
-	double uij, vij, uuj, udj, uiu, uid, viu, vid, vuj, vdj, udu, vud;
-	double Dx = 1/dx, Dy = 1/dy;
-	int i, j;
+/*	double uij, vij, uuj, udj, uiu, uid, viu, vid, vuj, vdj, udu, vud;
+	double Dx = 1/dx, Dy = 1/dy, Dz = 1/dz;
+	int i, j, k;
 	for (i=1; i<imax+1; i++){
 		for  (j=1; j<jmax+1; j++){
-			switch (Flag[i][j]){
+			switch (Flag[i][j][k]){
 				case (C_F):
 					uij = U[i][j];
 					uuj = U[i+1][j];
@@ -78,35 +83,40 @@ void calculate_fg(
 					break;
 				}
 			}
-		}
+		}*/
 		/* rewrite G(i,0) and G(i, jmax) with bound.cond. for G */
-		G[i][0] = V[i][0];
-		G[i][jmax] = V[i][jmax];
-	}
-	for (j=1; j<jmax+1; j++){
+//		G[i][0] = V[i][0];
+//		G[i][jmax] = V[i][jmax];
+//	}
+//	for (j=1; j<jmax+1; j++){
 		/* rewrite F(0,j) and F(imax, j) with bound.cond. for F */
-		F[0][j] = U[0][j];
-		F[imax][j] = U[imax][j];
-	}
+//		F[0][j] = U[0][j];
+//		F[imax][j] = U[imax][j];
+//	}
 }
 
 void calculate_rs(
   double dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **F,
-  double **G,
-  double **RS
+  int kmax,
+  double ***F,
+  double ***G,
+  double ***H,
+  double ***RS
 ){
-	int i, j;
+	int i, j, k;
 	/*range of indices {1:imax}x{1:jmax} for RS*/
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax+1; j++){
-			RS[i][j] = ((F[i][j] - F[i-1][j])/dx + (G[i][j] - G[i][j-1])/dy) / dt;
-		}
-	}
+      for(k=0; k<kmax+1; k++){
+			  RS[i][j][k] = ( (F[i][j][k] - F[i-1][j][k])/dx + (G[i][j][k] - G[i][j-1][k])/dy + (H[i][j][k] - H[i][j][k-1])/dz ) / dt;
+		  }
+	  }
+  }
 }
 
 void calculate_dt(
@@ -115,18 +125,22 @@ void calculate_dt(
   double *dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **U,
-  double **V
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W
 ){
-	double tmp, maxi1, maxi2;
+	double tmp, maxi1, maxi2, maxi3;
 	/* we rewrite dt only if tau is nonnegative, else we do nothing */
 	if(tau>=0){
-		tmp = 0.5*Re*(dx*dx*dy*dy)/(dx*dx+dy*dy);
-		maxi1 = mmax(U, imax, jmax);
-		maxi2 = mmax(V, imax, jmax);
-		*dt = tau * fmin(tmp, fmin(dx/maxi1, dy/maxi2)); // (dx/mmax(U, imax, jmax), dy/mmax(V, imax, jmax));
+		tmp = 0.5*Re*(dx*dx*dy*dy*dz*dz)/(dx*dx+dy*dy+dz*dz);
+		maxi1 = tmax(U, imax, jmax, kmax);
+		maxi2 = tmax(V, imax, jmax, kmax);
+    maxi3 = tmax(W, imax, jmax, kmax);
+		*dt = tau * fmin(tmp, fmin(dx/maxi1, fmin(dy/maxi2, dz/maxi3)));
  	}
 }
 
@@ -135,32 +149,51 @@ void calculate_uv(
   double dt,
   double dx,
   double dy,
+  double dz,
   int imax,
   int jmax,
-  double **U,
-  double **V,
-  double **F,
-  double **G,
-  double **P,
-  int **Flag
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***F,
+  double ***G,
+  double ***H,
+  double ***P,
+  int ***Flag
 ){
-	int i, j;
-	/*range of indices {1:(imax-1)}x{1:jmax} for F; {1:imax}x{1:(jmax-1)} for G*/
+	int i, j, k;
+	/*range of indices {1:(imax-1)}x{1:jmax}x{1:kmax} for F; {1:imax}x{1:(jmax-1)}x{1:kmax} for G, etc*/
 
-	/*we only calculate U and V at the edges between two fluid cells*/
+	/*we only calculate U, V and W at the edges between two fluid cells*/
 	for(i=1; i<imax; i++){
 		for(j=1; j<jmax+1; j++){
-			if (Flag[i][j]==C_F && Flag[i+1][j]==C_F){
-				U[i][j] = F[i][j] - dt/dx * (P[i+1][j] - P[i][j]);
-			}
+      for(k=1; k<kmax+1; k++){
+			  if (isfluid(i,j,k, Flag) && isfluid(i+1,j,k, Flag)){
+				   U[i][j][k] = F[i][j][k] - dt/dx * (P[i+1][j][k] - P[i][j][k]);
+			  }
+      }
 		}
 	}
 
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax; j++){
-			if (Flag[i][j]==C_F && Flag[i][j+1]==C_F){
-				V[i][j] = G[i][j] - dt/dy * (P[i][j+1] - P[i][j]);
-			}
+      for(k=1; k<kmax+1; k++){
+			  if (isfluid(i,j,k, Flag) && isfluid(i,j+1,k, Flag)){
+				  V[i][j][k] = G[i][j][k] - dt/dy * (P[i][j+1][k] - P[i][j][k]);
+			  }
+      }
 		}
 	}
+
+  for(i=1; i<imax+1; i++){
+    for(j=1; j<jmax+1; j++){
+      for(k=1; k<kmax; k++){
+        if (isfluid(i,j,k, Flag) && isfluid(i,j,k+1, Flag)){
+          V[i][j][k] = H[i][j][k] - dt/dz * (P[i][j][k+1] - P[i][j][k]);
+        }
+      }
+    }
+  }
+
 }

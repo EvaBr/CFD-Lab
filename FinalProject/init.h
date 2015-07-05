@@ -23,7 +23,7 @@
  * @param ylength    domain lenght y-direction
  * @param dt         time step length: dividing t_end by dt gives the number of
  *                   time steps to perform. Actually dt is determined by a
- *                   function, so manipulating this value within the 
+ *                   function, so manipulating this value within the
  *                   configuration file should not affect the solution process
  *                   at all
  * @param dx         cell length x-direction
@@ -43,22 +43,27 @@
  * @param wb	     initial boundary for bottom wall
  * @param problem    problem to solve
  */
-int read_parameters( 
+int read_parameters(
   const char *szFileName,
   double *Re,
   double *UI,
   double *VI,
+  double *WI,
   double *PI,
   double *GX,
   double *GY,
+  double *GZ,
   double *t_end,
   double *xlength,
   double *ylength,
+  double *zlength,
   double *dt,
   double *dx,
   double *dy,
+  double *dz,
   int  *imax,
   int  *jmax,
+  int  *kmax,
   double *alpha,
   double *omg,
   double *tau,
@@ -67,13 +72,16 @@ int read_parameters(
   double *dt_value,
   int *wl,
   int *wr,
+  int *wf,
+  int *wh,
   int *wt,
   int *wb,
   char *problem,
-  double *presLeft,
+  /*double *presLeft,
   double *presRight,
-  double *presDelta,
-  double *vel
+  double *presDelta,*/
+  double *velIN,
+  double *velMW
 );
 
 /**
@@ -83,22 +91,34 @@ int read_parameters(
 void init_uvp(
   double UI,
   double VI,
+  double WI,
   double PI,
   int imax,
   int jmax,
-  double **U,
-  double **V,
-  double **P,
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***P,
   char * problem
 );
+
+int getbit ( int wall );
+
 
 void init_flag(
   char *problem,
   int imax,
   int jmax,
-  double presDelta,
-  int **Flag
+  int kmax,
+//  double presDelta,
+  int ***Flag,
+  int wl,
+  int wr,
+  int wf,
+  int wh,
+  int wt,
+  int wb
 );
 
 #endif
-

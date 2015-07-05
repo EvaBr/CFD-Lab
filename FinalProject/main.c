@@ -38,22 +38,23 @@ int main(int argn, char** args){
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
 			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW); //&presLeft, &presRight, &presDelta, &vel);
 
-	int pics = dt_value/dt; //just a helping variable for outputing vtk
+	//int pics = dt_value/dt; //just a helping variable for outputing vtk
 
 
 	//allocate memory, including Flag
-	U = matrix(0, imax+1, 0, jmax+1, 0, kmax+1);
-	V = matrix(0, imax+1, 0, jmax+1, 0, kmax+1);
-	P = matrix(0, imax+1, 0, jmax+1, 0, kmax+1);
-	RS = matrix(1, imax, 1, jmax, 1, kmax);
-	F = matrix(0, imax, 1, jmax, 1, kmax);
-	G = matrix(1, imax, 0, jmax, 1, kmax);
-  H = matrix(1, imax, 1, jmax, 0, kmax);
-	Flag = imatrix(0, imax+1, 0, jmax+1, 0, kmax+1); // or Flag = imatrix(1, imax, 1, jmax);
+	U = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
+	V = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
+  W = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
+	P = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
+	RS = matrix2(1, imax, 1, jmax, 1, kmax);
+	F = matrix2(0, imax, 1, jmax, 1, kmax);
+	G = matrix2(1, imax, 0, jmax, 1, kmax);
+  H = matrix2(1, imax, 1, jmax, 0, kmax);
+	Flag = imatrix2(0, imax+1, 0, jmax+1, 0, kmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
 	//initialisation, including **Flag
-	init_flag(problem, imax, jmax, kmax, Flag);  //presDelta, Flag);
-	init_uvp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problem);
+	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
+	init_uvp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problemGeometry);
 
 	//going through all time steps
 	while(t < t_end){
@@ -61,7 +62,7 @@ int main(int argn, char** args){
 		calculate_dt(Re, tau, &dt, dx, dy, dz, imax, jmax, kmax, U, V, W);
 
 		//setting bound.values
-		boundaryvalues(imax, jmax, kmax, U, V, W, P, wl, wr, wf, wh, wt, wb, F, G, H, problem, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
+		boundaryvalues(imax, jmax, kmax, U, V, W, P, wl, wr, wf, wh, wt, wb, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
 
 		//computing F, G and right hand side of pressue eq.
 		calculate_fg(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
@@ -88,23 +89,23 @@ int main(int argn, char** args){
 		t += dt;
 
 		//output of pics for animation
-		if (n%pics==0 ){
-			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
-		}
+		//if (n%pics==0 ){
+		//	write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
+		//}
 	}
 	//output of U, V, P at the end for visualization
 	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
 
 	//free memory
-	free_matrix(U, 0, imax+1, 0, jmax+1, 0, kmax+1);
-	free_matrix(V, 0, imax+1, 0, jmax+1, 0, kmax+1);
-  free_matrix(W, 0, imax+1, 0, jmax+1, 0, kmax+1);
-	free_matrix(P, 0, imax+1, 0, jmax+1, 0, kmax+1);
-	free_matrix(RS, 1, imax, 1, jmax, 1, kmax);
-	free_matrix(F, 0, imax, 1, jmax, 1, kmax);
-	free_matrix(G, 1, imax, 0, jmax, 1, kmax);
-  free_matrix(H, 1, imax, 1, jmax, 0, kmax);
-	free_imatrix(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
+	free_matrix2(U, 0, imax+1, 0, jmax+1, 0, kmax+1);
+	free_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1);
+  free_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1);
+	free_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1);
+	free_matrix2(RS, 1, imax, 1, jmax, 1, kmax);
+	free_matrix2(F, 0, imax, 1, jmax, 1, kmax);
+	free_matrix2(G, 1, imax, 0, jmax, 1, kmax);
+  free_matrix2(H, 1, imax, 1, jmax, 0, kmax);
+	free_imatrix2(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
 
 	return -1;
 }

@@ -8,18 +8,24 @@
 void boundaryvalues(
   int imax,
   int jmax,
-  double **U,
-  double **V,
-  double **P,
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***P,
   int wl,
   int wr,
+  int wf,
+  int wh,
   int wt,
   int wb,
-  double **F,
-  double **G,
+  double ***F,
+  double ***G,
+  double ***H,
   char *problem,
-  int **Flag,
-  double UI
+  int ***Flag,
+  double velIN,
+  double velMW
 );
 
 void spec_boundary_val(

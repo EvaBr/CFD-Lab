@@ -6,7 +6,7 @@
 /* ----------------------------------------------------------------------- */
 /*                             auxiliary functions                         */
 /* ----------------------------------------------------------------------- */
-int min( int a, int b)           
+int min( int a, int b)
 {
     if( a < b ) return a;
     return b;
@@ -30,6 +30,10 @@ double fmax( double a, double b)
     return b;
 }
 
+int pow2 (int en, int dva) {
+  int ret = pow(en, dva);
+  return ret;
+}
 
 double mmax( double **U, int imax, int jmax)
 {
@@ -42,6 +46,27 @@ double mmax( double **U, int imax, int jmax)
 	}
     }
     return maxij;
+}
+
+int isfluid(int i, int j, int k, int ***Flag) {
+  int ret = pow(2, 12);
+  return ( (Flag[i][j][k] & (3*ret)) == ret );
+}
+
+
+double tmax( double ***U, int imax, int jmax, int kmax)
+{
+  double maxij = 0;
+  for( int i=0; i<=imax+1; i++){
+	   for( int j=0; j<=jmax+1; j++){
+       for( int k=0; k<=kmax+1; k++){
+	        if (fabs(U[i][j][k])>maxij){
+	           maxij = fabs(U[i][j][k]);
+	        }
+       }
+	   }
+  }
+  return maxij;
 }
 
 
@@ -70,7 +95,7 @@ void errhandler( int nLine, const char *szFile, const char *szString )
 
     fprintf( ERROUT, "%s:%d Error : %s", szFile, nLine, szString );
     fprintf( ERROUT, "\n" );
-    
+
     /* if an error within the c-library occured, an error code can be   */
     /* found in the global variable err                                 */
     if( err != 0 )
@@ -91,7 +116,7 @@ void errhandler( int nLine, const char *szFile, const char *szString )
 	sprintf( szTmp, " %s  File: %s   Variable: %s ", szMessage, szFileName, szVarName); \
     ERROR( szTmp ); \
   }
-    
+
 
 /* --------------------------------------------------------------------------*/
 /* The function searches the datafile fh for the line defining the variable  */
@@ -103,11 +128,11 @@ void errhandler( int nLine, const char *szFile, const char *szString )
 /* copied!!!                                                                 */
 /*                                                                           */
 char* find_string( const char* szFileName, const char *szVarName )
-{ 
+{
     int nLine = 0;
     int i;
     FILE *fh = NULL;
-    
+
     static char szBuffer[MAX_LINE_LENGTH];	/* containes the line read  */
                                                /* from the datafile        */
 
@@ -117,7 +142,7 @@ char* find_string( const char* szFileName, const char *szVarName )
 
     /* open file */
     fh = fopen( szFileName, "rt" );
-    if( fh == 0 ) 
+    if( fh == 0 )
 	READ_ERROR("Could not open file", szVarName, szFileName, 0);
 
     /* searching */
@@ -136,36 +161,36 @@ char* find_string( const char* szFileName, const char *szVarName )
 
 	/* remove empty lines */
 	while( isspace( (int)*szLine ) && *szLine) ++szLine;
-	if( strlen( szLine ) == 0) continue; 
+	if( strlen( szLine ) == 0) continue;
 
 	/* now, the name can be extracted */
 	szName = szLine;
 	szValue = szLine;
 	while( (isalnum( (int)*szValue ) || *szValue == '_') && *szValue) ++szValue;
-	
+
 	/* is the value for the respective name missing? */
-	if( *szValue == '\n' || strlen( szValue) == 0)  
+	if( *szValue == '\n' || strlen( szValue) == 0)
 	    READ_ERROR("wrong format", szName, szFileName, nLine);
-	
+
 	*szValue = 0;		/* complete szName! at the right place */
 	++szValue;
-        
+
 	/* read next line if the correct name wasn't found */
 	if( strcmp( szVarName, szName)) continue;
 
 	/* remove all leading blnkets and tabs from the value string  */
 	while( isspace( (int)*szValue) ) ++szValue;
-	if( *szValue == '\n' || strlen( szValue) == 0)  
+	if( *szValue == '\n' || strlen( szValue) == 0)
 	    READ_ERROR("wrong format", szName, szFileName, nLine);
-	
+
 	fclose(fh);
 	return szValue;
-    }  
-   
+    }
+
     READ_ERROR("variable not found", szVarName, szFileName, nLine);
-    
+
     return NULL;		/* dummy to satisfy the compiler  */
-} 
+}
 
 void read_string( const char* szFileName, const char* szVarName, char*   pVariable)
 {
@@ -179,13 +204,13 @@ void read_string( const char* szFileName, const char* szVarName, char*   pVariab
 	szValue = find_string( szFileName, szVarName +1 );
     else
 	szValue = find_string( szFileName, szVarName );
-    
+
     if( sscanf( szValue, "%s", pVariable) == 0)
 	READ_ERROR("wrong format", szVarName, szFileName,0);
 
-    printf( "File: %s\t\t%s%s= %s\n", szFileName, 
+    printf( "File: %s\t\t%s%s= %s\n", szFileName,
 	                              szVarName,
-	                              &("               "[min_int( strlen(szVarName), 15)]), 
+	                              &("               "[min_int( strlen(szVarName), 15)]),
 	                              pVariable );
 }
 
@@ -201,13 +226,13 @@ void read_int( const char* szFileName, const char* szVarName, int* pVariable)
 	szValue = find_string( szFileName, szVarName +1 );
     else
 	szValue = find_string( szFileName, szVarName );
-    
+
     if( sscanf( szValue, "%d", pVariable) == 0)
 	READ_ERROR("wrong format", szVarName, szFileName, 0);
 
-    printf( "File: %s\t\t%s%s= %d\n", szFileName, 
+    printf( "File: %s\t\t%s%s= %d\n", szFileName,
 	                              szVarName,
-	                              &("               "[min_int( strlen(szVarName), 15)]), 
+	                              &("               "[min_int( strlen(szVarName), 15)]),
 	                              *pVariable );
 }
 
@@ -223,13 +248,13 @@ void read_double( const char* szFileName, const char* szVarName, double* pVariab
 	szValue = find_string( szFileName, szVarName +1 );
     else
 	szValue = find_string( szFileName, szVarName );
-    
+
     if( sscanf( szValue, "%lf", pVariable) == 0)
 	READ_ERROR("wrong format", szVarName, szFileName, 0);
 
-    printf( "File: %s\t\t%s%s= %f\n", szFileName, 
+    printf( "File: %s\t\t%s%s= %f\n", szFileName,
 	                              szVarName,
-	                              &("               "[min_int( strlen(szVarName), 15)]), 
+	                              &("               "[min_int( strlen(szVarName), 15)]),
 	                              *pVariable );
 }
 
@@ -265,7 +290,7 @@ void write_matrix( const char* szFileName,       /* filename */
 	   sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
 	   ERROR( szBuff );
        }
-       
+
 /*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
    }
    else
@@ -277,7 +302,7 @@ void write_matrix( const char* szFileName,       /* filename */
 	   sprintf( szBuff, "Outputfile %s cannot be opened", szFileName );
 	   ERROR( szBuff );
        }
-   } 
+   }
 
    for( j = ncl; j <= nch; j++)
        for( i = nrl; i <= nrh; i++)
@@ -302,7 +327,7 @@ void read_matrix( const char* szFileName,       /* filename */
 		   int nrh,		       /* last column */
 		   int ncl,		       /* first row */
 		   int nch		       /* last row */
-                  ) 	  
+                  )
 {
    int i, j;
    FILE * fh = 0;
@@ -348,16 +373,16 @@ double **matrix( int nrl, int nrh, int ncl, int nch )
    int i;
    int nrow = nrh - nrl + 1;	/* compute number of lines */
    int ncol = nch - ncl + 1;	/* compute number of columns */
-   
+
    double **pArray  = (double **) malloc((size_t)( nrow * sizeof(double*)) );
    double  *pMatrix = (double *)  malloc((size_t)( nrow * ncol * sizeof( double )));
 
    if( pArray  == 0)  ERROR("Storage cannot be allocated");
    if( pMatrix == 0)  ERROR("Storage cannot be allocated");
 
-   /* first entry of the array points to the value corrected by the 
+   /* first entry of the array points to the value corrected by the
       beginning of the column */
-   pArray[0] = pMatrix - ncl; 
+   pArray[0] = pMatrix - ncl;
 
    /* compute the remaining array entries */
    for( i = 1; i < nrow; i++ )
@@ -396,7 +421,7 @@ int **imatrix( int nrl, int nrh, int ncl, int nch )
 
    int nrow = nrh - nrl + 1;	/* compute number of rows */
    int ncol = nch - ncl + 1;	/* compute number of columns */
-   
+
    int **pArray  = (int **) malloc((size_t)( nrow * sizeof( int* )) );
    int  *pMatrix = (int *)  malloc((size_t)( nrow * ncol * sizeof( int )));
 
@@ -404,9 +429,9 @@ int **imatrix( int nrl, int nrh, int ncl, int nch )
    if( pArray  == 0)  ERROR("Storage cannot be allocated");
    if( pMatrix == 0)  ERROR("Storage cannot be allocated");
 
-   /* first entry of the array points to the value corrected by the 
+   /* first entry of the array points to the value corrected by the
       beginning of the column */
-   pArray[0] = pMatrix - ncl; 
+   pArray[0] = pMatrix - ncl;
 
    /* compute the remaining array entries */
    for( i = 1; i < nrow; i++ )
@@ -445,7 +470,7 @@ int **read_pgm(const char *filename)
     int xsize, ysize;
     int i1, j1;
     int **pic = NULL;
-    
+
 
     if ((input=fopen(filename,"rb"))==0)
     {
@@ -494,7 +519,7 @@ int **read_pgm(const char *filename)
 	        }
 	        else
 	        {
-		        pic[i1][ysize+1-j1] = min(byte, 1);
+		        pic[i1][ysize+1-j1] = byte;
 		        //printf("%d,%d: %d\n", i1, ysize+1-j1, min(byte, 1));
 	        }
 	     }
@@ -515,6 +540,6 @@ int **read_pgm(const char *filename)
 
     /* close file */
     fclose(input);
-    
+
     return pic;
 }

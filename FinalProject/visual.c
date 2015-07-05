@@ -7,15 +7,19 @@ void write_vtkFile(const char *szProblem,
 		 int    timeStepNumber,
 		 double xlength,
      double ylength,
+		 double zlength,
      int    imax,
      int    jmax,
+		 int    kmax,
 		 double dx,
 		 double dy,
-     double **U,
-     double **V,
-     double **P) {
-  
-  int i,j;
+		 double dz,
+     double ***U,
+     double ***V,
+		 double ***W,
+     double ***P) {
+
+/*  int i,j;
   char szFileName[80];
   FILE *fp=NULL;
   sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
@@ -56,7 +60,7 @@ void write_vtkFile(const char *szProblem,
     char szBuff[80];
     sprintf( szBuff, "Failed to close %s", szFileName );
     ERROR( szBuff );
-  }
+  }*/
 }
 
 
