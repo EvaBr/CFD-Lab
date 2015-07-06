@@ -49,15 +49,11 @@ int main(int argn, char** args){
 	G = matrix(1, imax, 0, jmax);
 	Flag = imatrix(0, imax+1, 0, jmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
-	int kmax = 20;
-	double ***U3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) );
-	double ***V3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) );
-	double ***W3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) );
-	double ***P3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) );
-	double ***F3d  = (double ***) malloc((size_t)((imax+1)*(jmax)*(kmax) * sizeof(double*)) );
-	double ***G3d  = (double ***) malloc((size_t)((imax)*(jmax+1)*(kmax) * sizeof(double*)) );
-	double ***H3d  = (double ***) malloc((size_t)((imax)*(jmax)*(kmax+1) * sizeof(double*)) );
-	int ***Flag3d  = (int ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(int*)) );
+	int kmax = 20; //test no slip boundary value function
+	double ***U3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) ); //test no slip boundary value function
+	double ***V3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) ); //test no slip boundary value function
+	double ***W3d  = (double ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(double*)) ); //test no slip boundary value function
+	int ***Flag3d  = (int ***) malloc((size_t)((imax+1)*(jmax+1)*(kmax+1) * sizeof(int*)) ); //test no slip boundary value function
 
 	//initialisation, including **Flag
 	init_flag(problem, imax, jmax, presDelta, Flag);
@@ -71,7 +67,14 @@ int main(int argn, char** args){
 		//setting bound.values
 		boundaryvalues(imax, jmax, U, V, P, wl, wr, wt, wb, F, G, problem, Flag, vel); //including P, wl, wr, wt, wb, F, G, problem
 
-		boundaryvalues_no_slip(imax, jmax, kmax, U3d, V3d, W3d, P3d, F3d, G3d, H3d, Flag3d); //including P, wl, wr, wt, wb, F, G, problem
+                //test no slip boundary value function
+                for(int i=1; i<=imax; i++){
+                        for(int j=1; j<=jmax; j++){
+                                for(int k=1; k<=kmax; k++){
+                                        boundaryvalues_no_slip(i, j, k, U3d, V3d, W3d, Flag3d); //test no slip boundary value function
+                                }
+                        }
+		}
 		
 		//computing F, G and right hand side of pressue eq.
 		calculate_fg(Re, GX, GY, alpha, dt, dx, dy, imax, jmax, U, V, F, G, Flag);
@@ -117,10 +120,6 @@ int main(int argn, char** args){
 	free(U3d);
 	free(V3d);
 	free(W3d);
-	free(P3d);
-	free(F3d);
-	free(G3d);
-	free(H3d);
 	free(Flag3d);
 	return -1;
 }
