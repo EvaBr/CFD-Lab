@@ -5,6 +5,21 @@
 /*
  * The boundary values of the problem are set.
  */
+
+void boundaryvalues_no_slip(
+  int imax,
+  int jmax,
+  int kmax,
+  double ***U,
+  double ***V,
+  double ***W,
+  double ***P,
+  double ***F,
+  double ***G,
+  double ***H,
+  int ***Flag
+);
+
 void boundaryvalues(
   int imax,
   int jmax,
