@@ -54,7 +54,7 @@ int main(int argn, char** args){
 
 	//initialisation, including **Flag
 	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
-	init_uvp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problemGeometry);
+	init_uvwp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problemGeometry);
 
 	//going through all time steps
 	while(t < t_end){
@@ -65,7 +65,7 @@ int main(int argn, char** args){
 		boundaryvalues(imax, jmax, kmax, U, V, W, P, wl, wr, wf, wh, wt, wb, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
 
 		//computing F, G and right hand side of pressue eq.
-		calculate_fg(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
+		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
 		calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS);
 
 		//iteration counter
@@ -82,7 +82,7 @@ int main(int argn, char** args){
 			printf("Warning: sor while loop exits because it reaches the itermax. res = %f, time =%f\n", res, t);
 		}
 */		//calculate U, V and W of this time step
-		calculate_uv(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag);
+		calculate_uvw(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag);
 
 		//indent time and number of time steps
 		n++;

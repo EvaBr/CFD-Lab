@@ -23,7 +23,7 @@
  * @f$ i=1,\ldots,imax, \quad j=1,\ldots,jmax-1 @f$
  *
  */
-void calculate_fg(
+void calculate_fgh(
   double Re,
   double GX,
   double GY,
@@ -104,7 +104,7 @@ void calculate_dt(
  *
  * @image html calculate_uv.jpg
  */
-void calculate_uv(
+void calculate_uvw(
   double dt,
   double dx,
   double dy,

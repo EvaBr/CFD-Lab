@@ -1,7 +1,7 @@
 #include "helper.h"
 #include <math.h>
 
-void calculate_fg(
+void calculate_fgh(
   double Re,
   double GX,
   double GY,
@@ -133,19 +133,20 @@ void calculate_dt(
   double ***V,
   double ***W
 ){
-	double tmp, maxi1, maxi2, maxi3;
+	double tmp, tmpT, maxi1, maxi2, maxi3;
 	/* we rewrite dt only if tau is nonnegative, else we do nothing */
 	if(tau>=0){
-		tmp = 0.5*Re*(dx*dx*dy*dy*dz*dz)/(dx*dx+dy*dy+dz*dz);
+		tmp = 0.5*Re*(dx*dx*dy*dy*dz*dz)/(dx*dx*(dy*dy+dz*dz)+ dy*dy*dz*dz);
+    //tmpT = Pr*tmp;
 		maxi1 = tmax(U, imax, jmax, kmax);
 		maxi2 = tmax(V, imax, jmax, kmax);
     maxi3 = tmax(W, imax, jmax, kmax);
-		*dt = tau * fmin(tmp, fmin(dx/maxi1, fmin(dy/maxi2, dz/maxi3)));
+		*dt = tau * /*fmin(tmpT,*/ fmin(tmp, fmin(dx/maxi1, fmin(dy/maxi2, dz/maxi3)));
  	}
 }
 
 
-void calculate_uv(
+void calculate_uvw(
   double dt,
   double dx,
   double dy,
@@ -190,7 +191,7 @@ void calculate_uv(
     for(j=1; j<jmax+1; j++){
       for(k=1; k<kmax; k++){
         if (isfluid(i,j,k, Flag) && isfluid(i,j,k+1, Flag)){
-          V[i][j][k] = H[i][j][k] - dt/dz * (P[i][j][k+1] - P[i][j][k]);
+          W[i][j][k] = H[i][j][k] - dt/dz * (P[i][j][k+1] - P[i][j][k]);
         }
       }
     }

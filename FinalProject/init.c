@@ -120,7 +120,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
  * The arrays U,V,W and P are initialized to the constant values UI, VI, WI and PI on
  * the whole domain.
  */
-void init_uvp(
+void init_uvwp(
   double UI,
   double VI,
   double WI,

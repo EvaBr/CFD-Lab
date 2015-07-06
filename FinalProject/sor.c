@@ -19,7 +19,7 @@ void sor(
 ) {
   int i,j,k;
   double rloc;
-//  double coeff = omg/(2.0*(1.0/(dx*dx)+1.0/(dy*dy)));
+  double coeff = omg/(2.0*(1.0/(dx*dx)+1.0/(dy*dy)+1.0/(dz*dz)));
 
   double FluidCells = 0.0;
 
@@ -28,8 +28,8 @@ void sor(
     for(j = 1; j<=jmax; j++) {
       for(k = 1; k<=kmax; k++) {
         if(isfluid(i,j,k,Flag)){
-	         /*P[i][j] = (1.0-omg)*P[i][j]
-        	      + coeff*(( P[i+1][j]+P[i-1][j])/(dx*dx) + ( P[i][j+1]+P[i][j-1])/(dy*dy) - RS[i][j]);*/
+	         P[i][j][k] = (1.0-omg)*P[i][j][k]
+        	      + coeff*( (P[i+1][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-P[i][j][k])/(dz*dz) - RS[i][j][k]);
 	         FluidCells++;
         }
       }
@@ -41,9 +41,8 @@ void sor(
   for(i = 1; i <= imax; i++) {
     for(j = 1; j <= jmax; j++) {
       if(isfluid(i,j,k,Flag)){
-/*	      rloc += ( (P[i+1][j]-2.0*P[i][j]+P[i-1][j])/(dx*dx) + ( P[i][j+1]-2.0*P[i][j]+P[i][j-1])/(dy*dy) - RS[i][j])*
-        	      ( (P[i+1][j]-2.0*P[i][j]+P[i-1][j])/(dx*dx) + ( P[i][j+1]-2.0*P[i][j]+P[i][j-1])/(dy*dy) - RS[i][j]);
-*/        rloc++;
+	      rloc += ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k])*
+        	      ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k]);
       }
     }
   }
@@ -54,7 +53,7 @@ void sor(
 
 
   /* set boundary values */
-  /*for(i = 0; i <= imax+1; i++) {
+  for(i = 0; i <= imax+1; i++) {
     P[i][0] = P[i][1];		//boundary cond at lower and upper wall
     P[i][jmax+1] = P[i][jmax];
     for(j=0; j <= jmax+1; j++) {
@@ -72,7 +71,7 @@ void sor(
 		     //case C_B: P[i][j] = 0; break;
 	    }
     }
-  }*/
+  }
 
 
   //check if given pressure, set Dirichlet or Neuman BC according to that, for left and right wall
