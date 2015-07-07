@@ -25,34 +25,34 @@
 #define MOWING_WALL 6
 
 //helper flags for easier checking in boundary functions
-#define B_N 1
-#define B_O 2
-#define B_S 3
-#define B_W 4
-#define B_U 5
-#define B_D 6
+#define B_N 8
+#define B_O 32
+#define B_S 4
+#define B_W 16
+#define B_U 1
+#define B_D 2
 
-#define B_NO 7
-#define B_NW 8
+#define B_NO 40
+#define B_NW 24
 #define B_NU 9
 #define B_ND 10
-#define B_SO 11
-#define B_SW 12
-#define B_SU 13
-#define B_SD 14
-#define B_OU 15
-#define B_WU 16
-#define B_OD 17
+#define B_SO 36
+#define B_SW 20
+#define B_SU 5
+#define B_SD 6
+#define B_OU 33
+#define B_WU 17
+#define B_OD 34
 #define B_WD 18
 
-#define B_NOU 19
-#define B_NOD 20
-#define B_NWU 21
-#define B_NWD 22
-#define B_SOU 23
-#define B_SOD 24
-#define B_SWU 25
-#define B_SWD 26
+#define B_NOU 41
+#define B_NOD 42
+#define B_NWU 25
+#define B_NWD 26
+#define B_SOU 37
+#define B_SOD 38
+#define B_SWU 21
+#define B_SWD 22
 
 
 
@@ -82,7 +82,7 @@ int isfluid(int i, int j, int k, int ***Flag);
 int pow2 (int en, int dva);
 int getbit (int wall);
 int interior (int i, int j, int k, int ***Flag);
-int getFlag2 (int i, int j, int k, int ***Flag);
+int getcelltype (int i, int j, int k, int ***Flag);
 
 
 /**

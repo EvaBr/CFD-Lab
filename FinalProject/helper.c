@@ -60,12 +60,12 @@ int getbit (int wall) {
 }
 
 int interior (int i, int j, int k, int ***Flag) {
-  int big = (Flag[i][j][k] >= pow(2, 14));
+  int big = (Flag[i][j][k] >= pow(2, 14)); //check the cell itself is b
   int gb = getbit(0);
-  return (big && ((Flag[i][j][k]&gb)==gb));
+  return (big && ((Flag[i][j][k]&gb)==gb)); //check also all neighb. are b
 }
 
-double tmax( double ***U, int imax, int jmax, int kmax)
+double tmax( double ***U, int imax, int jmax, int kmax) //added function for getting max of a tensor
 {
   double maxij = 0;
   for( int i=0; i<=imax+1; i++){
@@ -78,6 +78,12 @@ double tmax( double ***U, int imax, int jmax, int kmax)
 	   }
   }
   return maxij;
+}
+
+int getcelltype (int i, int j, int k, int ***Flag){
+  int flags = (getbit(0)/3)*2; //10|10|10|10|10|10 - check where is water
+  flags = Flag[i][j][k]&flags;  //get just the important bits
+  return flags;
 }
 
 
