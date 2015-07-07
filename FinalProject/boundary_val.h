@@ -7,16 +7,12 @@
  */
 
 void boundaryvalues_no_slip(
-  int imax,
-  int jmax,
-  int kmax,
+  int i,
+  int j,
+  int k,
   double ***U,
   double ***V,
   double ***W,
-  double ***P,
-  double ***F,
-  double ***G,
-  double ***H,
   int ***Flag
 );
 

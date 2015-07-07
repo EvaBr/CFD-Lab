@@ -7,51 +7,27 @@
  */
 
 void boundaryvalues_no_slip(
-                    int imax,
-                    int jmax,
-                    int kmax,
+                    int i,
+                    int j,
+                    int k,
                     double ***U,
                     double ***V,
                     double ***W,
-                    double ***P,
-                    double ***F,
-                    double ***G,
-                    double ***H,
                     int ***Flag
                     ){
         // No-slip boundary conditions for U, V and W.
-        for(int j=1; j<=jmax; j++){
-                for(int k=1; k<=kmax; k++){
-                        U[0][j][k] = 0.0;
-                        U[imax][j][k] = 0.0;
-                        V[0][j][k] = -V[1][j][k];
-                        V[imax+1][j][k] = -V[imax][j][k];
-                        W[0][j][k] = -W[1][j][k];
-                        W[imax+1][j][k] = -W[imax][j][k];
-                }
-        }
-
-        for(int i=1; i<=imax; i++){
-                for(int k=1; k<=kmax; k++){
-                        V[i][0][k] = 0.0;
-                        V[i][jmax][k] = 0.0;
-                        U[i][0][k] = -U[i][1][k];
-                        U[i][jmax+1][k] = -U[i][jmax][k];
-                        W[i][0][k] = -W[i][1][k];
-                        W[i][jmax+1][k] = -W[i][jmax][k];
-                }
-        }
-
-        for(int i=1; i<=imax; i++){
-                for(int j=1; j<=jmax; j++){
-                        W[i][j][0] = 0.0;
-                        W[i][j][kmax] = 0.0;
-                        U[i][j][0] = -U[i][j][1];
-                        U[i][j][kmax+1] = -U[i][j][kmax];
-                        V[i][j][0] = -V[i][j][1];
-                        V[i][j][kmax+1] = -V[i][j][kmax];
-                }
-        }
+	switch(Flag[i][j][k]){
+		case B_N:
+			
+			break;
+		case B_O:
+			U[i][j][k] = 0.0;
+			V[i][j-1][k] = -V[i+1][j-1][k];
+			V[i][j][k] = -V[i+1][j][k];
+			W[i][j][k-1] = -W[i+1][j][k-1];
+			W[i][j][k] = -W[i+1][j][k];
+			break;
+	}
 
 }
 
