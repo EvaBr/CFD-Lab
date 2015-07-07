@@ -141,13 +141,6 @@ void init_uvwp(
 }
 
 
-/*helper function for getting the right bit represent. of edges.*/
-int getbit (int wall) {
-  int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
-  return (tarr[wall]*pow(2, 12)+3*(pow(2,10)+pow(2,8)+pow(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
-}
-
-
 /**
  * The integer array Flag is initialized to constants C_F for fluid cells and C_B
  * for obstacle cells as specified by the parameter problem.

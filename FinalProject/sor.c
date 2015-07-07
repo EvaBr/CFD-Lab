@@ -54,22 +54,24 @@ void sor(
 
   /* set boundary values */
   for(i = 0; i <= imax+1; i++) {
-    P[i][0] = P[i][1];		//boundary cond at lower and upper wall
-    P[i][jmax+1] = P[i][jmax];
-    for(j=0; j <= jmax+1; j++) {
-	     switch(Flag[i][j]){
-		     case B_N: P[i][j] = P[i][j+1]; break;
-		     case B_O: P[i][j] = P[i+1][j]; break;
-		     case B_S: P[i][j] = P[i][j-1]; break;
-		     case B_W: P[i][j] = P[i-1][j]; break;
+    //P[i][0] = P[i][1];		//boundary cond at lower and upper wall
+    //P[i][jmax+1] = P[i][jmax];
+    for(j = 0; j <= jmax+1; j++) {
+      for(k = 0; k<= kmax+1; k++) {
+	       switch(Flag[i][j]){
+		        case B_N: P[i][j] = P[i][j+1]; break;
+		        case B_O: P[i][j] = P[i+1][j]; break;
+		        case B_S: P[i][j] = P[i][j-1]; break;
+		        case B_W: P[i][j] = P[i-1][j]; break;
 
-		     case B_NO: P[i][j] = (P[i+1][j] + P[i][j+1])*0.5; break;
-		     case B_NW: P[i][j] = (P[i-1][j] + P[i][j+1])*0.5; break;
-		     case B_SO: P[i][j] = (P[i+1][j] + P[i][j-1])*0.5; break;
-		     case B_SW: P[i][j] = (P[i-1][j] + P[i][j-1])*0.5; break;
+		        case B_NO: P[i][j] = (P[i+1][j] + P[i][j+1])*0.5; break;
+		        case B_NW: P[i][j] = (P[i-1][j] + P[i][j+1])*0.5; break;
+		        case B_SO: P[i][j] = (P[i+1][j] + P[i][j-1])*0.5; break;
+		        case B_SW: P[i][j] = (P[i-1][j] + P[i][j-1])*0.5; break;
 
 		     //case C_B: P[i][j] = 0; break;
-	    }
+	          default break;
+      }
     }
   }
 
