@@ -32,6 +32,101 @@ void boundaryvalues_no_slip(
 }
 
 
+
+
+void boundaryvalues_outflow(
+                            int i,
+                            int j,
+                            int k,
+                            double ***U,
+                            double ***V,
+                            double ***W,
+                            int ***Flag
+                            ){
+    
+                
+                switch(Flag[i][j][k]){
+                case B_N:
+                    V[i][jmax][k] = V[i][jmax-1][k];
+                    U[i][jmax+1][k] = U[i][jmax][k];
+                    W[i][jmax+1][k] = W[i][jmax][k];
+                    break;
+                        
+                case B_O:
+                    U[imax][j][k] = U[imax-1][j][k];
+                    V[imax+1][j][k] = V[imax][j][k];
+                    W[imax+1][j][k] = W[imax][j][k];
+                    break;
+                        
+                case B_S:
+                    V[i][0][k] = V[i][1][k];
+                    U[i][0][k] = U[i][1][k];
+                    W[i][0][k] = W[i][1][k];
+                    break;
+                        
+                case B_W:
+                    U[0][j][k] = U[1][j][k];
+                    V[0][j][k] = V[1][j][k];
+                    W[0][j][k] = W[1][j][k];
+                    break;
+                    
+                case B_U:
+                    V[i][j][kmax+1] = V[i][j][kmax];
+                    U[i][j][kmax+1] = U[i][j][kmax];
+                    W[i][j][kmax] = W[i][jmax][kmax-1];
+                    break;
+                case B_D:
+                    V[i][j][0] = V[i][j][1];
+                    U[i][j][0] = U[i][j][1];
+                    W[i][j][0] = W[i][j][1];
+                    break;
+                        
+                case B_UO:
+                    U[imax][j][k] = U[imax-1][j][k];
+                    U[i][j][kmax+1] = U[i][j][kmax];
+                    V[imax+1][j][k] = V[imax][j][k];
+                    V[i][j][kmax+1] = V[i][j][kmax];
+                    W[i][j][kmax] = W[i][jmax][kmax-1];
+                    W[imax+1][j][k] = W[imax][j][k];
+                    break;
+                        
+                    case B_UW:
+                        break;
+                    case B_UN:
+                        break;
+                    case B_US:
+                        break;
+                    case B_DO:
+                        break;
+                    case B_DW:
+                        break;
+                    case B_DN:
+                        break;
+                    case B_DS:
+                        break;
+                    case B_WN:
+                        break;
+                    case B_WS:
+                        break;
+                    case B_OS:
+                        break;
+                    case B_ON:
+                        break;
+                        
+                        
+                
+        
+                        
+                        
+                        
+                        
+                        
+                        
+                    
+        
+    }
+}
+
 /**
  * The boundary values of the 4 domain walls are set.
  */
