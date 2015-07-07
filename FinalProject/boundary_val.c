@@ -83,95 +83,270 @@ void boundaryvalues(
         double velMW
                     ){
 
-/*	switch(wl){ //left wall indices:u(0,i), (v(0,i)+v(1,i))/2
+	switch(wl){ //left wall indices:u(0,i), (v(0,i)+v(1,i))/2
 		case NO_SLIP :
-			for(int j=1; j<=jmax; j++){
-				U[0][j] = 0.0;
-				V[0][j] = -V[1][j];
+      for(int j=1; j<=jmax; j++){
+        for(int k=1; k<=kmax; k++){
+				    U[0][j][k] = 0.0;
+				    V[0][j][k] = -V[1][j][k];
+            W[0][j][k] = -W[1][j][k];
 			}
 			break;
 		case FREE_SLIP :
 			for(int j=1; j<=jmax; j++){
-				U[0][j] = 0.0;
-				V[0][j] = V[1][j];
+        for(int k=1; k<=kmax; k++){
+				  U[0][j][k] = 0.0;
+          V[0][j][k] = V[1][j][k];
+          W[0][j][k] = W[1][j][k];
 			}
 			break;
-		case OUTFLOW :
+    case OUTFLOW :
 			for(int j=1; j<=jmax; j++){
-				U[0][j] = U[1][j];
-				V[0][j] = V[1][j];
-			}
-			break;
+        for(int k=1; k<=kmax; k++){
+	          U[0][j][k] = U[1][j][k];
+  			    V[0][j][k] = V[1][j][k];
+  		      W[0][j][k] = W[1][j][k];
+      }
+  		break;
+    case INFLOW : //currently, only supported inflow is one perpendicular to the wall of the inflow source
+  		for(int j=1; j<=jmax; j++){
+        for(int k=1; k<=kmax; k++){
+  	        U[0][j][k] = velIN;
+  			    V[0][j][k] = - V[1][j][k];
+  		      W[0][j][k] = - W[1][j][k];
+      }
+  		break;
+    case MOWING_WALL : //currently only supported moving wall direction is to the + direction of next (first nonfixed) coordinate (e.g. if x/y/z is fixed, were moving in +y/+z/+x)
+  		for(int j=1; j<=jmax; j++){
+        for(int k=1; k<=kmax; k++){
+  	        U[0][j][k] = 0.0;
+  			    V[0][j][k] = 2.0*velMW - V[1][j][k];
+  		      W[0][j][k] = - W[1][j][k];
+      }
+  		break;
 	}
 
 	switch(wr){ //right wall indices: u(imax,i), (v(imax,i)+v(imax+1,i))/2
-		case NO_SLIP :
-			for(int j=1; j<=jmax; j++){
-				U[imax][j] = 0.0;
-			        V[imax+1][j] = -V[imax][j];
-			}
-			break;
-		case FREE_SLIP :
-			for(int j=1; j<=jmax; j++){
-				U[imax][j] = 0.0;
-				V[imax+1][j] = V[imax][j];
-			}
-			break;
-		case OUTFLOW :
-			for(int j=1; j<=jmax; j++){
-				U[imax][j] = U[imax-1][j];
-				V[imax+1][j] = V[imax][j];
-			}
-			break;
+  case NO_SLIP :
+    for(int j=1; j<=jmax; j++){
+      for(int k=1; k<=kmax; k++){
+          U[imax][j][k] = 0.0;
+          V[imax+1][j][k] = -V[imax][j][k];
+          W[imax+1][j][k] = -W[imax][j][k];
+    }
+    break;
+  case FREE_SLIP :
+    for(int j=1; j<=jmax; j++){
+      for(int k=1; k<=kmax; k++){
+        U[imax][j][k] = 0.0;
+        V[imax+1][j][k] = V[imax][j][k];
+        W[imax+1][j][k] = W[imax][j][k];
+    }
+    break;
+  case OUTFLOW :
+    for(int j=1; j<=jmax; j++){
+      for(int k=1; k<=kmax; k++){
+          U[imax][j][k] = U[imax-1][j][k];
+          V[imax+1][j][k] = V[imax][j][k];
+          W[imax+1][j][k] = W[imax][j][k];
+    }
+    break;
+  case INFLOW : //currently, only supported inflow is one perpendicular to the wall of the inflow source
+    for(int j=1; j<=jmax; j++){
+      for(int k=1; k<=kmax; k++){
+          U[imax][j][k] = -velIN; //TODO: is this right?
+          V[imax+1][j][k] = - V[imax][j][k];
+          W[imax+1][j][k] = - W[imax][j][k];
+    }
+    break;
+  case MOWING_WALL : //currently only supported moving wall direction is to the + direction of next (first nonfixed) coordinate (e.g. if x/y/z is fixed, were moving in +y/+z/+x)
+    for(int j=1; j<=jmax; j++){
+      for(int k=1; k<=kmax; k++){
+          U[imax][j][k] = 0.0;
+          V[imax+1][j][k] = 2.0*velMW - V[imax][j][k];
+          W[imax+1][j][k] = - W[imax][j][k];
+    }
+    break;
 	}
 
 	switch(wt){ //top wall indices: v(i,jmax), (u(i,jmax)+u(i,jmax+1))/2
-		case NO_SLIP :
-			for(int i=1; i<=imax; i++){
-				V[i][jmax] = 0.0;
-			        U[i][jmax+1] = -U[i][jmax];
-			}
-			break;
-		case FREE_SLIP :
-			for(int i=1; i<=imax; i++){
-				V[i][jmax] = 0.0;
-				U[i][jmax+1] = U[i][jmax];
-			}
-			break;
-		case OUTFLOW :
-			for(int i=1; i<=imax; i++){
-				V[i][jmax] = V[i][jmax-1];
-				U[i][jmax+1] = U[i][jmax];
-			}
-			break;
-	}
+  case NO_SLIP :
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][kmax+1] = -U[i][j][kmax];
+          V[i][j][kmax+1] = -V[i][j][kmax];
+          W[i][j][kmax] = 0.0;
+    }
+    break;
+  case FREE_SLIP :
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+        U[i][j][kmax+1] = U[i][j][kmax];
+        V[i][j][kmax+1] = V[i][j][kmax];
+        W[i][j][kmax] = 0.0;
+    }
+    break;
+  case OUTFLOW :
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][kmax+1] = U[i][j][kmax];
+          V[i][j][kmax+1] = V[i][j][kmax];
+          W[i][j][kmax] = W[i][j][kmax-1];
+    }
+    break;
+  case INFLOW : //currently, only supported inflow is one perpendicular to the wall of the inflow source
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][kmax+1] = - U[i][j][kmax];
+          V[i][j][kmax+1] = - V[i][j][kmax];
+          W[i][j][kmax] = - velIN;
+    }
+    break;
+  case MOWING_WALL : //currently only supported moving wall direction is to the + direction of next (first nonfixed) coordinate (e.g. if x/y/z is fixed, were moving in +y/+z/+x)
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][kmax+1] = 2.0*velMW - U[i][j][kmax];
+          V[i][j][kmax+1] = - V[i][j][kmax];
+          W[i][j][kmax] = 0.0;
+    }
+    break;
+  }
 
 	switch(wb){ //bottom wall indices: v(i,0), (u(i,0)+u(i,1))/2
-		case NO_SLIP :
-			for(int i=1; i<=imax; i++){
-				V[i][0] = 0.0;
-			        U[i][0] = -U[i][1];
-			}
-			break;
-		case FREE_SLIP :
-			for(int i=1; i<=imax; i++){
-				V[i][0] = 0.0;
-				U[i][0] = U[i][1];
-			}
-			break;
-		case OUTFLOW :
-			for(int i=1; i<=imax; i++){
-				V[i][0] = V[i][1];
-				U[i][0] = U[i][1];
-			}
-			break;
+  case NO_SLIP :
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][0] = -U[i][j][1];
+          V[i][j][0] = -V[i][j][1];
+          W[i][j][0] = 0.0;
+    }
+    break;
+  case FREE_SLIP :
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+        U[i][j][0] = U[i][j][1];
+        V[i][j][0] = V[i][j][1];
+        W[i][j][0] = 0.0;
+    }
+    break;
+  case OUTFLOW :
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][0] = U[i][j][1];
+          V[i][j][0] = V[i][j][1];
+          W[i][j][0] = W[i][j][1];
+    }
+    break;
+  case INFLOW : //currently, only supported inflow is one perpendicular to the wall of the inflow source
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][0] = - U[i][j][1];
+          V[i][j][0] = - V[i][j][1];
+          W[i][j][0] = velIN;
+    }
+    break;
+  case MOWING_WALL : //currently only supported moving wall direction is to the + direction of next (first nonfixed) coordinate (e.g. if x/y/z is fixed, were moving in +y/+z/+x)
+    for(int i=1; i<=imax; i++){
+      for(int j=1; j<=jmax; j++){
+          U[i][j][0] = 2.0*velMW - U[i][j][1];
+          V[i][j][0] = - V[i][j][1];
+          W[i][j][0] = 0.0;
+    }
+    break;
 	}
-*/
+
+
+  switch(wf){
+  case NO_SLIP :
+    for(int k=1; k<=kmax; k++){
+      for(int i=1; i<=imax; i++){
+          U[i][0][k] = - U[i][1][k];
+          V[i][0][k] = 0.0;
+          W[i][0][k] = - W[i][1][k];
+    }
+    break;
+  case FREE_SLIP :
+    for(int k=1; k<=kmax; k++){
+      for(int i=1; i<=imax; i++){
+        U[i][0][k] = U[i][1][k];
+        V[i][0][k] = 0.0;
+        W[i][0][k] = W[i][1][k];
+    }
+    break;
+  case OUTFLOW :
+  for(int k=1; k<=kmax; k++){
+    for(int i=1; i<=imax; i++){
+      U[i][0][k] = U[i][1][k];
+      V[i][0][k] = V[i][1][k];
+      W[i][0][k] = W[i][1][k];
+    }
+    break;
+  case INFLOW : //currently, only supported inflow is one perpendicular to the wall of the inflow source
+  for(int k=1; k<=kmax; k++){
+    for(int i=1; i<=imax; i++){
+      U[i][0][k] = - U[i][1][k];
+      V[i][0][k] = velIN;
+      W[i][0][k] = - W[i][1][k];
+    }
+    break;
+  case MOWING_WALL : //currently only supported moving wall direction is to the + direction of next (first nonfixed) coordinate (e.g. if x/y/z is fixed, were moving in +y/+z/+x)
+  for(int k=1; k<=kmax; k++){
+    for(int i=1; i<=imax; i++){
+      U[i][0][k] = - U[i][1][k];
+      V[i][0][k] = 0.0;
+      W[i][0][k] = 2*velMW - W[i][1][k];
+    }
+    break;
+  }
+
+  switch(wh){
+  case NO_SLIP :
+    for(int k=1; k<=kmax; k++){
+      for(int i=1; i<=imax; i++){
+          U[i][jmax+1][k] = - U[i][jmax][k];
+          V[i][jmax][k] = 0.0;
+          W[i][jmax+1][k] = - W[i][jmax][k];
+    }
+    break;
+  case FREE_SLIP :
+    for(int k=1; k<=kmax; k++){
+      for(int i=1; i<=imax; i++){
+        U[i][jmax+1][k] = U[i][jmax][k];
+        V[i][jmax][k] = 0.0;
+        W[i][jmax+1][k] = W[i][jmax][k];
+    }
+    break;
+  case OUTFLOW :
+  for(int k=1; k<=kmax; k++){
+    for(int i=1; i<=imax; i++){
+      U[i][jmax+1][k] = U[i][jmax][k];
+      V[i][jmax][k] = V[i][jmax-1][k];
+      W[i][jmax+1][k] = W[i][jmax][k];
+    }
+    break;
+  case INFLOW : //currently, only supported inflow is one perpendicular to the wall of the inflow source
+  for(int k=1; k<=kmax; k++){
+    for(int i=1; i<=imax; i++){
+      U[i][jmax+1][k] = - U[i][jmax][k];
+      V[i][jmax][k] = - velIN;
+      W[i][jmax+1][k] = - W[i][jmax][k];
+    }
+    break;
+  case MOWING_WALL : //currently only supported moving wall direction is to the + direction of next (first nonfixed) coordinate (e.g. if x/y/z is fixed, were moving in +y/+z/+x)
+  for(int k=1; k<=kmax; k++){
+    for(int i=1; i<=imax; i++){
+      U[i][jmax+1][k] = - U[i][jmax][k];
+      V[i][jmax][k] = 0.0;
+      W[i][jmax+1][k] = 2*velMW - W[i][jmax][k];
+    }
+    break;
+  }
 	//special boundaries
 	//spec_boundary_val(problem, imax, jmax, U, V, Flag, vel);
 
 }
 
+/*
 void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V, int **Flag, double vel){
 	//take care of inflow velocity in different scenarios
 	if((Flag[0][jmax/2] & 32) == 0){ //using 1 cell in left boundary to check if P given
@@ -185,13 +360,13 @@ void spec_boundary_val(char *problem, int imax, int jmax, double **U, double **V
 				U[0][j] = vel;
 				V[0][j] = -V[1][j];
 			}
-		}/* else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
+		} else if (strcmp(problem, "DRIVEN_CAVITY.pgm")!=0){
 			for (int i=1; i<=imax; i++){
 				U[i][jmax+1] = vel*2.0 - U[i][jmax];
 			}
-		}*/
+		}
 	}
-
+*/
 	//take care of arbitrary boundaries
 	for (int i=1; i<=imax; i++){
 		for (int j=1; j<=jmax; j++){

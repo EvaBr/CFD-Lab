@@ -53,6 +53,17 @@ int isfluid(int i, int j, int k, int ***Flag) {
   return ( (Flag[i][j][k] & (3*ret)) == ret );
 }
 
+/*helper function for getting the right bit represent. of edges.*/
+int getbit (int wall) {
+  int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
+  return (tarr[wall]*pow(2, 12)+3*(pow(2,10)+pow(2,8)+pow(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
+}
+
+int interior (int i, int j, int k, int ***Flag) {
+  int big = (Flag[i][j][k] >= pow(2, 14));
+  int gb = getbit(0);
+  return (big && ((Flag[i][j][k]&gb)==gb));
+}
 
 double tmax( double ***U, int imax, int jmax, int kmax)
 {

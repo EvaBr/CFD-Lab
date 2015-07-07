@@ -103,9 +103,6 @@ void init_uvwp(
   char * problem
 );
 
-int getbit ( int wall );
-
-
 void init_flag(
   char *problem,
   int imax,

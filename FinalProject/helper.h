@@ -16,22 +16,48 @@
 
 #define FREE_ARG char*
 
-#define NO_SLIP 1
-#define FREE_SLIP 2
-#define OUTFLOW 3
+#define FLUID 0
+#define AIR 1
+#define NO_SLIP 2
+#define FREE_SLIP 3
+#define OUTFLOW 4
+#define INFLOW 5
+#define MOWING_WALL 6
 
-#define C_F 16 //C_F treshold value for fluid cells (flags 1****)
-#define C_B 0 //interior of the obstacle. flag 00000
-#define B_N 1 //northern edge cell. flag 00001
-#define B_S 2
+//helper flags for easier checking in boundary functions
+#define B_N 1
+#define B_O 2
+#define B_S 3
 #define B_W 4
-#define B_O 8 //eastern edge cell. flag 01000
-#define B_NO 9 //northeastern edge cell. flag 01001
-#define B_NW 5
-#define B_SO 12
-#define B_SW 6
-#define C_P 32 //additional bit; case of given pressure
+#define B_U 5
+#define B_D 6
 
+#define B_NO 7
+#define B_NW 8
+#define B_NU 9
+#define B_ND 10
+#define B_SO 11
+#define B_SW 12
+#define B_SU 13
+#define B_SD 14
+#define B_OU 15
+#define B_WU 16
+#define B_OD 17
+#define B_WD 18
+
+#define B_NOU 19
+#define B_NOD 20
+#define B_NWU 21
+#define B_NWD 22
+#define B_SOU 23
+#define B_SOD 24
+#define B_SWU 25
+#define B_SWD 26
+
+
+
+
+//#define C_P 32 //additional bit; case of given pressure
 
 
 /**
@@ -54,6 +80,10 @@ double tmax(double ***M, int imax, int jmax, int kmax);
 /*Just a helper function, to have less writing*/
 int isfluid(int i, int j, int k, int ***Flag);
 int pow2 (int en, int dva);
+int getbit (int wall);
+int interior (int i, int j, int k, int ***Flag);
+int getFlag2 (int i, int j, int k, int ***Flag);
+
 
 /**
  * Error handling:
