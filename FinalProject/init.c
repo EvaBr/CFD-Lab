@@ -171,12 +171,16 @@ void init_flag(
 	  for (int i=1; i<jmax+1; i++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
 		    for (int j=1; j<imax+1; j++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
 			     temp = tarr[Pic[i][j]]*pow2(2, 12) + min(Pic[i][j+1]+1, 3)*pow2(2, 10) + min(Pic[i][j-1]+1, 3)*pow2(2, 8) + min(Pic[i+1][j]+1, 3)*pow2(2, 6) +  min(Pic[i-1][j]+1, 3)*pow2(2, 4) + min(Pic[i-k*(jmax+2)][j]+1, 3)*4 + min(Pic[i+k*(jmax+2)][j]+1, 3); //use min() bcs obstacle neighbours will have numbrs 3-6 in the picture, but they should be flagged with (11)_2 = 3 in the flag field.
-			     //if (temp ....) {} TODO:check for verboten boundary cells
+           //check for forbidden cells:
+			     //if ( ((temp > pow(2, 12)*3) || (temp < pow(2, 12))) /*so it is bound.*/ & (E,W water / N,S water / D,U water) ) { error }
+           if (Pic[i][j]>1 && min(Pic[i][j+1]+Pic[i][j-1], Pic[i-1][j]+Pic[i+1][j])!=0  && !(Pic[i-k*(jmax+2)][j]+Pic[i+k*(jmax+2)]))  {
+             ERROR("Invalid geometry! Forbidden boundary cell found.\n");
+           }
            Flag[j][jmax+1-i][k] = temp;
 		    }
 	  } //da bo to delal more bit slika tk narjena, da ma vsaka 2D podslika okoliinokoli ghost boundary. (s poljubno boundary cifro, tj med 2 in 6)
   }
-  //set outer boundary vortices, so you wont use them uninitialised.
+  //set outer boundary vortices, so you wont use them uninitialised. used getbit() bcs theyre on the edges of domain, so have only 2 or 3 neighbs, all boundary
   for (k=0; k<kmax+2; k++) {
     Flag[0][0][k] = getbit(wf);            //xz0
     Flag[0][jmax+1][k] = getbit(wh);       //xz1
@@ -201,13 +205,13 @@ void init_flag(
     for (j=1; j<=jmax; j++){
 		    if ((Flag[i][j][1]&pow2(2,12))==(Flag[i][j][1]&pow2(2,13))) {//if our only inner cell neighbour is a boundary(obstacle), we set this cell to the same kind of boundary.
 			       Flag[i][j][0] = getbit(0)/*3*(pow(2,10)+pow(2,8)+pow(2,6)+pow(2,4)+4+1)*/ + (Flag[i][j][1]&(pow2(2,12)*15)/*info bout the boundary at the beginning*/);
-		    } else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
-			       Flag[i][j][0] = getbit(wb);
+		    } else { //Otherwise set it to what you read in the picture (<- remark: NO. we set it to what we read in the parameter file.). plus subtract/set the neighbouring cell, which seems to be water or air
+			       Flag[i][j][0] = (getbit(wb)-3) + (Flag[i][j][1]&3);
 		    }
         if ((Flag[i][j][kmax]&pow2(2,12))==(Flag[i][j][kmax]&pow2(2,13))) {//if our only inner cell neighbour is a boundary(obstacle), we set this cell to the same kind of bc.
              Flag[i][j][kmax+1] = getbit(0) + (Flag[i][j][kmax]&(pow2(2,12)*15)); /*info bout the boundary at the beginning*/
         } else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
-             Flag[i][j][kmax+1] = getbit(wt);
+             Flag[i][j][kmax+1] = (getbit(wt)-12) + (Flag[i][j][kmax]&12);
         }
     }
 	}
@@ -217,12 +221,12 @@ void init_flag(
         if ((Flag[1][j][k]&pow2(2,12))==(Flag[1][j][k]&pow2(2,13))) {
              Flag[0][j][k] = getbit(0) + (Flag[1][j][k]&(pow2(2,12)*15));
         } else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
-             Flag[0][j][k] = getbit(wl);
+             Flag[0][j][k] = (getbit(wl)- 3*pow2(2,10)) + (Flag[1][j][k]& (3*pow2(2,10)));
         }
         if ((Flag[imax][j][k]&pow2(2,12))==(Flag[imax][j][k]&pow2(2,13))) {
              Flag[imax+1][j][k] = getbit(0) + (Flag[imax][j][k]&(pow2(2,12)*15));
         } else {
-             Flag[imax+1][j][k] = getbit(wr);
+             Flag[imax+1][j][k] = (getbit(wr)-3*pow2(2,8)) + (Flag[imax][j][k]&(3*pow2(2,8)));
         }
     }
   }
@@ -232,12 +236,12 @@ void init_flag(
         if ((Flag[i][1][k]&pow2(2,12))==(Flag[i][1][k]&pow2(2,13))) {
              Flag[i][0][k] = getbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
         } else {
-             Flag[i][0][k] = getbit(wf);
+             Flag[i][0][k] = (getbit(wf)-16*3) + (Flag[i][1][k]&(16*3));
         }
         if ((Flag[i][jmax][k]&pow2(2,12))==(Flag[i][jmax][k]&pow2(2,13))) {
              Flag[i][jmax+1][k] = getbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
         } else {
-             Flag[i][jmax+1][k] = getbit(wh);
+             Flag[i][jmax+1][k] = (getbit(wh)-64*3) + (Flag[i][jmax][k]&(64*3));
         }
     }
   }

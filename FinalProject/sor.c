@@ -27,7 +27,7 @@ void sor(
   for(i = 1; i <= imax; i++) {
     for(j = 1; j<=jmax; j++) {
       for(k = 1; k<=kmax; k++) {
-        if(isfluid(i,j,k,Flag)){
+        if(isfluid(Flag[i][j][k])){
 	         P[i][j][k] = (1.0-omg)*P[i][j][k]
         	      + coeff*( (P[i+1][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-P[i][j][k])/(dz*dz) - RS[i][j][k]);
 	         FluidCells++;
@@ -40,9 +40,11 @@ void sor(
   rloc = 0;
   for(i = 1; i <= imax; i++) {
     for(j = 1; j <= jmax; j++) {
-      if(isfluid(i,j,k,Flag)){
-	      rloc += ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k])*
+      for(k = 1; k <= <max; k++){
+        if(isfluid(Flag[i][j][k])){
+	         rloc += ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k])*
         	      ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k]);
+        }
       }
     }
   }
@@ -52,25 +54,44 @@ void sor(
   *res = rloc;
 
 
-  /* set boundary values */
+  /* set boundary values, here just for the 'real' boundaries - no air included yet (if even needed?) */
   for(i = 0; i <= imax+1; i++) {
     //P[i][0] = P[i][1];		//boundary cond at lower and upper wall
     //P[i][jmax+1] = P[i][jmax];
     for(j = 0; j <= jmax+1; j++) {
-      for(k = 0; k<= kmax+1; k++) {
-	       switch(Flag[i][j]){
-		        case B_N: P[i][j] = P[i][j+1]; break;
-		        case B_O: P[i][j] = P[i+1][j]; break;
-		        case B_S: P[i][j] = P[i][j-1]; break;
-		        case B_W: P[i][j] = P[i-1][j]; break;
+      for(k = 0; k <= kmax+1; k++) {
+	       switch(getcelltype(Flag[i][j][k])){
+		        case B_N: P[i][j][k] = P[i][j+1][k]; break;
+		        case B_O: P[i][j][k] = P[i+1][j][k]; break;
+		        case B_S: P[i][j][k] = P[i][j-1][k]; break;
+		        case B_W: P[i][j][k] = P[i-1][j][k]; break;
+            case B_U: P[i][j][k] = P[i][j][k+1]; break;
+		        case B_D: P[i][j][k] = P[i][j][k-1]; break;
 
-		        case B_NO: P[i][j] = (P[i+1][j] + P[i][j+1])*0.5; break;
-		        case B_NW: P[i][j] = (P[i-1][j] + P[i][j+1])*0.5; break;
-		        case B_SO: P[i][j] = (P[i+1][j] + P[i][j-1])*0.5; break;
-		        case B_SW: P[i][j] = (P[i-1][j] + P[i][j-1])*0.5; break;
+		        case B_NO: P[i][j][k] = (P[i+1][j][k] + P[i][j+1][k])*0.5; break;
+		        case B_NW: P[i][j][k] = (P[i-1][j][k] + P[i][j+1][k])*0.5; break;
+		        case B_SO: P[i][j][k] = (P[i+1][j][k] + P[i][j-1][k])*0.5; break;
+		        case B_SW: P[i][j][k] = (P[i-1][j][k] + P[i][j-1][k])*0.5; break;
+            case B_NU: P[i][j][k] = (P[i][j][k+1] + P[i][j+1][k])*0.5; break;
+		        case B_ND: P[i][j][k] = (P[i][j][k-1] + P[i][j+1][k])*0.5; break;
+		        case B_SU: P[i][j][k] = (P[i][j][k+1] + P[i][j-1][k])*0.5; break;
+		        case B_SD: P[i][j][k] = (P[i][j][k-1] + P[i][j-1][k])*0.5; break;
+            case B_OU: P[i][j][k] = (P[i+1][j][k] + P[i][j][k+1])*0.5; break;
+		        case B_WU: P[i][j][k] = (P[i-1][j][k] + P[i][j][k+1])*0.5; break;
+		        case B_OD: P[i][j][k] = (P[i+1][j][k] + P[i][j][k-1])*0.5; break;
+		        case B_WD: P[i][j][k] = (P[i-1][j][k] + P[i][j][k-1])*0.5; break;
 
-		     //case C_B: P[i][j] = 0; break;
-	          default break;
+            case B_NOU: P[i][j][k] = (P[i+1][j][k] + P[i][j+1][k] + P[i][j][k+1])*1.0/3.0; break;
+		        case B_NWU: P[i][j][k] = (P[i-1][j][k] + P[i][j+1][k] + P[i][j][k+1])*1.0/3.0; break;
+		        case B_SOU: P[i][j][k] = (P[i+1][j][k] + P[i][j-1][k] + P[i][j][k+1])*1.0/3.0; break;
+		        case B_SWU: P[i][j][k] = (P[i-1][j][k] + P[i][j-1][k] + P[i][j][k+1])*1.0/3.0; break;
+            case B_NOD: P[i][j][k] = (P[i+1][j][k] + P[i][j+1][k] + P[i][j][k-1])*1.0/3.0; break;
+		        case B_NWD: P[i][j][k] = (P[i-1][j][k] + P[i][j+1][k] + P[i][j][k-1])*1.0/3.0; break;
+		        case B_SOD: P[i][j][k] = (P[i+1][j][k] + P[i][j-1][k] + P[i][j][k-1])*1.0/3.0; break;
+		        case B_SWD: P[i][j][k] = (P[i-1][j][k] + P[i][j-1][k] + P[i][j][k-1])*1.0/3.0; break;
+
+		        //case C_B: P[i][j] = 0; break;
+	          default: break;
       }
     }
   }
