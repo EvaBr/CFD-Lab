@@ -462,11 +462,6 @@ void boundaryvalues_outflow(
     
                 
                 switch(Flag[i][j][k]){
-                case B_N:
-                    V[i][jmax][k] = V[i][jmax-1][k];
-                    U[i][jmax+1][k] = U[i][jmax][k];
-                    W[i][jmax+1][k] = W[i][jmax][k];
-                    break;
                         
                 case B_O:
                     U[imax][j][k] = U[imax-1][j][k];
@@ -474,71 +469,241 @@ void boundaryvalues_outflow(
                     W[imax+1][j][k] = W[imax][j][k];
                     break;
                         
-                case B_S:
-                    V[i][0][k] = V[i][1][k];
-                    U[i][0][k] = U[i][1][k];
-                    W[i][0][k] = W[i][1][k];
-                    break;
-                        
                 case B_W:
                     U[0][j][k] = U[1][j][k];
                     V[0][j][k] = V[1][j][k];
                     W[0][j][k] = W[1][j][k];
                     break;
-                    
+                        
+                case B_N:
+                    U[i][jmax+1][k] = U[i][jmax][k];
+                    V[i][jmax][k] = V[i][jmax-1][k];
+                    W[i][jmax+1][k] = W[i][jmax][k];
+                    break;
+                        
+                case B_S:
+                    U[i][0][k] = U[i][1][k];
+                    V[i][0][k] = V[i][1][k];
+                    W[i][0][k] = W[i][1][k];
+                    break;
+                        
                 case B_U:
-                    V[i][j][kmax+1] = V[i][j][kmax];
                     U[i][j][kmax+1] = U[i][j][kmax];
+                    V[i][j][kmax+1] = V[i][j][kmax];
                     W[i][j][kmax] = W[i][jmax][kmax-1];
                     break;
+                        
                 case B_D:
-                    V[i][j][0] = V[i][j][1];
                     U[i][j][0] = U[i][j][1];
+                    V[i][j][0] = V[i][j][1];
                     W[i][j][0] = W[i][j][1];
                     break;
-                        
-                case B_UO:
-                    U[imax][j][k] = U[imax-1][j][k];
-                    U[i][j][kmax+1] = U[i][j][kmax];
-                    V[imax+1][j][k] = V[imax][j][k];
-                    V[i][j][kmax+1] = V[i][j][kmax];
-                    W[i][j][kmax] = W[i][jmax][kmax-1];
-                    W[imax+1][j][k] = W[imax][j][k];
-                    break;
-                        
-                    case B_UW:
-                        break;
-                    case B_UN:
-                        break;
-                    case B_US:
-                        break;
-                    case B_DO:
-                        break;
-                    case B_DW:
-                        break;
-                    case B_DN:
-                        break;
-                    case B_DS:
-                        break;
-                    case B_WN:
-                        break;
-                    case B_WS:
-                        break;
-                    case B_OS:
-                        break;
-                    case B_ON:
-                        break;
-                        
-                        
                 
-        
                         
                         
+                    case B_NO:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        break;
                         
+                    case B_NW:
+                        U[0][j][k] = U[1][j][k];
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[0][j][k] = V[1][j][k];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[0][j][k] = W[1][j][k];
+                        break;
                         
+                    case B_NU:
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        break;
                         
+                    case B_ND:
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
                         
-                    
+                    case B_SO:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][0][k] = U[i][1][k];
+                        V[i][0][k] = V[i][1][k];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        W[i][0][k] = W[i][1][k];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        break;
+                        
+                    case B_SW:
+                        U[i][0][k] = U[i][1][k];
+                        U[0][j][k] = U[1][j][k];
+                        V[i][0][k] = V[i][1][k];
+                        V[0][j][k] = V[1][j][k];
+                        W[i][0][k] = W[i][1][k];
+                        W[0][j][k] = W[1][j][k];
+                        break;
+                        
+                    case B_SU:
+                        U[i][0][k] = U[i][1][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[i][0][k] = V[i][1][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][0][k] = W[i][1][k];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        break;
+                        
+                    case B_SD:
+                        U[i][0][k] = U[i][1][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[i][0][k] = V[i][1][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[i][0][k] = W[i][1][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+                    case B_OU:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        break;
+                        
+                    case B_WU:
+                        U[0][j][k] = U[1][j][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[0][j][k] = V[1][j][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[0][j][k] = W[1][j][k];
+                        break;
+                        
+                    case B_OD:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+                        
+                    case B_WD:
+                        U[0][j][k] = U[1][j][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[0][j][k] = V[1][j][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[0][j][k] = W[1][j][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+                        
+                    case B_NOU:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        break;
+                        
+                    case B_NWU:
+                        U[0][j][k] = U[1][j][k];
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[0][j][k] = V[1][j][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[0][j][k] = W[1][j][k];
+                        break;
+                        
+                    case B_NOD:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+                        
+                    case B_NWD:
+                        U[0][j][k] = U[1][j][k];
+                        U[i][jmax+1][k] = U[i][jmax][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[i][jmax][k] = V[i][jmax-1][k];
+                        V[0][j][k] = V[1][j][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[i][jmax+1][k] = W[i][jmax][k];
+                        W[0][j][k] = W[1][j][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+                        
+                    case B_SOU:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][0][k] = U[i][1][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[i][0][k] = V[i][1][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[i][0][k] = W[i][1][k];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        break;
+                        
+                    case B_SWU:
+                        U[i][0][k] = U[i][1][k];
+                        U[0][j][k] = U[1][j][k];
+                        U[i][j][kmax+1] = U[i][j][kmax];
+                        V[i][0][k] = V[i][1][k];
+                        V[0][j][k] = V[1][j][k];
+                        V[i][j][kmax+1] = V[i][j][kmax];
+                        W[i][j][kmax] = W[i][jmax][kmax-1];
+                        W[i][0][k] = W[i][1][k];
+                        W[0][j][k] = W[1][j][k];
+                        break;
+                        
+                    case B_SOD:
+                        U[imax][j][k] = U[imax-1][j][k];
+                        U[i][0][k] = U[i][1][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[i][0][k] = V[i][1][k];
+                        V[imax+1][j][k] = V[imax][j][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[i][0][k] = W[i][1][k];
+                        W[imax+1][j][k] = W[imax][j][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+                        
+                    case B_SWD:
+                        U[i][0][k] = U[i][1][k];
+                        U[0][j][k] = U[1][j][k];
+                        U[i][j][0] = U[i][j][1];
+                        V[i][0][k] = V[i][1][k];
+                        V[0][j][k] = V[1][j][k];
+                        V[i][j][0] = V[i][j][1];
+                        W[i][0][k] = W[i][1][k];
+                        W[0][j][k] = W[1][j][k];
+                        W[i][j][0] = W[i][j][1];
+                        break;
+               
         
     }
 }
