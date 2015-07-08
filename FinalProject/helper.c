@@ -61,7 +61,7 @@ int getbit (int wall) {
 
 int interior (int flag) {
   //int big = Flag[i][j][k];
-  big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
+  int big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
   int gb = getbit(0);
   return (big && ((flag&gb)==gb)); //check also all neighb. are b
 }

@@ -67,166 +67,170 @@ void boundaryvalues_no_slip(
 			U[i-1][j][k] = -U[i-1][j+1][k];
 			V[i][j][k] = 0.0;
 			V[i][j-1][k] = -V[i+1][j-1][k];
-			W[i][j][k] = -(W[i][j+1][k] + W[i+1][j][k]) / 2;
-			W[i][j][k-1] = -(W[i][j+1][k-1] + W[i+1][j][k-1]) / 2;
+			W[i][j][k] = -(W[i][j+1][k] + W[i+1][j][k]) * 0.5;
+			W[i][j][k-1] = -(W[i][j+1][k-1] + W[i+1][j][k-1]) * 0.5;
 			break;
 		case B_NW:
 			U[i-1][j][k] = 0.0;
 			U[i][j][k] = -U[i][j+1][k];
 			V[i][j][k] = 0.0;
 			V[i][j-1][k] = -V[i-1][j-1][k];
-			W[i][j][k] = -(W[i][j+1][k] + W[i-1][j][k]) / 2;
-			W[i][j][k-1] = -(W[i][j+1][k-1] + W[i-1][j][k-1]) / 2;
+			W[i][j][k] = -(W[i][j+1][k] + W[i-1][j][k]) * 0.5;
+			W[i][j][k-1] = -(W[i][j+1][k-1] + W[i-1][j][k-1]) * 0.5;
 			break;
 		case B_NU:
 			V[i][j][k] = 0.0;
 			V[i][j-1][k] = -V[i][j-1][k+1];
 			W[i][j][k] = 0.0;
 			W[i][j][k-1] = -W[i][j+1][k-1];
-			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k+1]) / 2;
-			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k+1]) / 2;
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k+1]) * 0.5;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k+1]) * 0.5;
 			break;
 		case B_ND:
 			V[i][j][k] = 0.0;
 			V[i][j-1][k] = -V[i][j-1][k-1];
 			W[i][j][k-1] = 0.0;
 			W[i][j][k] = -W[i][j+1][k];
-			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k-1]) / 2;
-			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k-1]) / 2;
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k-1]) * 0.5;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k-1]) * 0.5;
 			break;
 		case B_SO:
 			U[i][j][k] = 0.0;
 			U[i-1][j][k] = -U[i-1][j-1][k];
 			V[i][j-1][k] = 0.0;
 			V[i][j][k] = -V[i+1][j][k];
-			W[i][j][k] = -(W[i][j-1][k] + W[i+1][j][k]) / 2;
-			W[i][j][k-1] = -(W[i][j-1][k-1] + W[i+1][j][k-1]) / 2;
+			W[i][j][k] = -(W[i][j-1][k] + W[i+1][j][k]) * 0.5;
+			W[i][j][k-1] = -(W[i][j-1][k-1] + W[i+1][j][k-1]) * 0.5;
 			break;
 		case B_SW:
 			U[i-1][j][k] = 0.0;
 			U[i][j][k] = -U[i][j-1][k];
 			V[i][j-1][k] = 0.0;
 			V[i][j][k] = -V[i-1][j][k];
-			W[i][j][k] = -(W[i][j-1][k] + W[i-1][j][k]) / 2;
-			W[i][j][k-1] = -(W[i][j-1][k-1] + W[i-1][j][k-1]) / 2;
+			W[i][j][k] = -(W[i][j-1][k] + W[i-1][j][k]) * 0.5;
+			W[i][j][k-1] = -(W[i][j-1][k-1] + W[i-1][j][k-1]) * 0.5;
 			break;
 		case B_SU:
 			V[i][j-1][k] = 0.0;
 			V[i][j][k] = -V[i][j][k+1];
 			W[i][j][k] = 0.0;
 			W[i][j][k-1] = -W[i][j-1][k-1];
-			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k+1]) / 2;
-			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k+1]) / 2;
+			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k+1]) * 0.5;
+			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k+1]) * 0.5;
 			break;
 		case B_SD:
 			V[i][j-1][k] = 0.0;
 			V[i][j][k] = -V[i][j][k-1];
 			W[i][j][k-1] = 0.0;
 			W[i][j][k] = -W[i][j-1][k];
-			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k-1]) / 2;
-			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k-1]) / 2;
+			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k-1]) * 0.5;
+			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k-1]) * 0.5;
 			break;
 		case B_OU:
 			U[i][j][k] = 0.0;
 			U[i-1][j][k] = -U[i-1][j][k+1];
 			W[i][j][k] = 0.0;
 			W[i][j][k-1] = -W[i+1][j][k-1];
-			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k+1]) / 2;
-			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k+1]) / 2;
+			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k+1]) * 0.5;
+			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k+1]) * 0.5;
 			break;
 		case B_WU:
 			U[i-1][j][k] = 0.0;
 			U[i][j][k] = -U[i][j][k+1];
 			W[i][j][k] = 0.0;
 			W[i][j][k-1] = -W[i-1][j][k-1];
-			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k+1]) / 2;
-			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k+1]) / 2;
+			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k+1]) * 0.5;
+			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k+1]) * 0.5;
 			break;
 		case B_OD:
 			U[i][j][k] = 0.0;
 			U[i-1][j][k] = -U[i-1][j][k-1];
 			W[i][j][k-1] = 0.0;
 			W[i][j][k] = -W[i+1][j][k];
-			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k-1]) / 2;
-			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k-1]) / 2;
+			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k-1]) * 0.5;
+			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k-1]) * 0.5;
 			break;
 		case B_WD:
 			U[i-1][j][k] = 0.0;
 			U[i][j][k] = -U[i][j][k-1];
 			W[i][j][k-1] = 0.0;
 			W[i][j][k] = -W[i-1][j][k];
-			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k-1]) / 2;
-			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k-1]) / 2;
+			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k-1]) * 0.5;
+			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k-1]) * 0.5;
 			break;
 
 		case B_NOU:
 			U[i][j][k] = 0.0;
-			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k+1]) / 2;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k+1]) * 0.5;
 			V[i][j][k] = 0.0;
-			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k+1]) / 2;
+			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k+1]) * 0.5;
 			W[i][j][k] = 0.0;
-			W[i][j][k-1] = -(W[i+1][j][k-1] + W[i][j+1][k-1]) / 2;
+			W[i][j][k-1] = -(W[i+1][j][k-1] + W[i][j+1][k-1]) * 0.5;
 			break;
 		case B_NWU:
 			U[i-1][j][k] = 0.0;
-			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k+1]) / 2;
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k+1]) * 0.5;
 			V[i][j][k] = 0.0;
-			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k+1]) / 2;
+			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k+1]) * 0.5;
 			W[i][j][k] = 0.0;
-			W[i][j][k-1] = -(W[i-1][j][k-1] + W[i][j+1][k-1]) / 2;
+			W[i][j][k-1] = -(W[i-1][j][k-1] + W[i][j+1][k-1]) * 0.5;
 			break;
 		case B_NOD:
 			U[i][j][k] = 0.0;
-			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k-1]) / 2;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k-1]) * 0.5;
 			V[i][j][k] = 0.0;
-			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k-1]) / 2;
+			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k-1]) * 0.5;
 			W[i][j][k-1] = 0.0;
-			W[i][j][k] = -(W[i+1][j][k] + W[i][j+1][k]) / 2;
+			W[i][j][k] = -(W[i+1][j][k] + W[i][j+1][k]) * 0.5;
 			break;
 		case B_NWD:
 			U[i-1][j][k] = 0.0;
-			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k-1]) / 2;
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k-1]) * 0.5;
 			V[i][j][k] = 0.0;
-			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k-1]) / 2;
+			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k-1]) * 0.5;
 			W[i][j][k-1] = 0.0;
-			W[i][j][k] = -(W[i-1][j][k] + W[i][j+1][k]) / 2;
+			W[i][j][k] = -(W[i-1][j][k] + W[i][j+1][k]) * 0.5;
 			break;
 		case B_SOU:
 			U[i][j][k] = 0.0;
-			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k+1]) / 2;
+			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k+1]) * 0.5;
 			V[i][j-1][k] = 0.0;
-			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k+1]) / 2;
+			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k+1]) * 0.5;
 			W[i][j][k] = 0.0;
-			W[i][j][k-1] = -(W[i+1][j][k-1] + W[i][j-1][k-1]) / 2;
+			W[i][j][k-1] = -(W[i+1][j][k-1] + W[i][j-1][k-1]) * 0.5;
 			break;
 		case B_SWU:
 			U[i-1][j][k] = 0.0;
-			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k+1]) / 2;
+			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k+1]) * 0.5;
 			V[i][j-1][k] = 0.0;
-			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k+1]) / 2;
+			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k+1]) * 0.5;
 			W[i][j][k] = 0.0;
-			W[i][j][k-1] = -(W[i-1][j][k-1] + W[i][j-1][k-1]) / 2;
+			W[i][j][k-1] = -(W[i-1][j][k-1] + W[i][j-1][k-1]) * 0.5;
 			break;
 		case B_SOD:
 			U[i][j][k] = 0.0;
-			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k-1]) / 2;
+			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k-1]) * 0.5;
 			V[i][j-1][k] = 0.0;
-			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k-1]) / 2;
+			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k-1]) * 0.5;
 			W[i][j][k-1] = 0.0;
-			W[i][j][k] = -(W[i+1][j][k] + W[i][j-1][k]) / 2;
+			W[i][j][k] = -(W[i+1][j][k] + W[i][j-1][k]) * 0.5;
 			break;
 		case B_SWD:
 			U[i-1][j][k] = 0.0;
-			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k-1]) / 2;
+			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k-1]) * 0.5;
 			V[i][j-1][k] = 0.0;
-			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k-1]) / 2;
+			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k-1]) * 0.5;
 			W[i][j][k-1] = 0.0;
-			W[i][j][k] = -(W[i-1][j][k] + W[i][j-1][k]) / 2;
+			W[i][j][k] = -(W[i-1][j][k] + W[i][j-1][k]) * 0.5;
 			break;
 
 	}
 
 }
+
+/**
+ * Free slip boundary values of the 6 domain walls are set.
+ */
 
 void boundaryvalues_free_slip(
 			int i,
@@ -448,7 +452,240 @@ void boundaryvalues_free_slip(
 	}
 }
 
+/**
+ * Moving wall boundary values of the 6 domain walls are set.
+ */
 
+void boundaryvalues_moving_wall(
+			int i,
+			int j,
+			int k,
+			double ***U,
+			double ***V,
+			double ***W,
+			int ***Flag
+			){
+        // No-slip boundary conditions for U, V and W.
+	// 18 (6 + 12) cases of moving wall in total.
+	// For the remaining 8 cases of B_NOU, B_NWU, B_NOD, B_NWD, B_SOU, B_SWU, B_SOD, B_SWD,
+	// moving wall boundary condition is not allowed, and no slip boundary condition applies.
+	switch(getcelltype(Flag[i][j][k])){
+
+		case B_O: // wall is O. its moving direction is +y
+			U[i][j][k] = 0.0;
+			V[i][j-1][k] = 2.0*velMW - V[i+1][j-1][k];
+			V[i][j][k] = 2.0*velMW - V[i+1][j][k];
+			W[i][j][k-1] = -W[i+1][j][k-1];
+			W[i][j][k] = -W[i+1][j][k];
+			break;
+		case B_W: // wall is W. its moving direction is +y
+			U[i-1][j][k] = 0.0;
+			V[i][j-1][k] = 2.0*velMW - V[i-1][j-1][k];
+			V[i][j][k] = 2.0*velMW - V[i-1][j][k];
+			W[i][j][k-1] = -W[i-1][j][k-1];
+			W[i][j][k] = -W[i-1][j][k];
+			break;
+		case B_N: // wall is N. its moving direction is +z
+			V[i][j][k] = 0.0;
+			U[i-1][j][k] = -U[i-1][j+1][k];
+			U[i][j][k] = -U[i][j+1][k];
+			W[i][j][k-1] = 2.0*velMW - W[i][j+1][k-1];
+			W[i][j][k] = 2.0*velMW - W[i][j+1][k];
+			break;
+		case B_S: // wall is S. its moving direction is +z
+			V[i][j-1][k] = 0.0;
+			U[i-1][j][k] = -U[i-1][j-1][k];
+			U[i][j][k] = -U[i][j-1][k];
+			W[i][j][k-1] = 2.0*velMW - W[i][j-1][k-1];
+			W[i][j][k] = 2.0*velMW - W[i][j-1][k];
+			break;
+		case B_U: // wall is U. its moving direction is +x
+			W[i][j][k] = 0.0;
+			U[i-1][j][k] = 2.0*velMW - U[i-1][j][k+1];
+			U[i][j][k] = 2.0*velMW - U[i][j][k+1];
+			V[i][j-1][k] = -V[i][j-1][k+1];
+			V[i][j][k] = -V[i][j][k+1];
+			break;
+		case B_D: // wall is D. its moving direction is +x
+			W[i][j][k-1] = 0.0;
+			U[i-1][j][k] = 2.0*velMW - U[i-1][j][k-1];
+			U[i][j][k] = 2.0*velMW - U[i][j][k-1];
+			V[i][j-1][k] = -V[i][j-1][k-1];
+			V[i][j][k] = -V[i][j][k-1];
+			break;
+
+		case B_NO: // since the only possible moving direction is +z, wall is N
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -U[i-1][j+1][k];
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -V[i+1][j-1][k];
+			W[i][j][k] = velMW - (W[i][j+1][k] + W[i+1][j][k]) * 0.5;
+			W[i][j][k-1] = velMW - (W[i][j+1][k-1] + W[i+1][j][k-1]) * 0.5;
+			break;
+		case B_NW: // since the only possible moving direction is +z, wall is N
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -U[i][j+1][k];
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -V[i-1][j-1][k];
+			W[i][j][k] = velMW - (W[i][j+1][k] + W[i-1][j][k]) * 0.5;
+			W[i][j][k-1] = velMW - (W[i][j+1][k-1] + W[i-1][j][k-1]) * 0.5;
+			break;
+		case B_NU: // since the only possible moving direction is +x, wall is U
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -V[i][j-1][k+1];
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -W[i][j+1][k-1];
+			U[i][j][k] = velMW - (U[i][j+1][k] + U[i][j][k+1]) * 0.5;
+			U[i-1][j][k] = velMW - (U[i-1][j+1][k] + U[i-1][j][k+1]) * 0.5;
+			break;
+		case B_ND: // since the only possible moving direction is +x, wall is D
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -V[i][j-1][k-1];
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -W[i][j+1][k];
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k-1]) * 0.5;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k-1]) * 0.5;
+			break;
+		case B_SO: // since the only possible moving direction is +z, wall is S
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -U[i-1][j-1][k];
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -V[i+1][j][k];
+			W[i][j][k] = velMW - (W[i][j-1][k] + W[i+1][j][k]) * 0.5;
+			W[i][j][k-1] = velMW - (W[i][j-1][k-1] + W[i+1][j][k-1]) * 0.5;
+			break;
+		case B_SW: // since the only possible moving direction is +z, wall is S
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -U[i][j-1][k];
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -V[i-1][j][k];
+			W[i][j][k] = velMW - (W[i][j-1][k] + W[i-1][j][k]) * 0.5;
+			W[i][j][k-1] = velMW - (W[i][j-1][k-1] + W[i-1][j][k-1]) * 0.5;
+			break;
+		case B_SU: // since the only possible moving direction is +x, wall is U
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -V[i][j][k+1];
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -W[i][j-1][k-1];
+			U[i][j][k] = velMW - (U[i][j-1][k] + U[i][j][k+1]) * 0.5;
+			U[i-1][j][k] = velMW - (U[i-1][j-1][k] + U[i-1][j][k+1]) * 0.5;
+			break;
+		case B_SD: // since the only possible moving direction is +x, wall is D
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -V[i][j][k-1];
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -W[i][j-1][k];
+			U[i][j][k] = velMW - (U[i][j-1][k] + U[i][j][k-1]) * 0.5;
+			U[i-1][j][k] = velMW - (U[i-1][j-1][k] + U[i-1][j][k-1]) * 0.5;
+			break;
+		case B_OU: // since the only possible moving direction is +y, wall is O
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -U[i-1][j][k+1];
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -W[i+1][j][k-1];
+			V[i][j][k] = velMW - (V[i+1][j][k] + V[i][j][k+1]) * 0.5;
+			V[i][j-1][k] = velMW - (V[i+1][j-1][k] + V[i][j-1][k+1]) * 0.5;
+			break;
+		case B_WU: // since the only possible moving direction is +y, wall is W
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -U[i][j][k+1];
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -W[i-1][j][k-1];
+			V[i][j][k] = velMW - (V[i-1][j][k] + V[i][j][k+1]) * 0.5;
+			V[i][j-1][k] = velMW - (V[i-1][j-1][k] + V[i][j-1][k+1]) * 0.5;
+			break;
+		case B_OD: // since the only possible moving direction is +y, wall is O
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -U[i-1][j][k-1];
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -W[i+1][j][k];
+			V[i][j][k] = velMW - (V[i+1][j][k] + V[i][j][k-1]) * 0.5;
+			V[i][j-1][k] = velMW - (V[i+1][j-1][k] + V[i][j-1][k-1]) * 0.5;
+			break;
+		case B_WD: // since the only possible moving direction is +y, wall is W
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -U[i][j][k-1];
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -W[i-1][j][k];
+			V[i][j][k] = velMW - (V[i-1][j][k] + V[i][j][k-1]) * 0.5;
+			V[i][j-1][k] = velMW - (V[i-1][j-1][k] + V[i][j-1][k-1]) * 0.5;
+			break;
+
+		//before we find a better solution, the following 8 cases will be respectively same with no-slip.
+		case B_NOU:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k+1]) * 0.5;
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k+1]) * 0.5;
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -(W[i+1][j][k-1] + W[i][j+1][k-1]) * 0.5;
+			break;
+		case B_NWU:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k+1]) * 0.5;
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k+1]) * 0.5;
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -(W[i-1][j][k-1] + W[i][j+1][k-1]) * 0.5;
+			break;
+		case B_NOD:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k-1]) * 0.5;
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -(V[i+1][j-1][k] + V[i][j-1][k-1]) * 0.5;
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -(W[i+1][j][k] + W[i][j+1][k]) * 0.5;
+			break;
+		case B_NWD:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -(U[i][j+1][k] + U[i][j][k-1]) * 0.5;
+			V[i][j][k] = 0.0;
+			V[i][j-1][k] = -(V[i-1][j-1][k] + V[i][j-1][k-1]) * 0.5;
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -(W[i-1][j][k] + W[i][j+1][k]) * 0.5;
+			break;
+		case B_SOU:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k+1]) * 0.5;
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k+1]) * 0.5;
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -(W[i+1][j][k-1] + W[i][j-1][k-1]) * 0.5;
+			break;
+		case B_SWU:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k+1]) * 0.5;
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k+1]) * 0.5;
+			W[i][j][k] = 0.0;
+			W[i][j][k-1] = -(W[i-1][j][k-1] + W[i][j-1][k-1]) * 0.5;
+			break;
+		case B_SOD:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i][j][k] = 0.0;
+			U[i-1][j][k] = -(U[i-1][j-1][k] + U[i-1][j][k-1]) * 0.5;
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -(V[i+1][j][k] + V[i][j][k-1]) * 0.5;
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -(W[i+1][j][k] + W[i][j-1][k]) * 0.5;
+			break;
+		case B_SWD:
+			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
+			U[i-1][j][k] = 0.0;
+			U[i][j][k] = -(U[i][j-1][k] + U[i][j][k-1]) * 0.5;
+			V[i][j-1][k] = 0.0;
+			V[i][j][k] = -(V[i-1][j][k] + V[i][j][k-1]) * 0.5;
+			W[i][j][k-1] = 0.0;
+			W[i][j][k] = -(W[i-1][j][k] + W[i][j-1][k]) * 0.5;
+			break;
+	}
+}
 
 void boundaryvalues_outflow(
                             int i,
