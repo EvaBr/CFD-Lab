@@ -78,11 +78,11 @@ double fmax( double a, double b);
 double mmax(double **M, int imax, int jmax);
 double tmax(double ***M, int imax, int jmax, int kmax);
 /*Just a helper function, to have less writing*/
-int isfluid(int i, int j, int k, int ***Flag);
+int isfluid(int flag);
 int pow2 (int en, int dva);
 int getbit (int wall);
-int interior (int i, int j, int k, int ***Flag);
-int getcelltype (int i, int j, int k, int ***Flag);
+int interior (int flag);
+int getcelltype (int flags); //i, int j, int k, int ***Flag);
 
 
 /**

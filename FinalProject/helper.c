@@ -48,21 +48,22 @@ double mmax( double **U, int imax, int jmax)
     return maxij;
 }
 
-int isfluid(int i, int j, int k, int ***Flag) {
+int isfluid(int flag) {
   int ret = pow(2, 12);
-  return ( (Flag[i][j][k] & (3*ret)) == ret );
+  return ( (flag & (3*ret)) == ret );
 }
 
 /*helper function for getting the right bit represent. of edges.*/
 int getbit (int wall) {
   int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
-  return (tarr[wall]*pow(2, 12)+3*(pow(2,10)+pow(2,8)+pow(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
+  return (tarr[wall]*pow2(2, 12)+3*(pow2(2,10)+pow2(2,8)+pow2(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
 }
 
-int interior (int i, int j, int k, int ***Flag) {
-  int big = (Flag[i][j][k] >= pow(2, 14)); //check the cell itself is b
+int interior (int flag) {
+  //int big = Flag[i][j][k];
+  big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
   int gb = getbit(0);
-  return (big && ((Flag[i][j][k]&gb)==gb)); //check also all neighb. are b
+  return (big && ((flag&gb)==gb)); //check also all neighb. are b
 }
 
 double tmax( double ***U, int imax, int jmax, int kmax) //added function for getting max of a tensor
@@ -80,9 +81,18 @@ double tmax( double ***U, int imax, int jmax, int kmax) //added function for get
   return maxij;
 }
 
-int getcelltype (int i, int j, int k, int ***Flag){
-  int flags = (getbit(0)/3)*2; //10|10|10|10|10|10 - check where is water
-  flags = Flag[i][j][k]&flags;  //get just the important bits
+
+int getcelltype (int flags){
+  //int flags = Flag[i][j][k];
+  //int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell
+  flags = ~(((getbit(0)/3)*2) & flags); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
+
+
+  //TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
+  //e.g.:
+  //flags = ((getbit(0)/3) & flags); // & (01|01|01|01|01|01) - check where is air, and get just the important bits (00 where air, 01 where b or water)
+
+  //flags = flags&getbit(isboundary);  //add the cond. of being a boundarycell
   return flags;
 }
 
@@ -491,7 +501,7 @@ int **read_pgm(const char *filename)
 
     if ((input=fopen(filename,"rb"))==0)
     {
-       char szBuff[80];
+     char szBuff[80];
 	   sprintf( szBuff, "Can not read file %s!", filename );
 	   ERROR( szBuff );
     }
@@ -511,7 +521,7 @@ int **read_pgm(const char *filename)
     /* read the width and height */
     sscanf(line,"%d %d\n",&xsize,&ysize);
 
-    printf("Image size: %d x %d\n", xsize,ysize);
+    printf("Image set size: %d x %d\n", xsize,ysize);
 
     /* read # of gray levels */
     fgets(line,sizeof line,input);

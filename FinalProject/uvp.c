@@ -22,77 +22,172 @@ void calculate_fgh(
   double ***H,
   int ***Flag
 ){
-/*	double uij, vij, uuj, udj, uiu, uid, viu, vid, vuj, vdj, udu, vud;
+	double uijk, vijk, wijk, uujk, udjk, uiuk, uidk, uiju, uijd, viuk, vidk, viju, vijd, vujk, vdjk, wiju, wijd, wujk, wdjk, wiuk, widk, uduk, udju, vudk, vidu, wiud,wujd;
 	double Dx = 1/dx, Dy = 1/dy, Dz = 1/dz;
 	int i, j, k;
+  int fluid = pow2(2, 12);
+  int air = 2*fluid;
 	for (i=1; i<imax+1; i++){
-		for  (j=1; j<jmax+1; j++){
-			switch (Flag[i][j][k]){
-				case (C_F):
-					uij = U[i][j];
-					uuj = U[i+1][j];
-					udj = U[i-1][j];
-					uiu = U[i][j+1];
-					uid = U[i][j-1];
-					udu = U[i-1][j+1];
+    for  (j=1; j<jmax+1; j++){
+      for  (k=1; k<kmax+1; k++){
+			  switch (Flag[i][j][k]&(3*fluid){ //only check, if you have water, air or boundary
+				  case (fluid):
+            uijk = U[i][j][k];   vijk = V[i][j][k];   wijk = W[i][j][k];
+            uujk = U[i+1][j][k]; viuk = V[i][j+1][k]; wiju = W[i][j][k+1];
+					  udjk = U[i-1][j][k]; vidk = V[i][j-1][k]; wijd = W[i][j][k-1];
+					  uiuk = U[i][j+1][k]; viju = V[i][j][k+1]; wujk = W[i+1][j][k];
+					  uidk = U[i][j-1][k]; vijd = V[i][j][k-1]; wdjk = W[i-1][j][k];
+            uiju = U[i][j][k+1]; vujk = V[i+1][j][k]; wiuk = W[i][j+1][k];
+            uijd = U[i][j][k-1]; vdjk = V[i-1][j][k]; widk = W[i][j-1][k];
 
-					vij = V[i][j];
-					viu = V[i][j+1];
-					vid = V[i][j-1];
-					vuj = V[i+1][j];
-					vdj = V[i-1][j];
-					vud = V[i+1][j-1];
+            uduk = U[i-1][j+1][k]; udju = U[i-1][j][k+1];
+			  		vudk = V[i+1][j-1][k]; vidu = V[i][j-1][k+1];
+            wiud = W[i][j+1][k-1]; wujd = W[i+1][j][k-1];
 
-					if (Flag[i+1][j] == C_F){ // add this if-loop in double for-loop to ensure calculation is only on edges
-							// separating two fluid cells.
+				  	if (isfluid(Flag[i+1][j][k])){ // add this to ensure calculation is only on edges separating two fluid cells.
+  					  	F[i][j][k] = uijk + dt*(1/Re*((uujk-2*uijk+udjk)*Dx*Dx + (uiuk-2*uijk+uidk)*Dy*Dy + (uiju-2*uijk+uijd)*Dz*Dz) -
+						  	0.25*Dx*(pow((uijk+uujk),2)-pow((udjk+uijk),2) + alpha*(fabs(uijk+uujk)*(uijk-uujk)-fabs(udjk+uijk)*(udjk-uijk))) -
+                0.25*Dy*((vijk+vujk)*(uijk+uiuk)-(vidk+vudk)*(uidk+uijk) + alpha*(fabs(vijk+vujk)*(uijk-uiuk)-fabs(vidk+vudk)*(uidk-uijk))) +
+                0.25*Dz*((wijk+wujk)*(uijk+uiju)-(wijd+wujd)*(uijd+uijk) + alpha*(fabs(wijk+wujk)*(uijk-uiju)-fabs(wijd+wujd)*(uijd-uijk))) +
+						  	GX);
+					  }
+	  				if (isfluid(Flag[i][j+1][k])){
+	  	  				G[i][j][k] = vijk + dt*(1/Re*((vujk-2*vijk+vdjk)*Dx*Dx + (viuk-2*vijk+vidk)*Dy*Dy + (viju-2*vijk+vijd)*Dz*Dz) -
+			  				0.25*Dy*(pow((vijk+viuk),2)-pow((vidk+vijk),2) + alpha*(fabs(vijk+viuk)*(vijk-viuk)-fabs(vidk+vijk)*(vidk-vijk))) -
+				  			0.25*Dx*((uijk+uiuk)*(vijk+vujk)-(udjk+uduk)*(vdjk+vijk) + alpha*(fabs(uijk+uiuk)*(vijk-vujk)-fabs(udjk+uduk)*(vdjk-vijk))) +
+                0.25*Dz*((wijk+wiuk)*(vijk+viju)-(wijd+wiud)*(vijd+vijk) + alpha*(fabs(wijk+wiuk)*(vijk-viju)-fabs(wijd+wiud)*(vijd-vijk))) +
+					  		GY);
+            }
+            if (isfluid(Flag[i][j][k+1])){
+                H[i][j][k] = wijk + dt*(1/Re*((wujk-2*wijk+wdjk)*Dx*Dx + (wiuk-2*wijk+widk)*Dy*Dy + (wiju-2*wijk+wijd)*Dz*Dz) -
+                0.25*Dz*(pow((wijk+wiju),2)-pow((wijd+wijk),2) + alpha*(fabs(wijk+wiju)*(wijk-wiju)-fabs(wijd+wijk)*(wijd-wijk))) -
+                0.25*Dx*((uijk+uiju)*(wijk+wujk)-(udjk+udju)*(wdjk+wijk) + alpha*(fabs(uijk+uiju)*(wijk-wujk)-fabs(udjk+udju)*(wdjk-wijk))) +
+                0.25*Dy*((vijk+viju)*(wijk+wiuk)-(vidk+vidu)*(widk+wijk) + alpha*(fabs(vijk+viju)*(wijk-wiuk)-fabs(vidk+vidu)*(widk-wijk))) +
+                GZ);
+            }
+				  	break;
 
-						F[i][j] = uij + dt*(1/Re*((uuj-2*uij+udj)*Dx*Dx + (uiu-2*uij+uid)*Dy*Dy) -
-							0.25*Dx*(pow((uij+uuj),2)-pow((udj+uij),2) + alpha*(fabs(uij+uuj)*(uij-uuj)-fabs(udj+uij)*(udj-uij))) -
-							0.25*Dy*((vij+vuj)*(uij+uiu)-(vid+vud)*(uid+uij) + alpha*(fabs(vij+vuj)*(uij-uiu)-fabs(vid+vud)*(uid-uij))) +
-							GX);
-					}
-					if (Flag[i][j+1] == C_F){
-						G[i][j] = vij + dt*(1/Re*((vuj-2*vij+vdj)*Dx*Dx + (viu-2*vij+vid)*Dy*Dy) -
-							0.25*Dy*(pow((vij+viu),2)-pow((vid+vij),2) + alpha*(fabs(vij+viu)*(vij-viu)-fabs(vid+vij)*(vid-vij))) -
-							0.25*Dx*((uij+uiu)*(vij+vuj)-(udj+udu)*(vdj+vij) + alpha*(fabs(uij+uiu)*(vij-vuj)-fabs(udj+udu)*(vdj-vij))) +
-							GY);
-					break;
-				case (B_N):
-					G[i][j] = V[i][j]; break;
-				case (B_W):
-					F[i-1][j] = U[i-1][j]; break;
-				case (B_O):
-					F[i][j] = U[i][j]; break;
-				case (B_S):
-					G[i][j-1] = V[i][j-1]; break;
-				case (B_NO):
-					G[i][j] = V[i][j];
-					F[i][j] = U[i][j];
-					break;
-				case (B_NW):
-					G[i][j] = V[i][j];
-					F[i-1][j] = U[i-1][j];
-					break;
-				case (B_SO):
-					G[i][j-1] = V[i][j-1];
-					F[i][j] = U[i][j];
-					break;
-				case (B_SW):
-					F[i-1][j] = U[i-1][j];
-					G[i][j-1] = V[i][j-1];
-					break;
-				}
-			}
-		}*/
+        case (air):
+          //TODO in case of free surfaces?
+          break;
+
+        default: //we have a boundary cell
+          switch (getcelltype(Flag[i][j][k])){
+				    case (B_N):
+					     G[i][j][k] = V[i][j][k]; break;
+				    case (B_W):
+					     F[i-1][j][k] = U[i-1][j][k]; break;
+				    case (B_O):
+					     F[i][j][k] = U[i][j][k]; break;
+				    case (B_S):
+					     G[i][j-1][k] = V[i][j-1][k]; break;
+            case (B_U):
+               H[i][j][k] = W[i][j][k]; break;
+            case (B_D):
+               H[i][j][k-1] = W[i][j][k-1]; break;
+
+		  		  case (B_NO):
+			  	     G[i][j][k] = V[i][j][k];
+			         F[i][j][k] = U[i][j][k];
+				       break;
+				    case (B_NW):
+					     G[i][j][k] = V[i][j][k];
+					     F[i-1][j][k] = U[i-1][j][k];
+					     break;
+            case (B_NU):
+               G[i][j][k] = V[i][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_ND):
+               G[i][j][k] = V[i][j][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+			    	case (B_SO):
+					     G[i][j-1][k] = V[i][j-1][k];
+					     F[i][j][k] = U[i][j][k];
+					     break;
+				    case (B_SW):
+					     F[i-1][j][k] = U[i-1][j][k];
+					     G[i][j-1][k] = V[i][j-1][k];
+					     break;
+            case (B_SU):
+               G[i][j-1][k] = V[i][j-1][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_SD):
+               G[i][j-1][k] = V[i][j-1][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+            case (B_OU):
+               F[i][j][k] = U[i][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_WU):
+               F[i-1][j][k] = U[i-1][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_OD):
+               F[i][j][k] = U[i][j][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+            case (B_WD):
+               F[i-1][j][k] = U[i-1][j][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+
+            case (B_NOU):
+               G[i][j][k] = V[i][j][k];
+               F[i][j][k] = U[i][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_NOD):
+               G[i][j][k] = V[i][j][k];
+               F[i][j][k] = U[i][j][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+            case (B_NWU):
+               G[i][j][k] = V[i][j][k];
+               F[i-1][j][k] = U[i-1][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_NWD):
+               G[i][j][k] = V[i][j][k];
+               F[i-1][j][k] = U[i-1][j][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+            case (B_SOU):
+               G[i][j-1][k] = V[i][j-1][k];
+               F[i][j][k] = U[i][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_SOD):
+               G[i][j-1][k] = V[i][j-1][k];
+               F[i][j][k] = U[i][j][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+            case (B_SWU):
+               G[i][j-1][k] = V[i][j-1][k];
+               F[i-1][j][k] = U[i-1][j][k];
+               H[i][j][k] = W[i][j][k];
+               break;
+            case (B_SWD):
+               G[i][j-1][k] = V[i][j-1][k];
+               F[i-1][j][k] = U[i][j-1][k];
+               H[i][j][k-1] = W[i][j][k-1];
+               break;
+				   }
+         }
+       }
+		}
 		/* rewrite G(i,0) and G(i, jmax) with bound.cond. for G */
-//		G[i][0] = V[i][0];
-//		G[i][jmax] = V[i][jmax];
-//	}
-//	for (j=1; j<jmax+1; j++){
+		G[i][0] = V[i][0];
+		G[i][jmax] = V[i][jmax];
+	}
+	for (j=1; j<jmax+1; j++){
 		/* rewrite F(0,j) and F(imax, j) with bound.cond. for F */
-//		F[0][j] = U[0][j];
-//		F[imax][j] = U[imax][j];
-//	}
+		F[0][j] = U[0][j];
+		F[imax][j] = U[imax][j];
+	}
 }
 
 void calculate_rs(
@@ -170,7 +265,7 @@ void calculate_uvw(
 	for(i=1; i<imax; i++){
 		for(j=1; j<jmax+1; j++){
       for(k=1; k<kmax+1; k++){
-			  if (isfluid(i,j,k, Flag) && isfluid(i+1,j,k, Flag)){
+			  if (isfluid(Flag[i][j][k]) && isfluid(Flag[i+1][j][k])){
 				   U[i][j][k] = F[i][j][k] - dt/dx * (P[i+1][j][k] - P[i][j][k]);
 			  }
       }
@@ -180,7 +275,7 @@ void calculate_uvw(
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax; j++){
       for(k=1; k<kmax+1; k++){
-			  if (isfluid(i,j,k, Flag) && isfluid(i,j+1,k, Flag)){
+			  if (isfluid(Flag[i][j][k]) && isfluid(Flag[i][j+1][k])){
 				  V[i][j][k] = G[i][j][k] - dt/dy * (P[i][j+1][k] - P[i][j][k]);
 			  }
       }
@@ -190,7 +285,7 @@ void calculate_uvw(
   for(i=1; i<imax+1; i++){
     for(j=1; j<jmax+1; j++){
       for(k=1; k<kmax; k++){
-        if (isfluid(i,j,k, Flag) && isfluid(i,j,k+1, Flag)){
+        if (isfluid(Flag[i][j][k]) && isfluid(Flag[i][j][k+1])){
           W[i][j][k] = H[i][j][k] - dt/dz * (P[i][j][k+1] - P[i][j][k]);
         }
       }
