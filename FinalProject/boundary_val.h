@@ -15,6 +15,15 @@ void boundaryvalues_no_slip(
   double ***W,
   int ***Flag
 );
+void boundaryvalues_free_slip(
+  int i,
+  int j,
+  int k,
+  double ***U,
+  double ***V,
+  double ***W,
+  int ***Flag
+);
 
 void boundaryvalues(
   int imax,
