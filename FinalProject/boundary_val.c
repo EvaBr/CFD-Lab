@@ -460,12 +460,6 @@ void boundaryvalues_outflow(
                             ){
               int imax=0; int jmax=0; int kmax=0;
               switch(getcelltype(Flag[i][j][k])){
-                case B_N:
-                    V[i][jmax][k] = V[i][jmax-1][k];
-                    U[i][jmax+1][k] = U[i][jmax][k];
-                    W[i][jmax+1][k] = W[i][jmax][k];
-                    break;
-
                 case B_O:
                     U[imax][j][k] = U[imax-1][j][k];
                     V[imax+1][j][k] = V[imax][j][k];
