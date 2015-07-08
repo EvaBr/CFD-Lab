@@ -84,7 +84,7 @@ double tmax( double ***U, int imax, int jmax, int kmax) //added function for get
 
 int getcelltype (int flags){
   //int flags = Flag[i][j][k];
-  //int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell
+  //int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
   flags = ~(((getbit(0)/3)*2) & flags); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
 
 

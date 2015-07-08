@@ -40,7 +40,7 @@ void sor(
   rloc = 0;
   for(i = 1; i <= imax; i++) {
     for(j = 1; j <= jmax; j++) {
-      for(k = 1; k <= <max; k++){
+      for(k = 1; k <= kmax; k++){
         if(isfluid(Flag[i][j][k])){
 	         rloc += ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k])*
         	      ( (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx*dx) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy*dy) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz*dz) - RS[i][j][k]);
@@ -92,6 +92,7 @@ void sor(
 
 		        //case C_B: P[i][j] = 0; break;
 	          default: break;
+          }
       }
     }
   }
