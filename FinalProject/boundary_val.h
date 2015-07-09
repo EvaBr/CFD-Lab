@@ -24,6 +24,27 @@ void boundaryvalues_free_slip(
   double ***W,
   int ***Flag
 );
+void boundaryvalues_moving_wall(
+  int i,
+  int j,
+  int k,
+  double ***U,
+  double ***V,
+  double ***W,
+  int ***Flag
+);
+
+
+
+void boundaryvalues_outflow(
+    int i,
+    int j,
+    int k,
+    double ***U,
+    double ***V,
+    double ***W,
+    int ***Flag
+);
 
 void boundaryvalues(
   int imax,
