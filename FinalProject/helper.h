@@ -22,7 +22,7 @@
 #define FREE_SLIP 3
 #define OUTFLOW 4
 #define INFLOW 5
-#define MOWING_WALL 6
+#define MOVING_WALL 6
 
 //helper flags for easier checking in boundary functions
 #define B_N 8
