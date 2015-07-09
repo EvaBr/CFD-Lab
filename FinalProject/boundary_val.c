@@ -458,7 +458,6 @@ void boundaryvalues_outflow(
                             double ***W,
                             int ***Flag
                             ){
-              int imax=0; int jmax=0; int kmax=0;
               switch(getcelltype(Flag[i][j][k])){
                 case B_O:
                     U[imax][j][k] = U[imax-1][j][k];
@@ -723,8 +722,8 @@ void boundaryvalues(
         double ***H,
 		    char *problem,  //should comment out? probably not needed.
 		    int ***Flag,
-		    double velIN,
-        double velMW
+		    double *velIN,
+        double *velMW
                     ) {
         int i, j, k, temp;
         for (i=0; i<imax+2; i++) {
@@ -735,10 +734,16 @@ void boundaryvalues(
               switch (temp) {
                 case NO_SLIP:
                   boundaryvalues_no_slip(i, j, k, U, V, W, Flag); break;
-                case FREE_SLIP: break;
-                case INFLOW: break;
-                case OUTFLOW: break;
-                case MOVING_WALL: break;
+                case FREE_SLIP:
+									boundaryvalues_free_slip(i, j, k, U, V, W, Flag); break;
+                case INFLOW:
+									//boundaryvalues_inflow(i, j, k, U, V, W, Flag, velIN);
+									break;
+                case OUTFLOW:
+									boundaryvalues_outflow(i, j, k, U, V, W, Flag); break;
+                case MOVING_WALL:
+									//boundaryvalues_moving_wall(i, j, k, U, V, W, Flag, velMW);
+									break;
                 default: //if we get to here, our cell is air or water. (temp>6)
                   break;
               }

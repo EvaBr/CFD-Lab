@@ -86,7 +86,7 @@ int getcelltype (int flags){
   //int flags = Flag[i][j][k];
   //int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
   flags = ~(((getbit(0)/3)*2) & flags); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
-
+  flags = (flags&2 >> 1) + (flags >> 2)&2 + (flags >> 3)&4 + (flags >> 4)&8 + (flags >> 5)&16 + (flags >> 6)&32;
 
   //TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
   //e.g.:
