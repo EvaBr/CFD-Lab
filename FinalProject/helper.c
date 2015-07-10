@@ -112,7 +112,6 @@ int min_int( const int n1, const int n2 )
 }
 
 
-
 /* ----------------------------------------------------------------------- */
 /*                             read datafile                               */
 /* ----------------------------------------------------------------------- */
@@ -399,7 +398,7 @@ void read_matrix( const char* szFileName,       /* filename */
 
 double ***matrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 	double ***pArray;
-	int i,j,k;
+	int i,j;
 
 	pArray=(double ***) malloc((unsigned) (nrh-nrl+1)*sizeof(double **));
 	if (pArray== 0) ERROR("Storage cannot be allocated");
@@ -485,7 +484,7 @@ void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a)
 
 int  ***imatrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 	int ***pArray;
-	int i,j,k;
+	int i,j;
 	pArray=(int ***) malloc((unsigned) (nrh-nrl+1)*sizeof(int **));
 	if (pArray== 0) ERROR("Storage cannot be allocated");
 	pArray -= nrl;
