@@ -48,6 +48,7 @@ double mmax( double **U, int imax, int jmax)
     return maxij;
 }
 
+
 int isfluid(int flag) {
   int ret = pow(2, 12);
   return ( (flag & (3*ret)) == ret );
@@ -68,17 +69,17 @@ int interior (int flag) {
 
 double tmax( double ***U, int imax, int jmax, int kmax) //added function for getting max of a tensor
 {
-  double maxij = 0;
+  double max = 0;
   for( int i=0; i<=imax+1; i++){
 	   for( int j=0; j<=jmax+1; j++){
        for( int k=0; k<=kmax+1; k++){
-	        if (fabs(U[i][j][k])>maxij){
-	           maxij = fabs(U[i][j][k]);
+	        if (fabs(U[i][j][k])>max){
+	           max = fabs(U[i][j][k]);
 	        }
        }
 	   }
   }
-  return maxij;
+  return max;
 }
 
 
@@ -86,7 +87,7 @@ int getcelltype (int flags){
   //int flags = Flag[i][j][k];
   //int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
   flags = ~(((getbit(0)/3)*2) & flags); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
-  flags = (flags&2 >> 1) + (flags >> 2)&2 + (flags >> 3)&4 + (flags >> 4)&8 + (flags >> 5)&16 + (flags >> 6)&32;
+  flags = (flags&2 >> 1) + ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
 
   //TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
   //e.g.:
@@ -109,7 +110,6 @@ int min_int( const int n1, const int n2 )
     if( n1 < n2 ) return n1;
     return n2;
 }
-
 
 
 /* ----------------------------------------------------------------------- */
@@ -390,9 +390,33 @@ void read_matrix( const char* szFileName,       /* filename */
 }
 
 
+
 /* ----------------------------------------------------------------------- */
 /*                      general matrix functions                           */
 /* ----------------------------------------------------------------------- */
+
+
+double ***matrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
+	double ***pArray;
+	int i,j;
+
+	pArray=(double ***) malloc((unsigned) (nrh-nrl+1)*sizeof(double **));
+	if (pArray== 0) ERROR("Storage cannot be allocated");
+	pArray -= nrl;
+
+	for(i=nrl;i<=nrh;i++) {
+		pArray[i]=(double **) malloc((unsigned) (nch-ncl+1)*sizeof(double *));
+		if (pArray[i]== 0) ERROR("Storage cannot be allocated");
+		pArray[i] -= ncl;
+		for(j=ncl;j<=nch;j++) {
+			pArray[i][j]=(double *) malloc((unsigned) (nlh-nll+1)*sizeof(double));
+			if (pArray[i][j] == 0) ERROR("Storage cannot be allocated");
+			pArray[i][j] -= nll;}
+
+	}
+	return pArray;
+}
+
 
 /*  allocates storage for a matrix                                         */
 double **matrix( int nrl, int nrh, int ncl, int nch )
@@ -421,8 +445,17 @@ double **matrix( int nrl, int nrh, int ncl, int nch )
    return pArray - nrl;
 }
 
-
 /* deallocates the storage of a matrix  */
+void free_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
+	short i,j;
+	for(i=nrh;i>=nrl;i--)
+	{
+		for(j=ncl;j>=ncl;j--) free((char*) (m[i][j]+nll));
+		free((char*) (m[i]+ncl));
+	}
+	free((char*) (m+nll));
+}
+
 void free_matrix( double **m, int nrl, int nrh, int ncl, int nch )
 {
    double **pArray  = m + nrl;
@@ -430,6 +463,14 @@ void free_matrix( double **m, int nrl, int nrh, int ncl, int nch )
 
    free( pMatrix );
    free( pArray );
+}
+
+void init_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, double a){
+	int i,j,k;
+	for( i = nrl; i <= nrh; i++)
+		for( j = ncl; j <= nch; j++)
+			for( k = nll; k <= nlh; k++)
+				m[i][j][k] = a;
 }
 
 void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a)
@@ -440,6 +481,25 @@ void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a)
 	   m[i][j] = a;
 }
 
+
+int  ***imatrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
+	int ***pArray;
+	int i,j;
+	pArray=(int ***) malloc((unsigned) (nrh-nrl+1)*sizeof(int **));
+	if (pArray== 0) ERROR("Storage cannot be allocated");
+	pArray -= nrl;
+	for(i=nrl;i<=nrh;i++) {
+		pArray[i]=(int **) malloc((unsigned) (nch-ncl+1)*sizeof(int *));
+		if (pArray[i]== 0) ERROR("Storage cannot be allocated");
+		pArray[i] -= ncl;
+		for(j=ncl;j<=nch;j++) {
+			pArray[i][j]=(int *) malloc((unsigned) (nlh-nll+1)*sizeof(int));
+			if (pArray[i][j] == 0) ERROR("Storage cannot be allocated");
+			pArray[i][j] -= nll;}
+
+	}
+	return pArray;
+}
 
 /* allocates storage for a matrix */
 int **imatrix( int nrl, int nrh, int ncl, int nch )
@@ -470,6 +530,17 @@ int **imatrix( int nrl, int nrh, int ncl, int nch )
    return pArray - nrl;
 }
 
+
+void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
+	short i,j;
+	for(i=nrh;i>=nrl;i--)
+	{
+		for(j=ncl;j>=ncl;j--) free((char*) (m[i][j]+nll));
+		free((char*) (m[i]+ncl));
+	}
+	free((char*) (m+nll));
+}
+
 /* deallocates the storage of a matrix  */
 void free_imatrix( int **m, int nrl, int nrh, int ncl, int nch )
 {
@@ -478,6 +549,14 @@ void free_imatrix( int **m, int nrl, int nrh, int ncl, int nch )
 
    free( pMatrix );
    free( pArray );
+}
+
+void init_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, int a){
+	int i,j,k;
+	for( i = nrl; i <= nrh; i++)
+		for( j = ncl; j <= nch; j++)
+			for( k = nll; k <= nlh; k++)
+				m[i][j][k] = a;
 }
 
 void init_imatrix( int **m, int nrl, int nrh, int ncl, int nch, int a)
@@ -570,3 +649,4 @@ int **read_pgm(const char *filename)
 
     return pic;
 }
+

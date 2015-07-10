@@ -320,6 +320,7 @@ void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int n
  *    init_matrix( U , 0, imax+1, 0, jmax+1, 0 );
  *    free_matrix( U,  0, imax+1, 0, jmax+1 );
  */
+void init_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, int a);
 void init_imatrix( int **m, int nrl, int nrh, int ncl, int nch, int a);
 
 
