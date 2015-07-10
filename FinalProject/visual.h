@@ -7,7 +7,7 @@
  * The name of the file consists of the problem name (szProblem)
  * and of the current time step. It gets the suffix .vtk.
  *
- * @param szProblem      File pointer for writing info.  
+ * @param szProblem      File pointer for writing info.
  * @param timeStepNumber Number of the current time step to be printed.
  * @param xlength Length in x-direction
  * @param ylength Length in y-direction
@@ -48,8 +48,8 @@ void write_vtkFile(const char *szProblem,
  *
  * @author Tobias Neckel
  */
-void write_vtkHeader( FILE *fp, int imax, int jmax,
-                      double dx, double dy);
+void write_vtkHeader( FILE *fp, int imax, int jmax, int kmax,
+                      double dx, double dy, double dz);
 
 /**
  * Method for writing grid coordinate information in vtk format.
@@ -62,7 +62,7 @@ void write_vtkHeader( FILE *fp, int imax, int jmax,
  *
  * @author Tobias Neckel
  */
-void write_vtkPointCoordinates( FILE *fp, int imax, int jmax,
-                                double dx, double dy);
+void write_vtkPointCoordinates( FILE *fp, int imax, int jmax, int kmax,
+                                double dx, double dy, double dz);
 
 #endif

@@ -73,7 +73,7 @@ void calculate_fgh(
           //TODO in case of free surfaces?
           break;
 
-        default: //we have a boundary cell
+        default: //we have a boundary cell; rewrite with right boundary cond., depending on type of cell
           fgg = getcelltype(Flag[i][j][k]);
           if (fgg%4==1){ //U neighb. is fluid
             H[i][j][k] = W[i][j][k]; break;

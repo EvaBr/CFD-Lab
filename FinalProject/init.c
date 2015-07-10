@@ -38,7 +38,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 //                  double *presLeft,		       /*pressure at the left wall*/
 //                  double *presRight,		     /*pressure at the right wall*/
 //                  double *presDelta,		     /*pressure difference across the domain*/
-		                double velIN,             /*velocity of inflow*/
+		                double *velIN,             /*velocity of inflow*/
                     double velMW )		         /*velocity of wall (in U direction)*/
 {
    READ_DOUBLE( szFileName, *xlength );
@@ -84,9 +84,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *presRight);
    READ_DOUBLE( szFileName, *presDelta); */
 
-   READ_DOUBLE( szFileName, &velIN[0] );
-   READ_DOUBLE( szFileName, &velIN[1] );
-   READ_DOUBLE( szFileName, &velIN[2] );
+   READ_DOUBLE( szFileName, *velIN );
    READ_DOUBLE( szFileName, &velMW[0] );
    READ_DOUBLE( szFileName, &velMW[1] );
    READ_DOUBLE( szFileName, &velMW[2] );

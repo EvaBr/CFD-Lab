@@ -31,12 +31,12 @@ int main(int argn, char** args){
 	int wl, wr, wt, wb, wf, wh;
 	char problemGeometry[32];
   //in case of a given inflow or wall velocity  TODO: will we have this? needs to be a vector?
-	double *velIN[3];
+	double velIN;
   double *velMW[3];
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
-			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, velIN, velMW); //&presLeft, &presRight, &presDelta, &vel);
+			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, velMW); //&presLeft, &presRight, &presDelta, &vel);
 
 	//int pics = dt_value/dt; //just a helping variable for outputing vtk
 

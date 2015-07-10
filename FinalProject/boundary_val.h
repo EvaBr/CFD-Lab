@@ -31,11 +31,9 @@ void boundaryvalues_moving_wall(
   double ***U,
   double ***V,
   double ***W,
-  int ***Flag
+  int ***Flag,
+  double *velMW
 );
-
-
-
 void boundaryvalues_outflow(
     int i,
     int j,
@@ -44,6 +42,16 @@ void boundaryvalues_outflow(
     double ***V,
     double ***W,
     int ***Flag
+);
+void boundaryvalues_inflow(
+    int i,
+    int j,
+    int k,
+    double ***U,
+    double ***V,
+    double ***W,
+    int ***Flag,
+    double velIN
 );
 
 void boundaryvalues(
