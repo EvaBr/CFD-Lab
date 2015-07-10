@@ -73,7 +73,7 @@ void boundaryvalues(
   double ***H,
   char *problem,
   int ***Flag,
-  double velIN,
+  double *velIN,
   double velMW
 );
 
