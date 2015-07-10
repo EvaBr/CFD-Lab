@@ -604,7 +604,7 @@ void boundaryvalues_moving_wall(
 			break;
 
 		//before we find a better solution, the following 8 cases will be respectively same with no-slip.
-		case B_NOU:
+		/*case B_NOU:
 			printf("Warning: for now the moving wall condition is set same as no-slip, when the flag is B_NOU, B_NWU etc.");
 			U[i][j][k] = 0.0;
 			U[i-1][j][k] = -(U[i-1][j+1][k] + U[i-1][j][k+1]) * 0.5;
@@ -676,8 +676,27 @@ void boundaryvalues_moving_wall(
 			W[i][j][k-1] = 0.0;
 			W[i][j][k] = -(W[i-1][j][k] + W[i][j-1][k]) * 0.5;
 			break;
+		*/
 
-		default: //case 0
+		//before we find a better solution, the following 8 cases will be forbidden.
+		case B_NOU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_NWU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_NOD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_NWD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SOU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SWU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SOD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SWD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+
+		default: //case 0: inner cell -> do nothing
 			break;
 	}
 }
