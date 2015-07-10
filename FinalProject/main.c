@@ -32,7 +32,7 @@ int main(int argn, char** args){
 	char problemGeometry[32];
   //in case of a given inflow or wall velocity  TODO: will we have this? needs to be a vector?
 	double velIN;
-  double *velMW[3];
+  double velMW[3]; // the moving wall velocity is a vector
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,

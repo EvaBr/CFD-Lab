@@ -73,8 +73,8 @@ void boundaryvalues(
   double ***H,
   char *problem,
   int ***Flag,
-  double *velIN,
-  double velMW
+  double velIN,
+  double *velMW
 );
 
 void spec_boundary_val(

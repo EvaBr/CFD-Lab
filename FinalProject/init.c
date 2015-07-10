@@ -39,7 +39,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 //                  double *presRight,		     /*pressure at the right wall*/
 //                  double *presDelta,		     /*pressure difference across the domain*/
 		                double *velIN,             /*velocity of inflow*/
-                    double velMW )		         /*velocity of wall (in U direction)*/
+                    double *velMW )		         /*velocity of wall (in U direction)*/
 {
    READ_DOUBLE( szFileName, *xlength );
    READ_DOUBLE( szFileName, *ylength );
@@ -85,9 +85,9 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *presDelta); */
 
    READ_DOUBLE( szFileName, *velIN );
-   READ_DOUBLE( szFileName, &velMW[0] );
-   READ_DOUBLE( szFileName, &velMW[1] );
-   READ_DOUBLE( szFileName, &velMW[2] );
+   READ_DOUBLE( szFileName, velMW[0] );
+   READ_DOUBLE( szFileName, velMW[1] );
+   READ_DOUBLE( szFileName, velMW[2] );
 
    //take care of (in)valid pressure input
   /*if (*presDelta<=0){
@@ -179,7 +179,7 @@ void init_flag(
              ERROR("Invalid geometry! Forbidden boundary cell found.\n");
            }
            temp2 = getcelltype(temp)%16;
-           if (((temp>>12)&15==8) && (temp2==5 || temp2==6 || temp2==9 || temp2==10)){ //tryin to set moving wall for a B_??? cell. not allowed!
+           if (( ((temp>>12)&15) == 8 ) && (temp2==5 || temp2==6 || temp2==9 || temp2==10)){ //tryin to set moving wall for a B_??? cell. not allowed!
              ERROR("Invalid geometry! Forbidden boundary cell found.\n");
            }
            Flag[j][jmax+1-i][k] = temp;

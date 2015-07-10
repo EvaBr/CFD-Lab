@@ -455,7 +455,8 @@ void boundaryvalues_moving_wall(
 			double ***U,
 			double ***V,
 			double ***W,
-			int ***Flag
+			int ***Flag,
+			double *velMW
 			){
         // No-slip boundary conditions for U, V and W.
 	// 18 (6 + 12) cases of moving wall in total.

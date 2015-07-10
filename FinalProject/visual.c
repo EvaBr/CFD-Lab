@@ -19,7 +19,7 @@ void write_vtkFile(const char *szProblem,
 		 double ***W,
      double ***P) {
 
-  int i,j;
+  int i,j,k;
   char szFileName[80];
   FILE *fp=NULL;
   sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
