@@ -32,13 +32,13 @@ int main(int argn, char** args){
 	char problemGeometry[32];
   //in case of a given inflow or wall velocity  TODO: will we have this? needs to be a vector?
 	double velIN;
-  double *velMW[3];
+  double velMW[3]; // the moving wall velocity is a vector
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
 			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, velMW); //&presLeft, &presRight, &presDelta, &vel);
 
-	//int pics = dt_value/dt; //just a helping variable for outputing vtk
+	int pics = dt_value/dt; //just a helping variable for outputing vtk
 
 
 	//allocate memory, including Flag
@@ -89,9 +89,9 @@ int main(int argn, char** args){
 		t += dt;
 
 		//output of pics for animation
-		//if (n%pics==0 ){
-		//	write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
-		//}
+		if (n%pics==0 ){
+			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
+		}
 	}
 	//output of U, V, P at the end for visualization
 	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
