@@ -31,7 +31,8 @@ void boundaryvalues_moving_wall(
   double ***U,
   double ***V,
   double ***W,
-  int ***Flag
+  int ***Flag,
+  double *velMW
 );
 
 
