@@ -645,7 +645,7 @@ int **read_pgm(const char *filename)
     }
 
     /* close file */
-    fclose(input);
+    fclose(input); 
 
     return pic;
 }
