@@ -611,6 +611,24 @@ void boundaryvalues_moving_wall(
 			V[i][j-1][k] = - (V[i-1][j-1][k] + V[i][j-1][k-1]) * 0.5;
 			break;
 
+		//before we find a better solution, the following 8 cases will be forbidden.
+		case B_NOU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_NWU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_NOD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_NWD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SOU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SWU:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SOD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+		case B_SWD:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
+
 	}
 }
 
