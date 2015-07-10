@@ -175,7 +175,7 @@ void init_flag(
 			     temp = tarr[Pic[i][j + k*(jmax+2)]]*pow2(2, 12) + min(Pic[i+1][j + k*(jmax+2)]+1, 3)*pow2(2, 10) + min(Pic[i-1][j + k*(jmax+2)]+1, 3)*pow2(2, 8) +   min(Pic[i][j + k*(jmax+2)-1]+1, 3)*pow2(2, 6) +  min(Pic[i][j + k*(jmax+2) + 1]+1, 3)*pow2(2, 4) + min(Pic[i][j + (k-1)*(jmax+2)]+1, 3)*4 + min(Pic[i][j + (k+1)*(jmax+2)]+1, 3);   //use min() bcs obstacle neighbours will have numbrs 3-6 in the pic, but they should be flagged with (11)_2 = 3 in the flag field.
            //check for forbidden cells:
 			     //if ( ((temp > pow(2, 12)*3) || (temp < pow(2, 12))) /*so it is bound.*/ & (E,W water / N,S water / D,U water) ) { error }
-           if (Pic[i][j + k*(jmax+2)]>1 && (min(Pic[i][j+k*(jmax+2)+1]+Pic[i][j+k*(jmax+2)-1], Pic[i-1][j+ k*(jmax+2)]+Pic[i+1][j+ k*(jmax+2)])==0  || !(Pic[i][j+(k-1)*(jmax+2)]+Pic[i][j+(k+1)*(jmax+2)]))  {
+           if (Pic[i][j + k*(jmax+2)]>1 && (min(Pic[i][j+k*(jmax+2)+1]+Pic[i][j+k*(jmax+2)-1], Pic[i-1][j+ k*(jmax+2)]+Pic[i+1][j+ k*(jmax+2)])==0  || !(Pic[i][j+(k-1)*(jmax+2)]+Pic[i][j+(k+1)*(jmax+2)])))  {
              ERROR("Invalid geometry! Forbidden boundary cell found.\n");
            }
            temp2 = getcelltype(temp)%16;
