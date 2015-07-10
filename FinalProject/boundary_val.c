@@ -679,7 +679,7 @@ void boundaryvalues_moving_wall(
 		*/
 
 		//before we find a better solution, the following 8 cases will be forbidden.
-		case B_NOU:
+		/*case B_NOU:
 			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
 		case B_NWU:
 			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
@@ -695,8 +695,11 @@ void boundaryvalues_moving_wall(
 			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
 		case B_SWD:
 			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");
-
-		default: //case 0: inner cell -> do nothing
+    */
+		case 0: //case 0: inner cell -> do nothing
+			break;
+		default:
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");  //if we come in here, then were delaing with B_??? cell. 
 			break;
 	}
 }
@@ -971,7 +974,7 @@ void boundaryvalues_inflow(
 
 			case 0: //when bound. cell is inner. this is only to be set if well change velIN to a vector.
 				break;
-			default: printf("Trying to set inflow at edge and corner cells. Not allowed!\n"); break;
+			default: printf("Trying to set inflow at edge and corner cells. Not allowed!\n"); break; //when we have B_?? or B_??? we cant set it.
 		}
 
 }
