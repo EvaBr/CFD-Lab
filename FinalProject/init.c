@@ -170,19 +170,19 @@ void init_flag(
   int **Pic = read_pgm(problem);
 	for (k=1; k<kmax+1; k++) {
 	  //initialisation to C_F and C_B  Flag[i][0][0]
-	  for (int i=1; i<jmax+1; i++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
-		    for (int j=1; j<imax+1; j++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
-			     temp = tarr[Pic[i][j]]*pow2(2, 12) + min(Pic[i][j+1]+1, 3)*pow2(2, 10) + min(Pic[i][j-1]+1, 3)*pow2(2, 8) + min(Pic[i+1][j]+1, 3)*pow2(2, 6) +  min(Pic[i-1][j]+1, 3)*pow2(2, 4) + min(Pic[i-k*(jmax+2)][j]+1, 3)*4 + min(Pic[i+k*(jmax+2)][j]+1, 3); //use min() bcs obstacle neighbours will have numbrs 3-6 in the picture, but they should be flagged with (11)_2 = 3 in the flag field.
+	  for (int j=1; j<jmax+1; j++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
+		    for (int i=1; i<imax+1; i++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
+			     temp = tarr[Pic[i][j + k*(jmax+2)]]*pow2(2, 12) + min(Pic[i+1][j + k*(jmax+2)]+1, 3)*pow2(2, 10) + min(Pic[i-1][j + k*(jmax+2)]+1, 3)*pow2(2, 8) +   min(Pic[i][j + k*(jmax+2)-1]+1, 3)*pow2(2, 6) +  min(Pic[i][j + k*(jmax+2) + 1]+1, 3)*pow2(2, 4) + min(Pic[i][j + (k-1)*(jmax+2)]+1, 3)*4 + min(Pic[i][j + (k+1)*(jmax+2)]+1, 3);   //use min() bcs obstacle neighbours will have numbrs 3-6 in the pic, but they should be flagged with (11)_2 = 3 in the flag field.
            //check for forbidden cells:
 			     //if ( ((temp > pow(2, 12)*3) || (temp < pow(2, 12))) /*so it is bound.*/ & (E,W water / N,S water / D,U water) ) { error }
-           if (Pic[i][j]>1 && min(Pic[i][j+1]+Pic[i][j-1], Pic[i-1][j]+Pic[i+1][j])!=0  && !(Pic[i-k*(jmax+2)][j]+Pic[i+k*(jmax+2)]))  {
+           if (Pic[i][j + k*(jmax+2)]>1 && (min(Pic[i][j+k*(jmax+2)+1]+Pic[i][j+k*(jmax+2)-1], Pic[i-1][j+ k*(jmax+2)]+Pic[i+1][j+ k*(jmax+2)])==0  || !(Pic[i][j+(k-1)*(jmax+2)]+Pic[i][j+(k+1)*(jmax+2)]))  {
              ERROR("Invalid geometry! Forbidden boundary cell found.\n");
            }
            temp2 = getcelltype(temp)%16;
            if (((temp>>12)&15==8) && (temp2==5 || temp2==6 || temp2==9 || temp2==10)){ //tryin to set moving wall for a B_??? cell. not allowed!
              ERROR("Invalid geometry! Forbidden boundary cell found.\n");
            }
-           Flag[j][jmax+1-i][k] = temp;
+           Flag[i][jmax+1-j][k] = temp;
 		    }
 	  } //da bo to delal more bit slika tk narjena, da ma vsaka 2D podslika okoliinokoli ghost boundary. (s poljubno boundary cifro, tj med 2 in 6)
   }
@@ -242,12 +242,12 @@ void init_flag(
         if ((Flag[i][1][k]&pow2(2,12))==(Flag[i][1][k]&pow2(2,13))) {
              Flag[i][0][k] = getbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
         } else {
-             Flag[i][0][k] = (getbit(wf)-16*3) + (Flag[i][1][k]&(16*3));
+             Flag[i][0][k] = (getbit(wf)-64*3) + (Flag[i][1][k]&(64*3));
         }
         if ((Flag[i][jmax][k]&pow2(2,12))==(Flag[i][jmax][k]&pow2(2,13))) {
              Flag[i][jmax+1][k] = getbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
         } else {
-             Flag[i][jmax+1][k] = (getbit(wh)-64*3) + (Flag[i][jmax][k]&(64*3));
+             Flag[i][jmax+1][k] = (getbit(wh)-16*3) + (Flag[i][jmax][k]&(16*3));
         }
     }
   }
