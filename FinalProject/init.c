@@ -38,8 +38,8 @@ int read_parameters( const char *szFileName,       /* name of the file */
 //                  double *presLeft,		       /*pressure at the left wall*/
 //                  double *presRight,		     /*pressure at the right wall*/
 //                  double *presDelta,		     /*pressure difference across the domain*/
-		                double *velIN,             /*velocity of inflow*/
-                    double *velMW )		         /*velocity of wall (in U direction)*/
+		                double velIN,             /*velocity of inflow*/
+                    double velMW )		         /*velocity of wall (in U direction)*/
 {
    READ_DOUBLE( szFileName, *xlength );
    READ_DOUBLE( szFileName, *ylength );
@@ -84,8 +84,12 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *presRight);
    READ_DOUBLE( szFileName, *presDelta); */
 
-   READ_DOUBLE( szFileName, *velIN );
-   READ_DOUBLE( szFileName, *velMW );
+   READ_DOUBLE( szFileName, &velIN[0] );
+   READ_DOUBLE( szFileName, &velIN[1] );
+   READ_DOUBLE( szFileName, &velIN[2] );
+   READ_DOUBLE( szFileName, &velMW[0] );
+   READ_DOUBLE( szFileName, &velMW[1] );
+   READ_DOUBLE( szFileName, &velMW[2] );
 
    //take care of (in)valid pressure input
   /*if (*presDelta<=0){
@@ -160,7 +164,7 @@ void init_flag(
   int wb
 ) {
 	int i,j,k;
-	int temp;
+	int temp, temp2;
 
   //temporary array of mapping, for easier computation of flags
   int tarr[] = {1, 2, 0, 3, 4, 7, 8};
@@ -174,6 +178,10 @@ void init_flag(
            //check for forbidden cells:
 			     //if ( ((temp > pow(2, 12)*3) || (temp < pow(2, 12))) /*so it is bound.*/ & (E,W water / N,S water / D,U water) ) { error }
            if (Pic[i][j]>1 && min(Pic[i][j+1]+Pic[i][j-1], Pic[i-1][j]+Pic[i+1][j])!=0  && !(Pic[i-k*(jmax+2)][j]+Pic[i+k*(jmax+2)]))  {
+             ERROR("Invalid geometry! Forbidden boundary cell found.\n");
+           }
+           temp2 = getcelltype(temp)%16;
+           if (((temp>>12)&15==8) && (temp2==5 || temp2==6 || temp2==9 || temp2==10)){ //tryin to set moving wall for a B_??? cell. not allowed!
              ERROR("Invalid geometry! Forbidden boundary cell found.\n");
            }
            Flag[j][jmax+1-i][k] = temp;

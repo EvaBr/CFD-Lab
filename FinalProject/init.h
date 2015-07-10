@@ -80,8 +80,8 @@ int read_parameters(
   /*double *presLeft,
   double *presRight,
   double *presDelta,*/
-  double *velIN,
-  double *velMW
+  double velIN,
+  double velMW
 );
 
 /**
