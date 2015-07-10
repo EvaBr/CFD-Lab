@@ -91,7 +91,6 @@ int getcelltype (int flags){
   //TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
   //e.g.:
   //flags = ((getbit(0)/3) & flags); // & (01|01|01|01|01|01) - check where is air, and get just the important bits (00 where air, 01 where b or water)
-
   //flags = flags&getbit(isboundary);  //add the cond. of being a boundarycell
   return flags;
 }
@@ -109,7 +108,6 @@ int min_int( const int n1, const int n2 )
     if( n1 < n2 ) return n1;
     return n2;
 }
-
 
 
 /* ----------------------------------------------------------------------- */
