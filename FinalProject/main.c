@@ -32,11 +32,11 @@ int main(int argn, char** args){
 	char problemGeometry[32];
   //in case of a given inflow or wall velocity  TODO: will we have this? needs to be a vector?
 	double velIN;
-  double velMW[3]; // the moving wall velocity is a vector
+	double velMW[3]; // the moving wall velocity is a vector
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
-			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, velMW); //&presLeft, &presRight, &presDelta, &vel);
+			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0]); //&presLeft, &presRight, &presDelta, &vel);
 
 	int pics = dt_value/dt; //just a helping variable for outputing vtk
 
@@ -44,29 +44,34 @@ int main(int argn, char** args){
 	//allocate memory, including Flag
 	U = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
 	V = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
-  W = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
+ 	W = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
 	P = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
 	RS = matrix2(1, imax, 1, jmax, 1, kmax);
 	F = matrix2(0, imax, 1, jmax, 1, kmax);
 	G = matrix2(1, imax, 0, jmax, 1, kmax);
-  H = matrix2(1, imax, 1, jmax, 0, kmax);
+	H = matrix2(1, imax, 1, jmax, 0, kmax);
 	Flag = imatrix2(0, imax+1, 0, jmax+1, 0, kmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
 	//initialisation, including **Flag
 	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
+
 	init_uvwp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problemGeometry);
 
 	//going through all time steps
 	while(t < t_end){
 		//adaptive time stepping
 		calculate_dt(Re, tau, &dt, dx, dy, dz, imax, jmax, kmax, U, V, W);
+		printf("calculated dt\n");
 
 		//setting bound.values
 		boundaryvalues(imax, jmax, kmax, U, V, W, P, wl, wr, wf, wh, wt, wb, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
+		printf("calculated boundaryvalues\n");
 
 		//computing F, G and right hand side of pressue eq.
 		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
+		printf("calc fgh\n");
 		calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS);
+		printf("calc rs\n");
 
 		//iteration counter
 		it = 0;

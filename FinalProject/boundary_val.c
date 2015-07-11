@@ -13,6 +13,12 @@ void boundaryvalues_no_slip(
 			){
         // No-slip boundary conditions for U, V and W.
 	// 26 (6 + 12 + 8) cases in total.
+	//printf( "cell type:  %d \n", getcelltype(Flag[i][j][k]));
+	//int flags = (~(2730&Flag[i][j][k]))&getbit(0);
+	//printf("flags: %d\n", flags);
+	//int sth = ((flags&2) >> 1);
+	//printf("sth: %d\n", sth);
+	//sth += ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
 	switch(getcelltype(Flag[i][j][k])){
 		case B_O:
 			U[i][j][k] = 0.0;
@@ -220,6 +226,7 @@ void boundaryvalues_no_slip(
 			break;
 
 		default: //case 0
+			printf("case 0\n");
 			break;
 	}
 
@@ -708,7 +715,7 @@ void boundaryvalues_moving_wall(
 		case 0: //case 0: inner cell -> do nothing
 			break;
 		default:
-			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");  //if we come in here, then were delaing with B_??? cell. 
+			printf("Warning: It is forbidden for moving wall, when the flag is B_NOU, B_NWU etc.");  //if we come in here, then were delaing with B_??? cell.
 			break;
 	}
 }
@@ -722,7 +729,7 @@ void boundaryvalues_outflow(
                             double ***W,
                             int ***Flag
                             ){
-							int imax=0; int jmax=0; int kmax=0;
+							int imax=1; int jmax=1; int kmax=1;
               switch(getcelltype(Flag[i][j][k])){
                 case B_O:
                     U[imax][j][k] = U[imax-1][j][k];
@@ -1016,22 +1023,32 @@ void boundaryvalues(
         for (i=0; i<imax+2; i++) {
           for (j=0; j<jmax+2; j++){
             for (k=0; k<kmax+2; k++){
-              temp = Flag[i][j][k] >> 12;
-              temp = (temp >> 2)*2 + temp%2 + (temp%2!=(temp&2))*5 + 2;
+							temp = Flag[i][j][k] >> 12;
+							temp = (temp >> 2)*2 + temp%2 + ((temp&1)!=(temp&2))*5 + 2;
+							printf("cell (%d,%d,%d),    bound.cond. = %d,  \t", i,j,k,temp);
+							printf("cellFlag = %d \t", getcelltype(Flag[i][j][k]));
               switch (temp) {
                 case NO_SLIP:
-                  boundaryvalues_no_slip(i, j, k, U, V, W, Flag); break;
+                  boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
+									printf("noslip\n");
+									break;
                 case FREE_SLIP:
 									boundaryvalues_free_slip(i, j, k, U, V, W, Flag); break;
                 case INFLOW:
 									boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
-									boundaryvalues_inflow(i, j, k, U, V, W, Flag, velIN); break;
+									boundaryvalues_inflow(i, j, k, U, V, W, Flag, velIN);
+									break;
                 case OUTFLOW:
-									boundaryvalues_outflow(i, j, k, U, V, W, Flag); break;
-                case MOVING_WALL:
-									boundaryvalues_moving_wall(i, j, k, U, V, W, Flag, velMW); break;
+									//boundaryvalues_outflow(i, j, k, U, V, W, Flag); break;
+								//	printf("done outflow");
+                	break;
+								case MOVING_WALL:
+									boundaryvalues_moving_wall(i, j, k, U, V, W, Flag, velMW);
+									printf("movingwall\n");
+									break;
                 default: //if we get to here, our cell is air or water. (temp>6) Maybe need to add something here when we do free surfaces.
-                  break;
+                  printf("water\n");
+									break;
               }
             }
           }

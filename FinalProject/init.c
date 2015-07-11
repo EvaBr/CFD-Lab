@@ -34,7 +34,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
                     int *wh,			             /*initial boundary for back wall*/
                     int *wt,			             /*initial boundary for top wall*/
                     int *wb,			             /*initial boundary for bottom wall*/
-                    char *problem,		         /*problem to solve*/
+                    char *problemGeometry,     /*problem to solve*/
 //                  double *presLeft,		       /*pressure at the left wall*/
 //                  double *presRight,		     /*pressure at the right wall*/
 //                  double *presDelta,		     /*pressure difference across the domain*/
@@ -78,16 +78,21 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_INT   ( szFileName, *wt );
    READ_INT   ( szFileName, *wb );
 
-   READ_STRING( szFileName, problem );
+   READ_STRING( szFileName, problemGeometry );
 
 /*   READ_DOUBLE( szFileName, *presLeft);
    READ_DOUBLE( szFileName, *presRight);
    READ_DOUBLE( szFileName, *presDelta); */
 
    READ_DOUBLE( szFileName, *velIN );
-   READ_DOUBLE( szFileName, velMW[0] );
-   READ_DOUBLE( szFileName, velMW[1] );
-   READ_DOUBLE( szFileName, velMW[2] );
+
+   double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
+   READ_DOUBLE( szFileName, *velMWx );
+   READ_DOUBLE( szFileName, *velMWy );
+   READ_DOUBLE( szFileName, *velMWz );
+   /*velMW[0] = velMWx;
+   velMW[1] = velMWy;
+   velMW[2] = velMWz;*/
 
    //take care of (in)valid pressure input
   /*if (*presDelta<=0){
