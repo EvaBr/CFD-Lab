@@ -408,7 +408,6 @@ double ***matrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 		if (pArray[i]== 0) ERROR("Storage cannot be allocated");
 		pArray[i] -= ncl;
 		for(j=ncl;j<=nch;j++) {
-			printf("%i %i %i \n",i,j,nll);
 			pArray[i][j]=(double *) malloc((unsigned) (nlh-nll+1)*sizeof(double));
 			if (pArray[i][j] == 0) ERROR("Storage cannot be allocated");
 			pArray[i][j] -= nll;

@@ -118,6 +118,6 @@ int main(int argn, char** args){
 	free_imatrix2(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
 
 
-
+	 printf("\n-\n");
 	return -1;
 }
