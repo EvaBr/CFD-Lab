@@ -42,7 +42,7 @@ void write_vtkFile(const char *szProblem,
 	for(k = 0; k < kmax+1; k++) {
   	for(j = 0; j < jmax+1; j++) {
     	for(i = 0; i < imax+1; i++) {
-      	fprintf(fp, "%f %f %f\n", (U[i][j][k] + U[i-1][j][k]) * 0.5, (V[i][j][k] + V[i][j-1][k]) * 0.5, (W[i][j][k] + W[i][j][k-1]) * 0.5 );
+      	fprintf(fp, "%f %f %f\n", (U[i][j][k] + U[i+1][j][k]) * 0.5, (V[i][j][k] + V[i][j+1][k]) * 0.5, (W[i][j][k] + W[i][j][k+1]) * 0.5 );
     	}
 		}
   }
@@ -51,7 +51,7 @@ void write_vtkFile(const char *szProblem,
   fprintf(fp,"CELL_DATA %i \n", ((imax)*(jmax)*(kmax)) );
   fprintf(fp, "SCALARS pressure float 1 \n");
   fprintf(fp, "LOOKUP_TABLE default \n");
-	for(k = 0; k < kmax+1; k++) {
+	for(k = 1; k < kmax+1; k++) {
 		for(j = 1; j < jmax+1; j++) {
     	for(i = 1; i < imax+1; i++) {
       	fprintf(fp, "%f\n", P[i][j][k] );
