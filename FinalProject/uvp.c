@@ -94,7 +94,7 @@ void calculate_fgh(
             } else if ( (fgg%16+2)/3==2 ) { //S neigh. is fluid
               G[i][j-1][k] = V[i][j-1][k]; break;
             }
-/*          switch (getcelltype(Flag[i][j][k])){
+            /*switch (getcelltype(Flag[i][j][k])){
 				    case (B_N):
 					     G[i][j][k] = V[i][j][k]; break;
 				    case (B_W):
@@ -197,20 +197,22 @@ void calculate_fgh(
                break;
 				   }*/
          }
-       }
+      }
+      H[i][j][0] = W[i][j][0];
+      H[i][j][kmax] = W[i][j][kmax]; 
 		}
 		for (k=1; k<kmax+1; k++){
-
       /* rewrite G(i,0,k) and G(i, jmax,k) with bound.cond. for G */
 		  G[i][0][k] = V[i][0][k];
 		  G[i][jmax][k] = V[i][jmax][k];
 	  }
-    for (j=1; j<kmax+1; j++){
-      /* rewrite H(i,j, 0) and H(i, j, kmax) with bound.cond. for H */
+    /*for (j=1; j<kmax+1; j++){
+      // rewrite H(i,j, 0) and H(i, j, kmax) with bound.cond. for H
       H[i][j][0] = W[i][j][0];
       H[i][j][kmax] = W[i][j][kmax];
-    }
+    }*/
   }
+
   for (j=1; j<jmax+1; j++){
     for (k=1; k<kmax+1; k++){
       /* rewrite F(0,j, k) and F(imax, j, k) with bound.cond. for F */
@@ -237,7 +239,7 @@ void calculate_rs(
 	/*range of indices {1:imax}x{1:jmax} for RS*/
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax+1; j++){
-      for(k=0; k<kmax+1; k++){
+      for(k=1; k<kmax+1; k++){
 			  RS[i][j][k] = ( (F[i][j][k] - F[i-1][j][k])/dx + (G[i][j][k] - G[i][j-1][k])/dy + (H[i][j][k] - H[i][j][k-1])/dz ) / dt;
 		  }
 	  }
