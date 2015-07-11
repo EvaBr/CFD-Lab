@@ -105,17 +105,19 @@ int main(int argn, char** args){
 	}
 	//output of U, V, P at the end for visualization
 	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
-
+	 printf("\nfree memory\n");
 	//free memory
 	free_matrix2(U, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	free_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1);
-  free_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1);
+	free_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	free_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	free_matrix2(RS, 1, imax, 1, jmax, 1, kmax);
 	free_matrix2(F, 0, imax, 1, jmax, 1, kmax);
 	free_matrix2(G, 1, imax, 0, jmax, 1, kmax);
-  free_matrix2(H, 1, imax, 1, jmax, 0, kmax);
+	free_matrix2(H, 1, imax, 1, jmax, 0, kmax);
 	free_imatrix2(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
+
+
 
 	return -1;
 }

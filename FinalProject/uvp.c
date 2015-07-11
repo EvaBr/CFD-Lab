@@ -237,7 +237,7 @@ void calculate_rs(
 	/*range of indices {1:imax}x{1:jmax} for RS*/
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax+1; j++){
-      for(k=0; k<kmax+1; k++){
+      for(k=1; k<kmax+1; k++){
 			  RS[i][j][k] = ( (F[i][j][k] - F[i-1][j][k])/dx + (G[i][j][k] - G[i][j-1][k])/dy + (H[i][j][k] - H[i][j][k-1])/dz ) / dt;
 		  }
 	  }
