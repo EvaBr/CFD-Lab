@@ -38,7 +38,7 @@ int main(int argn, char** args){
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
 			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0]); //&presLeft, &presRight, &presDelta, &vel);
 
-	int pics = dt_value/dt; //just a helping variable for outputing vtk
+	//int pics = dt_value/dt; //just a helping variable for outputing vtk
 
 
 	//allocate memory, including Flag
@@ -59,19 +59,22 @@ int main(int argn, char** args){
 
 	//going through all time steps
 	while(t < t_end){
+    printf("\ntime %f \n", t);
+
 		//adaptive time stepping
 		calculate_dt(Re, tau, &dt, dx, dy, dz, imax, jmax, kmax, U, V, W);
-		printf("calculated dt\n");
+    printf("calc dt \n");
 
 		//setting bound.values
 		boundaryvalues(imax, jmax, kmax, U, V, W, P, wl, wr, wf, wh, wt, wb, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
-		printf("calculated boundaryvalues\n");
+    printf("calc bc \n");
 
 		//computing F, G and right hand side of pressue eq.
 		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
-		printf("calc fgh\n");
-		calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS);
-		printf("calc rs\n");
+    printf("calc fgh \n");
+
+    calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS);
+    printf("calc rs \n");
 
 		//iteration counter
 		it = 0;
@@ -88,15 +91,17 @@ int main(int argn, char** args){
 		}
 */		//calculate U, V and W of this time step
 		calculate_uvw(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag);
+    printf("calc uvw \n");
 
 		//indent time and number of time steps
 		n++;
 		t += dt;
 
 		//output of pics for animation
-		if (n%pics==0 ){
-			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
-		}
+	//	if (n%pics==0 ){
+	//		write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
+  //    printf("output vtk.\n");
+  //  }
 	}
 	//output of U, V, P at the end for visualization
 	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);

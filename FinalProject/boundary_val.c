@@ -226,7 +226,7 @@ void boundaryvalues_no_slip(
 			break;
 
 		default: //case 0
-			printf("case 0\n");
+			//printf("case 0\n");
 			break;
 	}
 
@@ -1171,7 +1171,7 @@ void boundaryvalues_inflow(
 
 			case 0: //when bound. cell is inner. this is only to be set if well change velIN to a vector.
 				break;
-			default: printf("Trying to set inflow at edge and corner cells. Not allowed!\n"); break; //when we have B_?? or B_??? we cant set it.
+			default: printf("Trying to set inflow at edge or corner cells. Not allowed!\n"); break; //when we have B_?? or B_??? we cant set it.
 		}
 
 }
@@ -1206,12 +1206,13 @@ void boundaryvalues(
             for (k=0; k<kmax+2; k++){
 							temp = Flag[i][j][k] >> 12;
 							temp = (temp >> 2)*2 + temp%2 + ((temp&1)!=(temp&2))*5 + 2;
-							printf("cell (%d,%d,%d),    bound.cond. = %d,  \t", i,j,k,temp);
-							printf("cellFlag = %d \t", getcelltype(Flag[i][j][k]));
+							//printf("cell (%d,%d,%d),    bound.cond. = %d,  \t", i,j,k,temp);
+							//printf("cellFlag = %d \t", Flag[i][j][k]);
+							//printf("cellType = %d \t", getcelltype(Flag[i][j][k]));
               switch (temp) {
                 case NO_SLIP:
                   boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
-									printf("noslip\n");
+									//printf("noslip\n");
 									break;
                 case FREE_SLIP:
 									boundaryvalues_free_slip(i, j, k, U, V, W, Flag); break;
@@ -1220,15 +1221,15 @@ void boundaryvalues(
 									boundaryvalues_inflow(i, j, k, U, V, W, Flag, velIN);
 									break;
                 case OUTFLOW:
-									//boundaryvalues_outflow(i, j, k, U, V, W, Flag); break;
+									boundaryvalues_outflow(i, j, k, U, V, W, Flag); break;
 								//	printf("done outflow");
                 	break;
 								case MOVING_WALL:
 									boundaryvalues_moving_wall(i, j, k, U, V, W, Flag, velMW);
-									printf("movingwall\n");
+									//printf("movingwall\n");
 									break;
                 default: //if we get to here, our cell is air or water. (temp>6) Maybe need to add something here when we do free surfaces.
-                  printf("water\n");
+                  //printf("water\n");
 									break;
               }
             }

@@ -34,6 +34,7 @@ void calculate_fgh(
       for  (k=1; k<kmax+1; k++){
 			  switch (Flag[i][j][k]&(3*fluid)){ //only check, if you have water, air or boundary
 				  case fluid:
+            //printf("cell %d, %d, %d is fluid.\n", i, j, k);
             uijk = U[i][j][k];   vijk = V[i][j][k];   wijk = W[i][j][k];
             uujk = U[i+1][j][k]; viuk = V[i][j+1][k]; wiju = W[i][j][k+1];
 					  udjk = U[i-1][j][k]; vidk = V[i][j-1][k]; wijd = W[i][j][k-1];
@@ -69,27 +70,30 @@ void calculate_fgh(
             }
 				  	break;
 
-        case air:
-          //TODO in case of free surfaces?
-          break;
+          case air:
+            //TODO in case of free surfaces?
+            //printf("cell %d, %d, %d is air.\n", i, j, k);
+            break;
 
-        default: //we have a boundary cell; rewrite with right boundary cond., depending on type of cell
-          fgg = getcelltype(Flag[i][j][k]);
-          if (fgg%4==1){ //U neighb. is fluid
-            H[i][j][k] = W[i][j][k]; break;
-          } else if (fgg%4==2){  //D neighb. is fluid
-            H[i][j][k-1] = W[i][j][k-1]; break;
-          }
-          if (fgg>31){ // O neigh. is fluid
-            F[i][j][k] = U[i][j][k]; break;
-          } else if (fgg>15) { // W neighb. is fluid
-            F[i-1][j][k] = U[i-1][j][k]; break;
-          }
-          if ( (fgg%16+1)/3==3 ) { //N neigh. is fluid
-            G[i][j][k] = V[i][j][k]; break;
-          } else if ( (fgg%16+2)/3==2 ) { //S neigh. is fluid
-            G[i][j-1][k] = V[i][j-1][k]; break;
-          }
+          default: //we have a boundary cell; rewrite with right boundary cond., depending on type of cell
+            //printf("cell %d, %d, %d is boundary: \t", i, j, k);
+
+            fgg = getcelltype(Flag[i][j][k]);      //if no neighbours are fluid, we do nothing. thats ok, right? bcs we never need those values?
+            if (fgg%4==1){ //U neighb. is fluid
+              H[i][j][k] = W[i][j][k]; break;
+            } else if (fgg%4==2){  //D neighb. is fluid
+              H[i][j][k-1] = W[i][j][k-1]; break;
+            }
+            if (fgg>31){ // O neigh. is fluid
+              F[i][j][k] = U[i][j][k]; break;
+            } else if (fgg>15) { // W neighb. is fluid
+              F[i-1][j][k] = U[i-1][j][k]; break;
+            }
+            if ( (fgg%16+1)/3==3 ) { //N neigh. is fluid
+              G[i][j][k] = V[i][j][k]; break;
+            } else if ( (fgg%16+2)/3==2 ) { //S neigh. is fluid
+              G[i][j-1][k] = V[i][j-1][k]; break;
+            }
 /*          switch (getcelltype(Flag[i][j][k])){
 				    case (B_N):
 					     G[i][j][k] = V[i][j][k]; break;
@@ -195,19 +199,24 @@ void calculate_fgh(
          }
        }
 		}
-		/* rewrite G(i,0,k) and G(i, jmax,k) with bound.cond. for G */
-		G[i][0][k] = V[i][0][k];
-		G[i][jmax][k] = V[i][jmax][k];
-	}
+		for (k=1; k<kmax+1; k++){
+
+      /* rewrite G(i,0,k) and G(i, jmax,k) with bound.cond. for G */
+		  G[i][0][k] = V[i][0][k];
+		  G[i][jmax][k] = V[i][jmax][k];
+	  }
+    for (j=1; j<kmax+1; j++){
+      /* rewrite H(i,j, 0) and H(i, j, kmax) with bound.cond. for H */
+      H[i][j][0] = W[i][j][0];
+      H[i][j][kmax] = W[i][j][kmax];
+    }
+  }
   for (j=1; j<jmax+1; j++){
-		/* rewrite F(0,j, k) and F(imax, j, k) with bound.cond. for F */
-		F[0][j][k] = U[0][j][k];
-		F[imax][j][k] = U[imax][j][k];
-	}
-  for (k=1; k<kmax+1; k++){
-    /* rewrite H(i,j, 0) and H(i, j, kmax) with bound.cond. for H */
-    H[i][j][0] = W[i][j][0];
-    H[i][j][kmax] = W[i][j][kmax];
+    for (k=1; k<kmax+1; k++){
+      /* rewrite F(0,j, k) and F(imax, j, k) with bound.cond. for F */
+		  F[0][j][k] = U[0][j][k];
+		  F[imax][j][k] = U[imax][j][k];
+	   }
   }
 }
 
