@@ -410,7 +410,8 @@ double ***matrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 		for(j=ncl;j<=nch;j++) {
 			pArray[i][j]=(double *) malloc((unsigned) (nlh-nll+1)*sizeof(double));
 			if (pArray[i][j] == 0) ERROR("Storage cannot be allocated");
-			pArray[i][j] -= nll;}
+			pArray[i][j] -= nll;
+		}
 
 	}
 	return pArray;
@@ -447,12 +448,15 @@ double **matrix( int nrl, int nrh, int ncl, int nch )
 /* deallocates the storage of a matrix  */
 void free_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 	short i,j;
-	for(i=nrh;i>=nrl;i--)
+	for(i=nrh;i>= nrl;i--)
 	{
-		for(j=ncl;j>=ncl;j--) free((char*) (m[i][j]+nll));
-		free((char*) (m[i]+ncl));
+		for(j=nch;j>= ncl;j--){
+
+			free(m[i][j]+nll);
+		}
+		free( (m[i]+ncl));
 	}
-	free((char*) (m+nll));
+	free( (m+nrl));
 }
 
 void free_matrix( double **m, int nrl, int nrh, int ncl, int nch )
@@ -532,12 +536,15 @@ int **imatrix( int nrl, int nrh, int ncl, int nch )
 
 void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 	short i,j;
-	for(i=nrh;i>=nrl;i--)
+	for(i=nrh;i>= nrl;i--)
 	{
-		for(j=ncl;j>=ncl;j--) free((char*) (m[i][j]+nll));
-		free((char*) (m[i]+ncl));
+		for(j=nch;j>= ncl;j--){
+
+			free(m[i][j]+nll);
+		}
+		free( (m[i]+ncl));
 	}
-	free((char*) (m+nll));
+	free( (m+nrl));
 }
 
 /* deallocates the storage of a matrix  */
