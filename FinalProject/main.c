@@ -38,7 +38,7 @@ int main(int argn, char** args){
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
 			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0]); //&presLeft, &presRight, &presDelta, &vel);
 
-	//int pics = dt_value/dt; //just a helping variable for outputing vtk
+	int pics = dt_value/dt; //just a helping variable for outputing vtk
 
 
 	//allocate memory, including Flag
@@ -98,10 +98,10 @@ int main(int argn, char** args){
 		t += dt;
 
 		//output of pics for animation
-	//	if (n%pics==0 ){
-	//		write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
-  //    printf("output vtk.\n");
-  //  }
+		if (n%pics==0 ){
+			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
+      printf("output vtk.\n");
+    }
 	}
 	//output of U, V, P at the end for visualization
 	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
