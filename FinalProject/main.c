@@ -38,8 +38,9 @@ int main(int argn, char** args){
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
 			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0]); //&presLeft, &presRight, &presDelta, &vel);
 
-	int pics = dt_value/dt; //just a helping variable for outputing vtk
-
+	//int pics = dt_value/dt; //just a helping variable for outputing vtk
+  double last_output_t = 0.0;
+  //double every = t_end/10; //helping variable. Can be used for displaying info every tenth of the progress during simulation
 
 	//allocate memory, including Flag
 	U = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
@@ -54,27 +55,29 @@ int main(int argn, char** args){
 
 	//initialisation, including **Flag
 	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
-
 	init_uvwp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problemGeometry);
 
 	//going through all time steps
 	while(t < t_end){
-    printf("\ntime %f \n", t);
+    /*if(t - every >= 0){
+      printf("Calculating time %f ... \n", t);
+      every += t;
+    }*/
 
 		//adaptive time stepping
 		calculate_dt(Re, tau, &dt, dx, dy, dz, imax, jmax, kmax, U, V, W);
-    printf("calc dt \n");
+//    printf("calc dt \n");
 
 		//setting bound.values
 		boundaryvalues(imax, jmax, kmax, U, V, W, P, wl, wr, wf, wh, wt, wb, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
-    printf("calc bc \n");
+//    printf("calc bc \n");
 
 		//computing F, G and right hand side of pressue eq.
 		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
-    printf("calc fgh \n");
+//    printf("calc fgh \n");
 
     calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS);
-    printf("calc rs \n");
+//    printf("calc rs \n");
 
 		//iteration counter
 		it = 0;
@@ -86,21 +89,22 @@ int main(int argn, char** args){
 
 			it++;
 		}while(it<itermax && res>eps);
-/*		if (it == itermax) {
+	  /*if (it == itermax) {
 			printf("Warning: sor while loop exits because it reaches the itermax. res = %f, time =%f\n", res, t);
-		}
-*/		//calculate U, V and W of this time step
+		} */
+		//calculate U, V and W of this time step
 		calculate_uvw(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag);
-    printf("calc uvw \n");
+//    printf("calc uvw \n");
 
 		//indent time and number of time steps
 		n++;
 		t += dt;
 
 		//output of pics for animation
-		if (n%pics==0 ){
+		if ( t-last_output_t  >= dt_value ){  //n%pics==0 ){
 			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
-      printf("output vtk.\n");
+      //printf("output vtk.\n");
+      last_output_t = t;
     }
 	}
 	//output of U, V, P at the end for visualization

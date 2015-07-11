@@ -1,16 +1,16 @@
 #--------------------------------------------
 #            size of the domain
 #--------------------------------------------
-xlength		50
-ylength		10
-zlength   	10
+xlength		40
+ylength		25
+zlength   	25
 
 #--------------------------------------------
 #            number of cells
 #--------------------------------------------
-imax		100
-jmax		20
-kmax    	20
+imax		80
+jmax		50
+kmax    	50
 
 #--------------------------------------------
 #               time steps
@@ -27,7 +27,7 @@ dt_value        2.0
 #--------------------------------------------
 #               pressure
 #--------------------------------------------
-itermax		200
+itermax		500
 eps		0.001
 omg		1.7
 alpha		0.9
@@ -59,7 +59,7 @@ WI		0.0
 #--------------------------------------------
 #    initial domain boundaries
 #--------------------------------------------
-wl		5
+wl		2
 wr		4
 wt		2
 wb		2
@@ -69,14 +69,14 @@ wh		2
 #--------------------------------------------
 #     problem geometry
 #--------------------------------------------
-problemGeometry		step.pgm
+problemGeometry		pipeinflow.pgm
 
 #-------------------------------------------
 #	additional velocity variable
 #	in case of given inflow velocity velIN
 #	or moving wall velocity velMW
 #-------------------------------------------
-velIN     1.0
+velIN		1.0
 velMWx		0.0
 velMWy		0.0
 velMWz		0.0
