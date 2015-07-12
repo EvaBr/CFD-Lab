@@ -52,7 +52,7 @@ PI		0.0
 #--------------------------------------------
 #     initialization velocity for fluid
 #--------------------------------------------
-UI		0.0
+UI		1.0
 VI		0.0
 WI		0.0
 
@@ -76,7 +76,7 @@ problemGeometry		step.pgm
 #	in case of given inflow velocity velIN
 #	or moving wall velocity velMW
 #-------------------------------------------
-velIN     1.0
+velIN       1.0
 velMWx		0.0
 velMWy		0.0
 velMWz		0.0
