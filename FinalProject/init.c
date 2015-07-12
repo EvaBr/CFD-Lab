@@ -86,7 +86,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 
    READ_DOUBLE( szFileName, *velIN );
 
-   double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
+	double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
    READ_DOUBLE( szFileName, *velMWx );
    READ_DOUBLE( szFileName, *velMWy );
    READ_DOUBLE( szFileName, *velMWz );
@@ -141,8 +141,8 @@ void init_uvwp(
   double ***P,
   char * problem
 ) {
-  init_matrix2(U, 0, imax+1, 0, jmax+1, 0, kmax+1, UI);
-  init_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
+	init_matrix2(U, 0, imax+1, 0, jmax+1, 0, kmax+1, UI);
+	init_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
 	init_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
 	init_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
 }
