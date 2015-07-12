@@ -289,6 +289,54 @@ void read_double( const char* szFileName, const char* szVarName, double* pVariab
 /*                   write matrices to a file                              */
 /* ----------------------------------------------------------------------- */
 
+
+
+
+void write_matrix2( const char* szDebug,       /* filename */
+			int	timeStepNumber,
+		   double ***m,		       /* matrix */
+		   int nrl, int nrh, int ncl, int nch, int nll, int nlh)
+{
+   int i, j,k;
+   FILE * fh = 0;
+
+
+   char szFileName[80];
+
+   	sprintf( szFileName, "debug/d%i_%s", timeStepNumber,szDebug );
+
+
+   fh = fopen( szFileName, "w");	/* overwrite file/write new file */
+   if( fh == NULL )			/* opening failed ? */
+   {
+	   char szBuff[80];
+	   sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
+	   ERROR( szBuff );
+   }
+
+   /*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
+
+	for( k = nll; k <= nlh; k++){
+   		for( j = ncl; j <= nch; j++){
+   			for( i = nrl; i <= nrh; i++){
+			   fprintf( fh, "%f ", m[i][j][k] );
+		   }
+		   fprintf( fh, "\n" );
+	   }
+	   fprintf( fh, "-----------------------------------------------------------\n" );
+   }
+
+   if( fclose(fh) )
+   {
+       char szBuff[80];
+       sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
+       ERROR( szBuff );
+   };
+
+}
+
+
+
 void write_matrix( const char* szFileName,       /* filename */
 		   double **m,		       /* matrix */
 		   int nrl,		       /* first column */

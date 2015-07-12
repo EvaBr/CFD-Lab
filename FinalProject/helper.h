@@ -157,6 +157,12 @@ void read_int   ( const char* szFilename, const char* szName, int*    nValue);
 void read_double( const char* szFilename, const char* szName, double*  Value);
 
 
+
+
+void write_matrix2( const char* szDebug,       /* filename */
+			int	timeStepNumber,
+		   double ***m,		       /* matrix */
+		   int nrl, int nrh, int ncl, int nch, int nll, int nlh);
 /**
  * Writing matrices to a file.
  * -----------------------------------------------------------------------

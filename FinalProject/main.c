@@ -38,8 +38,12 @@ int main(int argn, char** args){
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
 			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0]); //&presLeft, &presRight, &presDelta, &vel);
 
+
+	//printf("d: %f, %f, %f\n", dx,dy,dz);
+
+
 	//int pics = dt_value/dt; //just a helping variable for outputing vtk
-	double last_output_t = 0.0;
+	double last_output_t = -dt_value;
 	//double every = t_end/10; //helping variable. Can be used for displaying info every tenth of the progress during simulation
 
 	//allocate memory, including Flag
@@ -48,9 +52,12 @@ int main(int argn, char** args){
 	W = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
 	P = matrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
 	RS = matrix2(1, imax, 1, jmax, 1, kmax);
+
 	F = matrix2(0, imax, 1, jmax, 1, kmax);
 	G = matrix2(1, imax, 0, jmax, 1, kmax);
 	H = matrix2(1, imax, 1, jmax, 0, kmax);
+
+
 	Flag = imatrix2(0, imax+1, 0, jmax+1, 0, kmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
 	//initialisation, including **Flag
@@ -103,7 +110,20 @@ int main(int argn, char** args){
 
 		//output of pics for animation
 		if ( t-last_output_t  >= dt_value ){  //n%pics==0 ){
+
+			/*
+				write_matrix2("u.txt",t,U,0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("v.txt",t,V,0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("w.txt",t,W,0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("p.txt",t,P ,0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("rs.txt",t,RS,1, imax, 1, jmax, 1, kmax);
+				write_matrix2("f.txt",t,F,0, imax, 1, jmax, 1, kmax);
+				write_matrix2("g.txt",t,G,1, imax, 0, jmax, 1, kmax);
+				write_matrix2("h.txt",t,H,1, imax, 1, jmax, 0, kmax);
+			*/
+
 			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
+
 			//printf("output vtk.\n");
 			last_output_t = t;
 		}
@@ -116,9 +136,13 @@ int main(int argn, char** args){
 	free_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	free_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	free_matrix2(RS, 1, imax, 1, jmax, 1, kmax);
+
+
 	free_matrix2(F, 0, imax, 1, jmax, 1, kmax);
 	free_matrix2(G, 1, imax, 0, jmax, 1, kmax);
 	free_matrix2(H, 1, imax, 1, jmax,  0, kmax);
+
+
 	free_imatrix2(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
 
 	//printf("\n-\n");
