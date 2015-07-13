@@ -8,7 +8,7 @@ zlength   2
 #--------------------------------------------
 #            number of cells
 #--------------------------------------------
-imax		100
+imax		500
 jmax		20
 kmax    20
 
@@ -27,7 +27,7 @@ dt_value        2.0
 #--------------------------------------------
 #               pressure
 #--------------------------------------------
-itermax		500
+itermax		100
 eps		0.001
 omg		1.7
 alpha		0.9
@@ -76,7 +76,7 @@ problemGeometry		geometry.pgm
 #	in case of given inflow velocity velIN
 #	or moving wall velocity velMW
 #-------------------------------------------
-velIN		 1.0
+velIN	1
 
 velMWx   0.0
 velMWy   0.0

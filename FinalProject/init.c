@@ -141,10 +141,23 @@ void init_uvwp(
   double ***P,
   char * problem
 ) {
+	int i,j,k;
 	init_matrix2(U, 0, imax+1, 0, jmax+1, 0, kmax+1, UI);
 	init_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
 	init_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
 	init_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
+
+	if(strcmp (problem,"step.pgm")==0){
+		printf("INIT STEP!!!!!");
+		for(i = 0; i <= imax+1; i++) {
+			for(j = 0; j <= jmax+1; j++) {
+				for(k = 0; k <= kmax*0.5; k++) {
+					U[i][j][k] = 0;
+				}
+			}
+		}
+	}
+
 }
 
 
