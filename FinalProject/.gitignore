@@ -7,6 +7,7 @@
 #latex stuff
 *.aux
 *.log
+*.synctex.gz
 /results/*.aux
 /results/*.log
 /Presentation/*.snm
