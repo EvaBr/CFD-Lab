@@ -8,92 +8,92 @@
 /* ----------------------------------------------------------------------- */
 int min( int a, int b)
 {
-    if( a < b ) return a;
-    return b;
+	if( a < b ) return a;
+	return b;
 }
 
 int max( int a, int b)
 {
-    if( a > b ) return a;
-    return b;
+	if( a > b ) return a;
+	return b;
 }
 
 double fmin( double a, double b)
 {
-    if( a < b ) return a;
-    return b;
+	if( a < b ) return a;
+	return b;
 }
 
 double fmax( double a, double b)
 {
-    if( a > b ) return a;
-    return b;
+	if( a > b ) return a;
+	return b;
 }
 
 int pow2 (int en, int dva) {
-  int ret = pow(en, dva);
-  return ret;
+	int ret = pow(en, dva);
+	return ret;
 }
 
 double mmax( double **U, int imax, int jmax)
 {
-    double maxij = 0;
-    for( int i=0; i<=imax+1; i++){
-	for( int j=0; j<=jmax+1; j++){
-	    if (fabs(U[i][j])>maxij){
-		maxij = fabs(U[i][j]);
-	    }
+	double maxij = 0;
+	for( int i=0; i<=imax+1; i++){
+		for( int j=0; j<=jmax+1; j++){
+			if (fabs(U[i][j])>maxij){
+				maxij = fabs(U[i][j]);
+			}
+		}
 	}
-    }
-    return maxij;
+	return maxij;
 }
 
 
 int isfluid(int flag) {
-  int ret = pow(2, 12);
-  return ( (flag & (3*ret)) == ret );
+	int ret = pow(2, 12);
+	return ( (flag & (3*ret)) == ret );
 }
 
 /*helper function for getting the right bit represent. of edges.*/
 int getbit (int wall) {
-  int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
-  return (tarr[wall]*pow2(2, 12)+3*(pow2(2,10)+pow2(2,8)+pow2(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
+	int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
+	return (tarr[wall]*pow2(2, 12)+3*(pow2(2,10)+pow2(2,8)+pow2(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
 }
 
 int interior (int flag) {
-  //int big = Flag[i][j][k];
-  int big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
-  int gb = getbit(0);
-  return (big && ((flag&gb)==gb)); //check also all neighb. are b
+	//int big = Flag[i][j][k];
+	int big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
+	int gb = getbit(0);
+	return (big && ((flag&gb)==gb)); //check also all neighb. are b
 }
 
 double tmax( double ***U, int imax, int jmax, int kmax) //added function for getting max of a tensor
 {
-  double max = 0;
-  for( int i=0; i<=imax+1; i++){
-	   for( int j=0; j<=jmax+1; j++){
-       for( int k=0; k<=kmax+1; k++){
-	        if (fabs(U[i][j][k])>max){
-	           max = fabs(U[i][j][k]);
-	        }
-       }
-	   }
-  }
-  return max;
+	double max = 0;
+	for( int i=0; i<=imax+1; i++){
+		for( int j=0; j<=jmax+1; j++){
+			for( int k=0; k<=kmax+1; k++){
+				if (fabs(U[i][j][k])>max){
+					max = fabs(U[i][j][k]);
+				}
+			}
+		}
+	}
+	return max;
 }
 
 
 int getcelltype (int flag){
-  //int flags = Flag[i][j][k];
-  //int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
-  int flags = (~(2730&flag))&getbit(0); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
-  flags = ((flags&2) >> 1) + ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
-  //TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
-  //e.g.:
-  //flags = ((getbit(0)/3) & flags); // & (01|01|01|01|01|01) - check where is air, and get just the important bits (00 where air, 01 where b or water)
+	//int flags = Flag[i][j][k];
+	//int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
+	int flags = (~(2730&flag))&getbit(0); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
+	flags = ((flags&2) >> 1) + ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
+	//TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
+	//e.g.:
+	//flags = ((getbit(0)/3) & flags); // & (01|01|01|01|01|01) - check where is air, and get just the important bits (00 where air, 01 where b or water)
 
-  //flags = flags&getbit(isboundary);  //add the cond. of being a boundarycell
-  return flags;
+	//flags = flags&getbit(isboundary);  //add the cond. of being a boundarycell
+	return flags;
 }
 
 
@@ -106,8 +106,8 @@ clock_t last_timer_reset;
 
 int min_int( const int n1, const int n2 )
 {
-    if( n1 < n2 ) return n1;
-    return n2;
+	if( n1 < n2 ) return n1;
+	return n2;
 }
 
 
@@ -117,31 +117,31 @@ int min_int( const int n1, const int n2 )
 
 void errhandler( int nLine, const char *szFile, const char *szString )
 {
-    int err = errno;
+	int err = errno;
 
-    fprintf( ERROUT, "%s:%d Error : %s", szFile, nLine, szString );
-    fprintf( ERROUT, "\n" );
+	fprintf( ERROUT, "%s:%d Error : %s", szFile, nLine, szString );
+	fprintf( ERROUT, "\n" );
 
-    /* if an error within the c-library occured, an error code can be   */
-    /* found in the global variable err                                 */
-    if( err != 0 )
-    {
-	fprintf( ERROUT, "C-Lib   errno    = %d\n", err);
-	fprintf( ERROUT, "C-Lib   strerror = %s\n", strerror( err ) );
-    }
-    exit(1);
+	/* if an error within the c-library occured, an error code can be   */
+	/* found in the global variable err                                 */
+	if( err != 0 )
+	{
+		fprintf( ERROUT, "C-Lib   errno    = %d\n", err);
+		fprintf( ERROUT, "C-Lib   strerror = %s\n", strerror( err ) );
+	}
+	exit(1);
 }
 
 
 /*  for comfort */
 #define READ_ERROR(szMessage, szVarName, szFileName, nLine) \
-  { char szTmp[80]; \
-    if( nLine ) \
-	sprintf( szTmp, " %s  File: %s   Variable: %s  Line: %d", szMessage, szFileName, szVarName, nLine ); \
-    else \
-	sprintf( szTmp, " %s  File: %s   Variable: %s ", szMessage, szFileName, szVarName); \
-    ERROR( szTmp ); \
-  }
+		{ char szTmp[80]; \
+		if( nLine ) \
+		sprintf( szTmp, " %s  File: %s   Variable: %s  Line: %d", szMessage, szFileName, szVarName, nLine ); \
+		else \
+		sprintf( szTmp, " %s  File: %s   Variable: %s ", szMessage, szFileName, szVarName); \
+		ERROR( szTmp ); \
+		}
 
 
 /* --------------------------------------------------------------------------*/
@@ -155,133 +155,133 @@ void errhandler( int nLine, const char *szFile, const char *szString )
 /*                                                                           */
 char* find_string( const char* szFileName, const char *szVarName )
 {
-    int nLine = 0;
-    int i;
-    FILE *fh = NULL;
+	int nLine = 0;
+	int i;
+	FILE *fh = NULL;
 
-    static char szBuffer[MAX_LINE_LENGTH];	/* containes the line read  */
-                                               /* from the datafile        */
+	static char szBuffer[MAX_LINE_LENGTH];	/* containes the line read  */
+	/* from the datafile        */
 
-    char* szLine = szBuffer;
-    char* szValue = NULL;
-    char* szName = NULL;
+	char* szLine = szBuffer;
+	char* szValue = NULL;
+	char* szName = NULL;
 
-    /* open file */
-    fh = fopen( szFileName, "rt" );
-    if( fh == 0 )
-	READ_ERROR("Could not open file", szVarName, szFileName, 0);
+	/* open file */
+	fh = fopen( szFileName, "rt" );
+	if( fh == 0 )
+		READ_ERROR("Could not open file", szVarName, szFileName, 0);
 
-    /* searching */
-    while( ! feof(fh) )
-    {
-	fgets( szLine, MAX_LINE_LENGTH, fh );
-	++nLine;
+	/* searching */
+	while( ! feof(fh) )
+	{
+		fgets( szLine, MAX_LINE_LENGTH, fh );
+		++nLine;
 
-	/* remove comments */
-	for( i = 0; i < strlen(szLine); i++)
-	    if( szLine[i] == '#' )
-	    {
-		szLine[i] = '\0'; /* Stringende setzen */
-		break;
-	    }
+		/* remove comments */
+		for( i = 0; i < strlen(szLine); i++)
+			if( szLine[i] == '#' )
+			{
+				szLine[i] = '\0'; /* Stringende setzen */
+				break;
+			}
 
-	/* remove empty lines */
-	while( isspace( (int)*szLine ) && *szLine) ++szLine;
-	if( strlen( szLine ) == 0) continue;
+		/* remove empty lines */
+		while( isspace( (int)*szLine ) && *szLine) ++szLine;
+		if( strlen( szLine ) == 0) continue;
 
-	/* now, the name can be extracted */
-	szName = szLine;
-	szValue = szLine;
-	while( (isalnum( (int)*szValue ) || *szValue == '_') && *szValue) ++szValue;
+		/* now, the name can be extracted */
+		szName = szLine;
+		szValue = szLine;
+		while( (isalnum( (int)*szValue ) || *szValue == '_') && *szValue) ++szValue;
 
-	/* is the value for the respective name missing? */
-	if( *szValue == '\n' || strlen( szValue) == 0)
-	    READ_ERROR("wrong format", szName, szFileName, nLine);
+		/* is the value for the respective name missing? */
+		if( *szValue == '\n' || strlen( szValue) == 0)
+			READ_ERROR("wrong format", szName, szFileName, nLine);
 
-	*szValue = 0;		/* complete szName! at the right place */
-	++szValue;
+		*szValue = 0;		/* complete szName! at the right place */
+		++szValue;
 
-	/* read next line if the correct name wasn't found */
-	if( strcmp( szVarName, szName)) continue;
+		/* read next line if the correct name wasn't found */
+		if( strcmp( szVarName, szName)) continue;
 
-	/* remove all leading blnkets and tabs from the value string  */
-	while( isspace( (int)*szValue) ) ++szValue;
-	if( *szValue == '\n' || strlen( szValue) == 0)
-	    READ_ERROR("wrong format", szName, szFileName, nLine);
+		/* remove all leading blnkets and tabs from the value string  */
+		while( isspace( (int)*szValue) ) ++szValue;
+		if( *szValue == '\n' || strlen( szValue) == 0)
+			READ_ERROR("wrong format", szName, szFileName, nLine);
 
-	fclose(fh);
-	return szValue;
-    }
+		fclose(fh);
+		return szValue;
+	}
 
-    READ_ERROR("variable not found", szVarName, szFileName, nLine);
+	READ_ERROR("variable not found", szVarName, szFileName, nLine);
 
-    return NULL;		/* dummy to satisfy the compiler  */
+	return NULL;		/* dummy to satisfy the compiler  */
 }
 
 void read_string( const char* szFileName, const char* szVarName, char*   pVariable)
 {
-    char* szValue = NULL;	/* string containg the read variable value */
+	char* szValue = NULL;	/* string containg the read variable value */
 
-    if( szVarName  == 0 )  ERROR("null pointer given as variable name" );
-    if( szFileName == 0 )  ERROR("null pointer given as filename" );
-    if( pVariable  == 0 )  ERROR("null pointer given as variable" );
+	if( szVarName  == 0 )  ERROR("null pointer given as variable name" );
+	if( szFileName == 0 )  ERROR("null pointer given as filename" );
+	if( pVariable  == 0 )  ERROR("null pointer given as variable" );
 
-    if( szVarName[0] == '*' )
-	szValue = find_string( szFileName, szVarName +1 );
-    else
-	szValue = find_string( szFileName, szVarName );
+	if( szVarName[0] == '*' )
+		szValue = find_string( szFileName, szVarName +1 );
+	else
+		szValue = find_string( szFileName, szVarName );
 
-    if( sscanf( szValue, "%s", pVariable) == 0)
-	READ_ERROR("wrong format", szVarName, szFileName,0);
+	if( sscanf( szValue, "%s", pVariable) == 0)
+		READ_ERROR("wrong format", szVarName, szFileName,0);
 
-    printf( "File: %s\t\t%s%s= %s\n", szFileName,
-	                              szVarName,
-	                              &("               "[min_int( strlen(szVarName), 15)]),
-	                              pVariable );
+	printf( "File: %s\t\t%s%s= %s\n", szFileName,
+			szVarName,
+			&("               "[min_int( strlen(szVarName), 15)]),
+			pVariable );
 }
 
 void read_int( const char* szFileName, const char* szVarName, int* pVariable)
 {
-    char* szValue = NULL;	/* string containing the read variable value */
+	char* szValue = NULL;	/* string containing the read variable value */
 
-    if( szVarName  == 0 )  ERROR("null pointer given as varable name" );
-    if( szFileName == 0 )  ERROR("null pointer given as filename" );
-    if( pVariable  == 0 )  ERROR("null pointer given as variable" );
+	if( szVarName  == 0 )  ERROR("null pointer given as varable name" );
+	if( szFileName == 0 )  ERROR("null pointer given as filename" );
+	if( pVariable  == 0 )  ERROR("null pointer given as variable" );
 
-    if( szVarName[0] == '*' )
-	szValue = find_string( szFileName, szVarName +1 );
-    else
-	szValue = find_string( szFileName, szVarName );
+	if( szVarName[0] == '*' )
+		szValue = find_string( szFileName, szVarName +1 );
+	else
+		szValue = find_string( szFileName, szVarName );
 
-    if( sscanf( szValue, "%d", pVariable) == 0)
-	READ_ERROR("wrong format", szVarName, szFileName, 0);
+	if( sscanf( szValue, "%d", pVariable) == 0)
+		READ_ERROR("wrong format", szVarName, szFileName, 0);
 
-    printf( "File: %s\t\t%s%s= %d\n", szFileName,
-	                              szVarName,
-	                              &("               "[min_int( strlen(szVarName), 15)]),
-	                              *pVariable );
+	printf( "File: %s\t\t%s%s= %d\n", szFileName,
+			szVarName,
+			&("               "[min_int( strlen(szVarName), 15)]),
+			*pVariable );
 }
 
 void read_double( const char* szFileName, const char* szVarName, double* pVariable)
 {
-    char* szValue = NULL;	/* String mit dem eingelesenen Variablenwert */
+	char* szValue = NULL;	/* String mit dem eingelesenen Variablenwert */
 
-    if( szVarName  == 0 )  ERROR("null pointer given as varable name" );
-    if( szFileName == 0 )  ERROR("null pointer given as filename" );
-    if( pVariable  == 0 )  ERROR("null pointer given as variable" );
+	if( szVarName  == 0 )  ERROR("null pointer given as varable name" );
+	if( szFileName == 0 )  ERROR("null pointer given as filename" );
+	if( pVariable  == 0 )  ERROR("null pointer given as variable" );
 
-    if( szVarName[0] == '*' )
-	szValue = find_string( szFileName, szVarName +1 );
-    else
-	szValue = find_string( szFileName, szVarName );
+	if( szVarName[0] == '*' )
+		szValue = find_string( szFileName, szVarName +1 );
+	else
+		szValue = find_string( szFileName, szVarName );
 
-    if( sscanf( szValue, "%lf", pVariable) == 0)
-	READ_ERROR("wrong format", szVarName, szFileName, 0);
+	if( sscanf( szValue, "%lf", pVariable) == 0)
+		READ_ERROR("wrong format", szVarName, szFileName, 0);
 
-    printf( "File: %s\t\t%s%s= %f\n", szFileName,
-	                              szVarName,
-	                              &("               "[min_int( strlen(szVarName), 15)]),
-	                              *pVariable );
+	printf( "File: %s\t\t%s%s= %f\n", szFileName,
+			szVarName,
+			&("               "[min_int( strlen(szVarName), 15)]),
+			*pVariable );
 }
 
 
@@ -293,147 +293,147 @@ void read_double( const char* szFileName, const char* szVarName, double* pVariab
 
 
 void write_matrix2( const char* szDebug,       /* filename */
-			int	timeStepNumber,
-		   double ***m,		       /* matrix */
-		   int nrl, int nrh, int ncl, int nch, int nll, int nlh)
+		int	timeStepNumber,
+		double ***m,		       /* matrix */
+		int nrl, int nrh, int ncl, int nch, int nll, int nlh)
 {
-   int i, j,k;
-   FILE * fh = 0;
+	int i, j,k;
+	FILE * fh = 0;
 
 
-   char szFileName[80];
+	char szFileName[80];
 
-   	sprintf( szFileName, "debug/d%i_%s", timeStepNumber,szDebug );
+	sprintf( szFileName, "debug/d%i_%s", timeStepNumber,szDebug );
 
 
-   fh = fopen( szFileName, "w");	/* overwrite file/write new file */
-   if( fh == NULL )			/* opening failed ? */
-   {
-	   char szBuff[80];
-	   sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
-	   ERROR( szBuff );
-   }
+	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
+	if( fh == NULL )			/* opening failed ? */
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
+		ERROR( szBuff );
+	}
 
-   /*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
+	/*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
 
 	for( k = nll; k <= nlh; k++){
-   		for( j = ncl; j <= nch; j++){
-   			for( i = nrl; i <= nrh; i++){
-			   fprintf( fh, "%f ", m[i][j][k] );
-		   }
-		   fprintf( fh, "\n" );
-	   }
-	   fprintf( fh, "-----------------------------------------------------------\n" );
-   }
+		for( j = ncl; j <= nch; j++){
+			for( i = nrl; i <= nrh; i++){
+				fprintf( fh, "%f ", m[i][j][k] );
+			}
+			fprintf( fh, "\n" );
+		}
+		fprintf( fh, "-----------------------------------------------------------\n" );
+	}
 
-   if( fclose(fh) )
-   {
-       char szBuff[80];
-       sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
-       ERROR( szBuff );
-   };
+	if( fclose(fh) )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
+		ERROR( szBuff );
+	};
 
 }
 
 
 
 void write_matrix( const char* szFileName,       /* filename */
-		   double **m,		       /* matrix */
-		   int nrl,		       /* first column */
-		   int nrh,		       /* last column */
-		   int ncl,		       /* first row */
-		   int nch,		       /* last row */
-		 double xlength,	       /* size of the geometry in */
-                                               /* x-direction */
-		 double ylength,	       /* size of the geometry in */
-                                               /* y-direction  */
-		   int fFirst ) 	       /* 0 == append, else overwrite*/
+		double **m,		       /* matrix */
+		int nrl,		       /* first column */
+		int nrh,		       /* last column */
+		int ncl,		       /* first row */
+		int nch,		       /* last row */
+		double xlength,	       /* size of the geometry in */
+		/* x-direction */
+		double ylength,	       /* size of the geometry in */
+		/* y-direction  */
+		int fFirst ) 	       /* 0 == append, else overwrite*/
 {
-   int i, j;
-   FILE * fh = 0;
-   int nSize = (nrh-nrl+1) * (nch-ncl+1);
-   float *tmp = (float *)malloc( (size_t)(nSize * sizeof(float)));
-   int k = 0;
+	int i, j;
+	FILE * fh = 0;
+	int nSize = (nrh-nrl+1) * (nch-ncl+1);
+	float *tmp = (float *)malloc( (size_t)(nSize * sizeof(float)));
+	int k = 0;
 
-   if( fFirst )				/* first call of the function ? */
-   {
-       fh = fopen( szFileName, "w");	/* overwrite file/write new file */
-       if( fh == NULL )			/* opening failed ? */
-       {
-	   char szBuff[80];
-	   sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
-	   ERROR( szBuff );
-       }
+	if( fFirst )				/* first call of the function ? */
+	{
+		fh = fopen( szFileName, "w");	/* overwrite file/write new file */
+		if( fh == NULL )			/* opening failed ? */
+		{
+			char szBuff[80];
+			sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
+			ERROR( szBuff );
+		}
 
-/*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
-   }
-   else
-   {
-       fh = fopen( szFileName ,"a");	/* append to the file */
-       if( fh == NULL )			/* opening failed ? */
-       {
-	   char szBuff[80];
-	   sprintf( szBuff, "Outputfile %s cannot be opened", szFileName );
-	   ERROR( szBuff );
-       }
-   }
+		/*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
+	}
+	else
+	{
+		fh = fopen( szFileName ,"a");	/* append to the file */
+		if( fh == NULL )			/* opening failed ? */
+		{
+			char szBuff[80];
+			sprintf( szBuff, "Outputfile %s cannot be opened", szFileName );
+			ERROR( szBuff );
+		}
+	}
 
-   for( j = ncl; j <= nch; j++)
-       for( i = nrl; i <= nrh; i++)
-	   tmp[k++] = (float)m[i][j];
+	for( j = ncl; j <= nch; j++)
+		for( i = nrl; i <= nrh; i++)
+			tmp[k++] = (float)m[i][j];
 
-   fwrite( tmp, sizeof(float), nSize, fh);
+	fwrite( tmp, sizeof(float), nSize, fh);
 
-   if( fclose(fh) )
-   {
-       char szBuff[80];
-       sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
-       ERROR( szBuff );
-   };
+	if( fclose(fh) )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
+		ERROR( szBuff );
+	};
 
-   free( tmp );
+	free( tmp );
 }
 
 
 void read_matrix( const char* szFileName,       /* filename */
-		   double **m,		       /* matrix */
-		   int nrl,		       /* first column */
-		   int nrh,		       /* last column */
-		   int ncl,		       /* first row */
-		   int nch		       /* last row */
-                  )
+		double **m,		       /* matrix */
+		int nrl,		       /* first column */
+		int nrh,		       /* last column */
+		int ncl,		       /* first row */
+		int nch		       /* last row */
+)
 {
-   int i, j;
-   FILE * fh = 0;
-   int nSize = (nrh-nrl+1) * (nch-ncl+1);
-   float *tmp = (float *)malloc( (size_t)(nSize * sizeof(float)));
-   int k = 0;
+	int i, j;
+	FILE * fh = 0;
+	int nSize = (nrh-nrl+1) * (nch-ncl+1);
+	float *tmp = (float *)malloc( (size_t)(nSize * sizeof(float)));
+	int k = 0;
 
-       fh = fopen( szFileName, "r");	/* overwrite file/write new file */
-       if( fh == NULL )			/* opening failed ? */
-       {
-	   char szBuff[80];
-	   sprintf( szBuff, "Can not read file %s !!!", szFileName );
-	   ERROR( szBuff );
-       }
+	fh = fopen( szFileName, "r");	/* overwrite file/write new file */
+	if( fh == NULL )			/* opening failed ? */
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Can not read file %s !!!", szFileName );
+		ERROR( szBuff );
+	}
 
 
-   fread( tmp, sizeof(float), nSize, fh);
+	fread( tmp, sizeof(float), nSize, fh);
 
-   for( j = ncl; j <= nch; j++)
-       for( i = nrl; i <= nrh; i++)
-	   m[i][j]=tmp[k++];
+	for( j = ncl; j <= nch; j++)
+		for( i = nrl; i <= nrh; i++)
+			m[i][j]=tmp[k++];
 
-   if( fclose(fh) )
-   {
-       char szBuff[80];
-       /*orig bug:
+	if( fclose(fh) )
+	{
+		char szBuff[80];
+		/*orig bug:
        sscanf( szBuff, "Inputfile %s cannot be closed", szFileName );*/
-       sprintf( szBuff, "Inputfile %s cannot be closed", szFileName );
-       ERROR( szBuff );
-   };
+		sprintf( szBuff, "Inputfile %s cannot be closed", szFileName );
+		ERROR( szBuff );
+	};
 
-   free( tmp );
+	free( tmp );
 }
 
 
@@ -469,28 +469,28 @@ double ***matrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 /*  allocates storage for a matrix                                         */
 double **matrix( int nrl, int nrh, int ncl, int nch )
 {
-   int i;
-   int nrow = nrh - nrl + 1;	/* compute number of lines */
-   int ncol = nch - ncl + 1;	/* compute number of columns */
+	int i;
+	int nrow = nrh - nrl + 1;	/* compute number of lines */
+	int ncol = nch - ncl + 1;	/* compute number of columns */
 
-   double **pArray  = (double **) malloc((size_t)( nrow * sizeof(double*)) );
-   double  *pMatrix = (double *)  malloc((size_t)( nrow * ncol * sizeof( double )));
+	double **pArray  = (double **) malloc((size_t)( nrow * sizeof(double*)) );
+	double  *pMatrix = (double *)  malloc((size_t)( nrow * ncol * sizeof( double )));
 
-   if( pArray  == 0)  ERROR("Storage cannot be allocated");
-   if( pMatrix == 0)  ERROR("Storage cannot be allocated");
+	if( pArray  == 0)  ERROR("Storage cannot be allocated");
+	if( pMatrix == 0)  ERROR("Storage cannot be allocated");
 
-   /* first entry of the array points to the value corrected by the
+	/* first entry of the array points to the value corrected by the
       beginning of the column */
-   pArray[0] = pMatrix - ncl;
+	pArray[0] = pMatrix - ncl;
 
-   /* compute the remaining array entries */
-   for( i = 1; i < nrow; i++ )
-   {
-       pArray[i] = pArray[i-1] + ncol;
-   }
+	/* compute the remaining array entries */
+	for( i = 1; i < nrow; i++ )
+	{
+		pArray[i] = pArray[i-1] + ncol;
+	}
 
-   /* return the value corrected by the beginning of a line */
-   return pArray - nrl;
+	/* return the value corrected by the beginning of a line */
+	return pArray - nrl;
 }
 
 /* deallocates the storage of a matrix  */
@@ -509,11 +509,11 @@ void free_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int
 
 void free_matrix( double **m, int nrl, int nrh, int ncl, int nch )
 {
-   double **pArray  = m + nrl;
-   double  *pMatrix = m[nrl]+ncl;
+	double **pArray  = m + nrl;
+	double  *pMatrix = m[nrl]+ncl;
 
-   free( pMatrix );
-   free( pArray );
+	free( pMatrix );
+	free( pArray );
 }
 
 void init_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, double a){
@@ -526,10 +526,10 @@ void init_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int
 
 void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a)
 {
-   int i,j;
-   for( i = nrl; i <= nrh; i++)
-       for( j = ncl; j <= nch; j++)
-	   m[i][j] = a;
+	int i,j;
+	for( i = nrl; i <= nrh; i++)
+		for( j = ncl; j <= nch; j++)
+			m[i][j] = a;
 }
 
 
@@ -555,30 +555,30 @@ int  ***imatrix2( int nrl, int nrh, int ncl, int nch, int nll, int nlh ){
 /* allocates storage for a matrix */
 int **imatrix( int nrl, int nrh, int ncl, int nch )
 {
-   int i;
+	int i;
 
-   int nrow = nrh - nrl + 1;	/* compute number of rows */
-   int ncol = nch - ncl + 1;	/* compute number of columns */
+	int nrow = nrh - nrl + 1;	/* compute number of rows */
+	int ncol = nch - ncl + 1;	/* compute number of columns */
 
-   int **pArray  = (int **) malloc((size_t)( nrow * sizeof( int* )) );
-   int  *pMatrix = (int *)  malloc((size_t)( nrow * ncol * sizeof( int )));
+	int **pArray  = (int **) malloc((size_t)( nrow * sizeof( int* )) );
+	int  *pMatrix = (int *)  malloc((size_t)( nrow * ncol * sizeof( int )));
 
 
-   if( pArray  == 0)  ERROR("Storage cannot be allocated");
-   if( pMatrix == 0)  ERROR("Storage cannot be allocated");
+	if( pArray  == 0)  ERROR("Storage cannot be allocated");
+	if( pMatrix == 0)  ERROR("Storage cannot be allocated");
 
-   /* first entry of the array points to the value corrected by the
+	/* first entry of the array points to the value corrected by the
       beginning of the column */
-   pArray[0] = pMatrix - ncl;
+	pArray[0] = pMatrix - ncl;
 
-   /* compute the remaining array entries */
-   for( i = 1; i < nrow; i++ )
-   {
-       pArray[i] = pArray[i-1] + ncol;
-   }
+	/* compute the remaining array entries */
+	for( i = 1; i < nrow; i++ )
+	{
+		pArray[i] = pArray[i-1] + ncol;
+	}
 
-   /* return the value corrected by the beginning of a line */
-   return pArray - nrl;
+	/* return the value corrected by the beginning of a line */
+	return pArray - nrl;
 }
 
 
@@ -598,11 +598,11 @@ void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int n
 /* deallocates the storage of a matrix  */
 void free_imatrix( int **m, int nrl, int nrh, int ncl, int nch )
 {
-   int **pArray  = m + nrl;
-   int  *pMatrix = m[nrl]+ncl;
+	int **pArray  = m + nrl;
+	int  *pMatrix = m[nrl]+ncl;
 
-   free( pMatrix );
-   free( pArray );
+	free( pMatrix );
+	free( pArray );
 }
 
 void init_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, int a){
@@ -615,76 +615,76 @@ void init_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int n
 
 void init_imatrix( int **m, int nrl, int nrh, int ncl, int nch, int a)
 {
-   int i,j;
-   for( i = nrl; i <= nrh; i++)
-       for( j = ncl; j <= nch; j++)
-	   m[i][j] = a;
+	int i,j;
+	for( i = nrl; i <= nrh; i++)
+		for( j = ncl; j <= nch; j++)
+			m[i][j] = a;
 }
 
 
 int **read_pgm(const char *filename)
 {
-    FILE *input = NULL;
-    char line[1024];
-    int levels;
-    int xsize, ysize;
-    int i1, j1;
-    int **pic = NULL;
+	FILE *input = NULL;
+	char line[1024];
+	int levels;
+	int xsize, ysize;
+	int i1, j1;
+	int **pic = NULL;
 
 
-    if ((input=fopen(filename,"rb"))==0)
-    {
-     char szBuff[80];
-	   sprintf( szBuff, "Can not read file %s!", filename );
-	   ERROR( szBuff );
-    }
+	if ((input=fopen(filename,"rb"))==0)
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Can not read file %s!", filename );
+		ERROR( szBuff );
+	}
 
-    /* check for the right "magic number" */
-    if ( fread(line,1,3,input)!=3 )
-    {
-	    fclose(input);
-	    ERROR("Error: Wrong Magic field!");
-    }
+	/* check for the right "magic number" */
+	if ( fread(line,1,3,input)!=3 )
+	{
+		fclose(input);
+		ERROR("Error: Wrong Magic field!");
+	}
 
-    /* skip the comments */
-    do
-    fgets(line,sizeof line,input);
-    while(*line=='#');
+	/* skip the comments */
+	do
+		fgets(line,sizeof line,input);
+	while(*line=='#');
 
-    /* read the width and height */
-    sscanf(line,"%d %d\n",&xsize,&ysize);
+	/* read the width and height */
+	sscanf(line,"%d %d\n",&xsize,&ysize);
 
-    printf("Image set size: %d x %d\n", xsize,ysize);
+	printf("Image set size: %d x %d\n", xsize,ysize);
 
-    /* read # of gray levels */
-    fgets(line,sizeof line,input);
-    sscanf(line,"%d\n",&levels);
+	/* read # of gray levels */
+	fgets(line,sizeof line,input);
+	sscanf(line,"%d\n",&levels);
 
-    /* allocate memory for image */
-    pic = imatrix(0,xsize-1,0,ysize-1);
-    printf("Image initialised...\n");
+	/* allocate memory for image */
+	pic = imatrix(0,xsize-1,0,ysize-1);
+	printf("Image initialised...\n");
 
-    /* read pixel row by row */
-    for(j1=0; j1 <= ysize-1; j1++)
-    {
-	    for (i1=0; i1 <= xsize-1; i1++)
-	    {
-	        int byte;
-            fscanf(input, "%d", &byte);
+	/* read pixel row by row */
+	for(j1=0; j1 <= ysize-1; j1++)
+	{
+		for (i1=0; i1 <= xsize-1; i1++)
+		{
+			int byte;
+			fscanf(input, "%d", &byte);
 
-	        if (byte==EOF)
-	        {
-		        fclose(input);
-		        ERROR("Read failed");
-	        }
-	        else
-	        {
-		        pic[i1][j1] = byte;
-		        //printf("%d,%d: %d\n", i1, ysize+1-j1, min(byte, 1));
-	        }
-	     }
-    }
-    /*
+			if (byte==EOF)
+			{
+				fclose(input);
+				ERROR("Read failed");
+			}
+			else
+			{
+				pic[i1][j1] = byte;
+				//printf("%d,%d: %d\n", i1, ysize+1-j1, min(byte, 1));
+			}
+		}
+	}
+	/*
     for (i1 = 0; i1 < xsize+2; i1++)
     {
         pic[i1][0] = 0;
@@ -698,10 +698,10 @@ int **read_pgm(const char *filename)
         pic[0][j1] = 0;
         pic[xsize+1][j1] = 0;
     }
-    */
+	 */
 
-    /* close file */
-    fclose(input);
+	/* close file */
+	fclose(input);
 
-    return pic;
+	return pic;
 }

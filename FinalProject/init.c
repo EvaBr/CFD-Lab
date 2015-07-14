@@ -1,6 +1,7 @@
 #include "helper.h"
 #include "init.h"
 #include <math.h>
+#include "boundary_val.h"
 
 int read_parameters( const char *szFileName,       /* name of the file */
                     double *Re,                /* reynolds number   */
@@ -86,7 +87,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 
    READ_DOUBLE( szFileName, *velIN );
 
-	double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
+   double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
    READ_DOUBLE( szFileName, *velMWx );
    READ_DOUBLE( szFileName, *velMWy );
    READ_DOUBLE( szFileName, *velMWz );
@@ -132,6 +133,7 @@ void init_uvwp(
   double VI,
   double WI,
   double PI,
+  int ***Flag,
   int imax,
   int jmax,
   int kmax,
@@ -147,8 +149,23 @@ void init_uvwp(
 	init_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
 	init_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
 
+	for(i = 1; i <= imax+1; i++) {
+		for(j = 1; j <= jmax+1; j++) {
+			for(k = 1; k <= kmax+1; k++) {
+				if(!isfluid(Flag[i][j][k])){
+					U[i  ][j  ][k  ] = 0;
+					U[i-1][j  ][k  ] = 0;
+					V[i  ][j  ][k  ] = 0;
+					V[i  ][j-1][k  ] = 0;
+					W[i  ][j  ][k  ] = 0;
+					W[i  ][j  ][k-1] = 0;
+					P[i  ][j  ][k  ] = 0;
+				}
+			}
+		}
+	}
+
 	if(strcmp (problem,"step.pgm")==0){
-		printf("INIT STEP!!!!!");
 		for(i = 0; i <= imax+1; i++) {
 			for(j = 0; j <= jmax+1; j++) {
 				for(k = 0; k <= kmax*0.5; k++) {
@@ -157,6 +174,9 @@ void init_uvwp(
 			}
 		}
 	}
+
+	boundaryvalues_pressure(P,Flag,imax,jmax,kmax);
+
 
 }
 
@@ -256,18 +276,18 @@ void init_flag(
   }
   //set the outer boundary flags - front and back:
   for (i=1; i<=imax; i++){
-    for (k=1; k<=kmax; k++){
-        if ((Flag[i][1][k]&pow2(2,12))==(Flag[i][1][k]&pow2(2,13))) {
-             Flag[i][0][k] = getbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
-        } else {
-             Flag[i][0][k] = (getbit(wf)-64*3) + (Flag[i][1][k]&(64*3));
-        }
-        if ((Flag[i][jmax][k]&pow2(2,12))==(Flag[i][jmax][k]&pow2(2,13))) {
-             Flag[i][jmax+1][k] = getbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
-        } else {
-             Flag[i][jmax+1][k] = (getbit(wh)-16*3) + (Flag[i][jmax][k]&(16*3));
-        }
-    }
+	  for (k=1; k<=kmax; k++){
+		  if ((Flag[i][1][k]&pow2(2,12))==(Flag[i][1][k]&pow2(2,13))) {
+			  Flag[i][0][k] = getbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
+		  } else {
+			  Flag[i][0][k] = (getbit(wf)-64*3) + (Flag[i][1][k]&(64*3));
+		  }
+		  if ((Flag[i][jmax][k]&pow2(2,12))==(Flag[i][jmax][k]&pow2(2,13))) {
+			  Flag[i][jmax+1][k] = getbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
+		  } else {
+			  Flag[i][jmax+1][k] = (getbit(wh)-16*3) + (Flag[i][jmax][k]&(16*3));
+		  }
+	  }
   }
 	// take care of the case when pressure is given
 /*	for (i=0; i<=imax+1; i++){

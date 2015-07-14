@@ -93,6 +93,7 @@ void init_uvwp(
   double VI,
   double WI,
   double PI,
+  int ***Flag,
   int imax,
   int jmax,
   int kmax,

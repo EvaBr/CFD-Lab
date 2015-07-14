@@ -33,9 +33,12 @@ void write_vtkFile(const char *szProblem,
 		double ***P) {
 
 	int i,j,k;
+	double uVel,vVel,wVel;
 	char szFileName[80];
 	FILE *fp=NULL;
-	sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
+	/*sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );*/
+	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.vtk", szProblem, timeStepNumber );
+
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )
 	{
@@ -55,7 +58,12 @@ void write_vtkFile(const char *szProblem,
 	for(k = 0; k < kmax+1; k++) {
 		for(j = 0; j < jmax+1; j++) {
 			for(i = 0; i < imax+1; i++) {
-				fprintf(fp, "%f %f %f\n", getValidValue((U[i][j][k] + U[i+1][j][k]) * 0.5), getValidValue((V[i][j][k] + V[i][j+1][k]) * 0.5), getValidValue((W[i][j][k] + W[i][j][k+1]) * 0.5) );
+				//fprintf(fp, "%f %f %f\n", getValidValue((U[i][j][k] + U[i+1][j][k]) * 0.5), getValidValue((V[i][j][k] + V[i][j+1][k]) * 0.5), getValidValue((W[i][j][k] + W[i][j][k+1]) * 0.5) );
+				//fprintf(fp, "%f %f %f\n", getValidValue((U[i][j][k] + U[i][j+1][k]) * 0.5), getValidValue((V[i][j][k] + V[i+1][j][k]) * 0.5), getValidValue((W[i][j][k] + W[i][j][k+1]) * 0.5) );
+				uVel = getValidValue((U[i][j][k] + U[i][j+1][k] + U[i][j][k+1] + U[i][j+1][k+1]) * 0.25);
+				vVel = getValidValue((V[i][j][k] + V[i+1][j][k] + V[i][j][k+1] + V[i+1][j][k+1]) * 0.25);
+				wVel = getValidValue((W[i][j][k] + W[i+1][j][k] + W[i][j+1][k] + W[i+1][j+1][k]) * 0.25);
+				fprintf(fp, "%f %f %f\n",uVel,vVel,wVel);
 			}
 		}
 	}

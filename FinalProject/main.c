@@ -23,6 +23,7 @@ int main(int argn, char** args){
 	double ***U, ***V, ***W, ***P;
 	double ***RS, ***F, ***G, ***H;
 	int ***Flag; //additional data structure for arbitrary geometry
+	/*int matrix_output = 0;*/
 	/*those to be read in from the input file*/
 	double Re, UI, VI, WI, PI, GX, GY, GZ, t_end, xlength, ylength, zlength, dt, dx, dy, dz, alpha, omg, tau, eps, dt_value;
 	int  imax, jmax, kmax, itermax;
@@ -62,9 +63,12 @@ int main(int argn, char** args){
 
 	//initialisation, including **Flag
 	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
-	init_uvwp(UI, VI, WI, PI, imax, jmax, kmax, U, V, W, P, problemGeometry);
+	init_uvwp(UI, VI, WI, PI, Flag,imax, jmax, kmax, U, V, W, P, problemGeometry);
 
+
+	//write_vtkFile("init", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
 	//going through all time steps
+
 	while(t < t_end){
 		/*if(t - every >= 0){
       	  	  printf("Calculating time %f ... \n", t);
@@ -108,26 +112,35 @@ int main(int argn, char** args){
 		n++;
 		t += dt;
 
+
+
 		//output of pics for animation
 		if ( t-last_output_t  >= dt_value ){  //n%pics==0 ){
-
 			/*
-				write_matrix2("u.txt",t,U,0, imax+1, 0, jmax+1, 0, kmax+1);
-				write_matrix2("v.txt",t,V,0, imax+1, 0, jmax+1, 0, kmax+1);
-				write_matrix2("w.txt",t,W,0, imax+1, 0, jmax+1, 0, kmax+1);
-				write_matrix2("p.txt",t,P ,0, imax+1, 0, jmax+1, 0, kmax+1);
-				write_matrix2("rs.txt",t,RS,1, imax, 1, jmax, 1, kmax);
-				write_matrix2("f.txt",t,F,0, imax, 1, jmax, 1, kmax);
-				write_matrix2("g.txt",t,G,1, imax, 0, jmax, 1, kmax);
-				write_matrix2("h.txt",t,H,1, imax, 1, jmax, 0, kmax);
+			if(matrix_output%10==0){
+
+				write_matrix2("U.txt",t,U, 0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("V.txt",t,V, 0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("W.txt",t,W, 0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("P.txt",t,P, 0, imax+1, 0, jmax+1, 0, kmax+1);
+				write_matrix2("RS.txt",t,RS, 1, imax, 1, jmax, 1, kmax);
+
+
+				write_matrix2("F.txt",t,F, 0, imax, 1, jmax, 1, kmax);
+				write_matrix2("G.txt",t,G, 1, imax, 0, jmax, 1, kmax);
+				write_matrix2("H.txt",t,H, 1, imax, 1, jmax, 0, kmax);
+			}
 			*/
 
 			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
 
-			//printf("output vtk.\n");
+			printf("output vtk (%d)\n",n);
 			last_output_t = t;
+			/*matrix_output++;*/
 		}
+		printf("timestep: %f   - next output: %f   (dt: %f) \n",t,dt_value- (t-last_output_t),dt);
 	}
+
 	//output of U, V, P at the end for visualization
 	//write_vtkFile("DrivenCavity", n, xlength, ylength, imax, jmax, dx, dy, U, V, P);
 	//free memory

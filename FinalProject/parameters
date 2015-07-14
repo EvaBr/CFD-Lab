@@ -17,7 +17,7 @@ kmax    20
 #--------------------------------------------
 dt		0.05
 t_end		20.0
-tau	 	0.5
+tau	 	0.7
 
 #--------------------------------------------
 #               output
@@ -27,7 +27,7 @@ dt_value        2.0
 #--------------------------------------------
 #               pressure
 #--------------------------------------------
-itermax		100
+itermax		150
 eps		0.001
 omg		1.7
 alpha		0.9
@@ -76,7 +76,7 @@ problemGeometry		geometry.pgm
 #	in case of given inflow velocity velIN
 #	or moving wall velocity velMW
 #-------------------------------------------
-velIN	1
+velIN	5.0
 
 velMWx   0.0
 velMWy   0.0

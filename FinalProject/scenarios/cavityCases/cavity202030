@@ -77,6 +77,6 @@ problemGeometry		cavity202030.pgm
 #	or moving wall velocity velMW
 #-------------------------------------------
 velIN		0.0
-velMWx		1.0
+velMWx		-1.0
 velMWy		0.0
 velMWz		0.0
