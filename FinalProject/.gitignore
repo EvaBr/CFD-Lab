@@ -7,8 +7,16 @@
 #latex stuff
 *.aux
 *.log
+*.synctex.gz
 /results/*.aux
 /results/*.log
+/Presentation/*.snm
+/Presentation/*.toc
+/Presentation/*.out
+/Presentation/*.nav
+/Presentation/*.aux
+/Presentation/*.log
+
 
 #builded simulation:
 sim
@@ -23,3 +31,8 @@ simulation*
 group9_submit*
 /.cproject
 /.project
+
+
+#files for running simulation, copied from the folder scenarios
+parameters_*
+*.pgm
