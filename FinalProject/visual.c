@@ -37,7 +37,7 @@ void write_vtkFile(const char *szProblem,
 	char szFileName[80];
 	FILE *fp=NULL;
 	/*sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );*/
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.vtk", szProblem, timeStepNumber );
+	sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
 
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )

@@ -10,6 +10,9 @@
 *.synctex.gz
 /results/*.aux
 /results/*.log
+/results/*.synctex.gz
+/results/*.bbl
+/results/*.blg
 /Presentation/*.snm
 /Presentation/*.toc
 /Presentation/*.out
