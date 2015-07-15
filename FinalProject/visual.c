@@ -30,7 +30,8 @@ void write_vtkFile(const char *szProblem,
 		double ***U,
 		double ***V,
 		double ***W,
-		double ***P) {
+		double ***P,
+		int ***Flag) {
 
 	int i,j,k;
 	double uVel,vVel,wVel;
@@ -79,6 +80,28 @@ void write_vtkFile(const char *szProblem,
 			}
 		}
 	}
+
+
+	fprintf(fp,"\n");
+	fprintf(fp, "SCALARS flag short 1 \n");
+	fprintf(fp, "LOOKUP_TABLE default \n");
+
+	for(k = 1; k < kmax+1; k++) {
+		for(j = 1; j < jmax+1; j++) {
+			for(i = 1; i < imax+1; i++) {
+				if(isfluid(Flag[i][j][k]) ){
+					fprintf(fp, "0\n");
+				}
+				else
+				{
+					fprintf(fp, "1\n");
+				}
+			}
+		}
+	}
+
+
+
 
 	if( fclose(fp) )
 	{

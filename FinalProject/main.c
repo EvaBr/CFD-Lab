@@ -132,7 +132,7 @@ int main(int argn, char** args){
 			}
 			*/
 
-			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
+			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
 			printf("output vtk (%d)\n",n);
 			last_output_t = t;
