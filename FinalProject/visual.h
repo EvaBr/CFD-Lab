@@ -1,6 +1,13 @@
 #ifndef __VISUAL_H__
 #define __VISUAL_H__
 
+#include "surface.h"
+
+void write_particles(const char *szProblem, int    timeStepNumber, int N, struct particleline *Partlines);
+
+
+
+
 /**
  * Method for writing header information in vtk format.
  *

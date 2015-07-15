@@ -78,11 +78,15 @@ double fmax( double a, double b);
 double mmax(double **M, int imax, int jmax);
 double tmax(double ***M, int imax, int jmax, int kmax);
 /*Just a helper function, to have less writing*/
+int isboundary(int flag);
 int isfluid(int flag);
 int pow2 (int en, int dva);
 int getbit (int wall);
 int interior (int flag);
 int getcelltype (int flags); //i, int j, int k, int ***Flag);
+
+void setcelltype(int*flag,int type);
+
 
 
 /**
@@ -284,6 +288,15 @@ void free_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int
  */
 void init_matrix( double **m, int nrl, int nrh, int ncl, int nch, double a);
 void init_matrix2( double ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh, double a);
+
+
+
+void write_imatrix2( const char* szDebug,       /* filename */
+		int	timeStepNumber,
+		int ***m,		       /* matrix */
+		int nrl, int nrh, int ncl, int nch, int nll, int nlh);
+
+
 
 /**
  * matrix(...)        storage allocation for a matrix (nrl..nrh, ncl..nch)

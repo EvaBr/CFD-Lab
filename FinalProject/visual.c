@@ -3,6 +3,46 @@
 #include <stdio.h>
 
 
+void write_particles(const char *szProblem, int    timeStepNumber, int N, struct particleline *Partlines){
+	int k;
+	struct particle *p;
+	double x,y,z;
+
+	char szFileName[80];
+	FILE *fp=NULL;
+
+    sprintf( szFileName, "simulation/%s.%i.csv", szProblem, timeStepNumber );
+	fp = fopen( szFileName, "w");
+	if( fp == NULL )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Failed to open %s", szFileName );
+		ERROR( szBuff );
+		return;
+	}
+
+	fprintf(fp,"x,y,z,v,t\n");
+
+	for(k=0;k<N;k++){
+		for(p=Partlines[k].Particles; p->next != NULL; p=p->next){
+			x = p->next->x;
+			y = p->next->y;
+			z = p->next->z;
+			fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+		}
+	}
+
+	if( fclose(fp) )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Failed to close %s", szFileName );
+		ERROR( szBuff );
+	}
+
+}
+
+
+
 double getValidValue(double v){
 	if( isnan(v)){//check for NaN
 		return -1;
@@ -37,8 +77,8 @@ void write_vtkFile(const char *szProblem,
 	double uVel,vVel,wVel;
 	char szFileName[80];
 	FILE *fp=NULL;
-	//sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.vtk", szProblem, timeStepNumber );
+	sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
+	//sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.vtk", szProblem, timeStepNumber );
 
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )

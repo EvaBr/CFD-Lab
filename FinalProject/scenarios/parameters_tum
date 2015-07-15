@@ -23,6 +23,8 @@ tau	 	0.5
 #               output
 #--------------------------------------------
 dt_value        1.0
+particles       0
+particles       0
 
 #--------------------------------------------
 #               pressure
@@ -76,7 +78,7 @@ problemGeometry		tum209:6-242420.pgm
 #	in case of given inflow velocity velIN
 #	or moving wall velocity velMW
 #-------------------------------------------
-velIN		0.2
+velIN		0.05
 velMWx		0.0
 velMWy		0.0
 velMWz		0.0

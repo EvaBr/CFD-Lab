@@ -6,36 +6,36 @@
 /* ----------------------------------------------------------------------- */
 /*                             auxiliary functions                         */
 /* ----------------------------------------------------------------------- */
-int min( int a, int b)
+inline int min( int a, int b)
 {
 	if( a < b ) return a;
 	return b;
 }
 
-int max( int a, int b)
+inline int max( int a, int b)
 {
 	if( a > b ) return a;
 	return b;
 }
 
-double fmin( double a, double b)
+inline double fmin( double a, double b)
 {
 	if( a < b ) return a;
 	return b;
 }
 
-double fmax( double a, double b)
+inline double fmax( double a, double b)
 {
 	if( a > b ) return a;
 	return b;
 }
 
-int pow2 (int en, int dva) {
+inline int pow2 (int en, int dva) {
 	int ret = pow(en, dva);
 	return ret;
 }
 
-double mmax( double **U, int imax, int jmax)
+inline double mmax( double **U, int imax, int jmax)
 {
 	double maxij = 0;
 	for( int i=0; i<=imax+1; i++){
@@ -49,18 +49,33 @@ double mmax( double **U, int imax, int jmax)
 }
 
 
-int isfluid(int flag) {
+inline int isfluid(int flag) {
 	int ret = pow(2, 12);
 	return ( (flag & (3*ret)) == ret );
 }
 
+
+inline int isboundary(int flag) {
+	return (flag > pow2(2, 12)*3) || (flag < pow2(2, 12));
+}
+
+
+
+inline void setcelltype(int*flag,int type){
+	if(type == AIR){
+		*flag = *flag&16191; /*11111100111111*/
+	}
+}
+
+
+
 /*helper function for getting the right bit represent. of edges.*/
-int getbit (int wall) {
+inline int getbit (int wall) {
 	int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
 	return (tarr[wall]*pow2(2, 12)+3*(pow2(2,10)+pow2(2,8)+pow2(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
 }
 
-int interior (int flag) {
+inline int interior (int flag) {
 	//int big = Flag[i][j][k];
 	int big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
 	int gb = getbit(0);
@@ -83,7 +98,7 @@ double tmax( double ***U, int imax, int jmax, int kmax) //added function for get
 }
 
 
-int getcelltype (int flag){
+inline int getcelltype (int flag){
 	//int flags = Flag[i][j][k];
 	//int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
 	int flags = (~(2730&flag))&getbit(0); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
@@ -580,6 +595,53 @@ int **imatrix( int nrl, int nrh, int ncl, int nch )
 	/* return the value corrected by the beginning of a line */
 	return pArray - nrl;
 }
+
+
+void write_imatrix2( const char* szDebug,       /* filename */
+		int	timeStepNumber,
+		int ***m,		       /* matrix */
+		int nrl, int nrh, int ncl, int nch, int nll, int nlh)
+{
+	int i, j,k;
+	FILE * fh = 0;
+
+
+	char szFileName[80];
+
+	sprintf( szFileName, "debug/d%i_%s", timeStepNumber,szDebug );
+
+
+	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
+	if( fh == NULL )			/* opening failed ? */
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
+		ERROR( szBuff );
+	}
+
+	/*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
+
+	for( k = nll; k <= nlh; k++){
+		for( j = ncl; j <= nch; j++){
+			for( i = nrl; i <= nrh; i++){
+				fprintf( fh, "%d ", m[i][j][k] );
+			}
+			fprintf( fh, "\n" );
+		}
+		fprintf( fh, "-----------------------------------------------------------\n" );
+	}
+
+	if( fclose(fh) )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
+		ERROR( szBuff );
+	};
+
+}
+
+
+
 
 
 void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh ){

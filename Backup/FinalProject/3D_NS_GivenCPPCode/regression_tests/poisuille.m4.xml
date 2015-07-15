@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A template for Poisuille flow test case  -->
+<!-- To generate input file: -->
+<!-- m4 -D m_res=0.2 -D m_Nx=10 -D m_time=2.0 poisuille.m4.xml > poisuille.xml  -->
+<configuration>
+    <flow Re="50" />
+    <simulation finalTime="m_time" />
+    <timestep dt="1" tau="0.5" />
+    <solver gamma="0.5" />
+    <geometry dx="m_res" dy="m_res" dz="m_res" sizeX="10" sizeY="m_Nx" sizeZ="10" />
+    <environment gx="1" gy="0" gz="0" />
+    <walls periodicX="true" periodicY="false" periodicZ="true">
+        <left>
+            <vector x="0" y="0" z="0" />
+        </left>
+        <right>
+            <vector x="0" y="0" z="0" />
+        </right>
+        <top>
+            <vector x="0" y="0" z="0" />
+        </top>
+        <bottom>
+            <vector x="0" y="0" z="0" />
+        </bottom>
+        <front>
+            <vector x="0" y="0" z="0" />
+        </front>
+        <back>
+            <vector x="0" y="0" z="0" />
+        </back>
+    </walls>
+    <vtk interval="1">poisuille</vtk>
+</configuration>
