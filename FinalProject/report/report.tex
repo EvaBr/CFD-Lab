@@ -18,7 +18,17 @@ We put a lot of attention to designing a code that will work in 3D for as many d
 special set of boundaries for just a few more known and frequently simulated situations, but rather made them completely dependent on the input
 geometry file.
 
-TODO:comment on not doing free surface
+%TODO:comment on not doing free surface
+\subsection{Running the program}
+Program is called in the same way as its 2D version;
+\begin{center} 
+\begin{verbatim}
+./sim parameter_file
+\end{verbatim}
+\end{center}
+with parameter\_file denoting the usual (only slightly extended) parameter file, where (under variable name $problemGeometry$) also the geometry file is 
+given - see next section for more information on input. 
+
 \subsection{Input}\label{sec:input}
 The parameter file that was used as input in our previous worksheets remained, with just slight changes due to the additional dimension.
 Only notable difference is, that we now take as an input also a scalar $velIN$, and a vector $velMW$. First one represent the velocity at the
@@ -36,7 +46,7 @@ The standard boundary conditions, that we implemented, are
 \end{itemize}
 To specify, where which of them is applied, we used special numbering of cells when generating our input pgm files, which can be seen from table
 \ref{tab1}, so our geometries are represented by a grayscale image with 7 levels of brightness.
-\begin{table}
+\begin{table}[hb!]
 \centering
 \label{tab1}
 \begin{tabular}{|l|c|}
@@ -55,14 +65,14 @@ moving wall & 6 \\
 \caption{Number representations of different possible cell types.}
 \end{table}
 Since we are working in three dimensions, this image consists of a sequence of 2D ($xy$ plane) images. The orientation of coordinate system and an
-example picture for a small lid driven cavity case can be seen on figure \ref{fig1}. One geometry picture set thus needs to contain
+example picture for a small lid driven cavity case can be seen on figure 1. One geometry picture set thus needs to contain
 $(imax+2)\times(jmax+2)\times(kmax+2)$ numbers in $(jmax+2)\times(kmax+2)$ rows, and is typically very big.
-\begin{figure}[hb!]
+\begin{figure}[ht!]
 \centering
 \label{fig1}
-\includegraphics[height=6cm]{coord.jpg}
-\includegraphics[height=6cm]{cavity2.jpg}
-\includegraphics[height=5.9cm]{cavity20202.jpg}
+\includegraphics[height=6.2cm]{coord.jpg}
+\includegraphics[height=6.2cm]{cavity.png}
+\includegraphics[height=6cm]{cavity20202.jpg}
 \caption{The structure of our input pgm files and a lid driven cavity example case.}
 \end{figure}
 
@@ -195,7 +205,7 @@ When the boundary cell is like \texttt{B\_O}, we allow the moving wall direction
  except for the ones along this moving wall direction and parallel to the boundary. The only velocities that are thus set to a non-zero value in this case are:
 \begin{equation}
 \begin{array}{ll}
-v_{i,j-1,k} = 2*\texttt{velMW}_y-v_{i+1,j-1,k}, & v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, 
+v_{i,j-1,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j-1,k}, & v_{i,j,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j,k}, 
 \end{array}
 \end{equation}
 where $\texttt{velMW} = [\texttt{velMW}_x, \texttt{velMW}_y, \texttt{velMW}_z]$ is the moving wall velocity vector, and $\texttt{velMW}_x$ is its component along the $x$ axis. We analogously set the boundary conditions for the following 5 cases: .
@@ -203,15 +213,15 @@ where $\texttt{velMW} = [\texttt{velMW}_x, \texttt{velMW}_y, \texttt{velMW}_z]$ 
 When the boundary cell is like \texttt{B\_NO}, we set the directions of moving walls \texttt{N} and \texttt{O} in a ``circular'' way. For example, if \texttt{N} moves in the $+x/-x$ direction, then \texttt{O} moves in the $-y/+y$ direction. Therefore, the following boundary conditions differ from those of the no-slip condition:
 \begin{equation}
 \begin{array}{ll}
-u_{i,j,k} = 2*\texttt{velMW}_x-u_{i,j+1,k}, & u_{i-1,j,k} = 2*\texttt{velMW}_x-u_{i-1,j+1,k}, \\
-v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, & v_{i,j-1,k} = 2*\texttt{velMW}_y-v_{i+1,j-1,k}
+u_{i,j,k} = 2\cdot\texttt{velMW}_x-u_{i,j+1,k}, & u_{i-1,j,k} = 2\cdot\texttt{velMW}_x-u_{i-1,j+1,k}, \\
+v_{i,j,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j,k}, & v_{i,j-1,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j-1,k}
 \end{array}
 \end{equation}
 
 %When the boundary cell is like \texttt{B\_O}, we set the moving wall direction to the direction of next (first nonfixed) coordinate, i.e., if $x/y/z$ is fixed, the wall moving in $y/z/x$. For example, if the flag is \texttt{B\_O}, the moving wall direction is $+y$ or $-y$. Consequently, the velocities are same with those of the no-slip condition, except for the ones along this moving wall direction and parallel to the boundary. Therefore, for the \texttt{B\_O} case, the following boundary conditions differ from those of the no-slip condition:
 %\begin{equation}
 %\begin{array}{ll}
-%v_{i,j-1,k} = 2*\texttt{velMW}_y-v_{i+1,j-1,k}, & v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, 
+%v_{i,j-1,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j-1,k}, & v_{i,j,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j,k}, 
 %\end{array}
 %\end{equation}
 %where $\texttt{velMW} = [\texttt{velMW}_x, \texttt{velMW}_y, \texttt{velMW}_z]$ is the moving wall velocity vector, and $\texttt{velMW}_x$ is its component along the $x$ axis. We analogously set the boundary conditions for the following 5 cases: .
@@ -219,8 +229,8 @@ v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, & v_{i,j-1,k} = 2*\texttt{velMW}_y-v
 %When the boundary cell is like \texttt{B\_NO}, we set the directions of moving walls \texttt{N} and \texttt{O} in a ``circular'' way. For example, if \texttt{N} moves in the $+x$ direction, then \texttt{O} moves in the $-y$ direction. Alternatively, if \texttt{N} moves in the $-x$ direction, then \texttt{O} moves in the $+y$ direction. Therefore, for the \texttt{B\_NO} case, the following boundary conditions differ from those of the no-slip condition:
 %\begin{equation}
 %\begin{array}{ll}
-%u_{i,j,k} = 2*\texttt{velMW}_x-u_{i,j+1,k}, & u_{i-1,j,k} = 2*\texttt{velMW}_x-u_{i-1,j+1,k}, \\
-%v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, & v_{i,j-1,k} = 2*\texttt{velMW}_y-v_{i+1,j-1,k}
+%u_{i,j,k} = 2\cdot\texttt{velMW}_x-u_{i,j+1,k}, & u_{i-1,j,k} = 2\cdot\texttt{velMW}_x-u_{i-1,j+1,k}, \\
+%v_{i,j,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j,k}, & v_{i,j-1,k} = 2\cdot\texttt{velMW}_y-v_{i+1,j-1,k}
 %\end{array}
 %\end{equation}
 We analogously set the boundary conditions for the following 16 (5 + 11) cases: \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U}, \texttt{B\_D}, \texttt{B\_NW}, \texttt{B\_NU}, \texttt{B\_ND}, \texttt{B\_SO}, \texttt{B\_SW}, \texttt{B\_SU}, \texttt{B\_SD}, \texttt{B\_OU}, \texttt{B\_WU}, \texttt{B\_OD}, \texttt{B\_WD},
@@ -265,7 +275,8 @@ Setting that for a cell with more fluid neighbours would mean having to choose t
 And secondly, since an obstacle that has a corner and all of its sides moving isn't really physical, we decided not to deal with cells that have three
 fluid neighbours and moving wall boundary condition.
 
-\begin{table}[H]
+Cells are in the code represented by flags, which consist of 16 bits, instead of 5 (see following table). % \ref{tab4}). 
+\begin{table}[hb!]
 \label{tab4}
 \centering
 \begin{tabular}{|c||c|c|c|c|c|c|}
@@ -275,11 +286,9 @@ center & east & west & north & south & bottom & top \\
 \hline
 \end{tabular}
 \end{table} 
-Cells are represented by flags, which consist of 16 bits, instead of 5 (see table \ref{tab4}). That extension was necessary because we planned to add the possibility of free flow scenarios,
+That extension was necessary because we planned to add the possibility of free flow scenarios,
 fo which we needed the additional (apart from water and obstacle) state of cells - air. We also extended representation of center cell by three bits, to
 be able to store the information on special boundary conditions.
-
-
 
 For neighbour cells we used the following 2bit representation: 
 \begin{center}
@@ -303,8 +312,25 @@ $10|00$ & $\cdots$ & moving wall
 \end{center}
 
 \section{Problems, current state and future work}\label{sec:prob_state_future}
-
+Implementation of truly arbitrary geometries took us much longer than expected; we had problems at deciding which cells to forbid and how to calculate the 
+allowed ones for more complicated boundary conditions. We have therefore spent less time on free surfaces; and have not been able to finish it completely.
+There is a lot of space for improvement of our code, for example finishing the free surface extention, parallelization, and so on. 
+ 
 \section{Results}\label{sec:results}
+Here are a two show cases of what our code can handle.
+\begin{itemize}
+\item Inflow through a pipe.\\
+\begin{center}
+\includegraphics[height=5cm]{pipeinflow.png}
+\includegraphics[height=6.5cm]{pipeinflw.png}
+\end{center}
+
+\item Inflow through part of wall, outflow through pipe
+\begin{center}
+\includegraphics[height=7cm]{inoutpipe.jpg}
+\end{center}
+\end{itemize}
+
 
 \begin{thebibliography}{99}
 \bibitem{Griebel}
