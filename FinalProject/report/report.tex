@@ -60,16 +60,16 @@ $(imax+2)\times(jmax+2)\times(kmax+2)$ numbers in $(jmax+2)\times(kmax+2)$ rows,
 \begin{figure}[hb!]
 \centering
 \label{fig1}
-\includegraphics[height=5.8cm]{coord.jpg}
-\includegraphics[height=5.8cm]{cavity2.jpg}
-\includegraphics[height=5.65cm]{cavity20202.jpg}
+\includegraphics[height=6cm]{coord.jpg}
+\includegraphics[height=6cm]{cavity2.jpg}
+\includegraphics[height=5.9cm]{cavity20202.jpg}
 \caption{The structure of our input pgm files and a lid driven cavity example case.}
 \end{figure}
 
 
 \section{Implementation}\label{sec:implement}
-\subsection{Boundary conditions for the velocities}\label{sec:boundary_vel}
-We have 5 different boundary conditions, namely no-slip, free-slip, outflow, inflow, moving wall. We implement them for the 6 boundaries of our 3D domain, as well as for internal boundaries.
+\subsection{Boundary conditions}\label{sec:boundary_vel}
+As mentioned before, we have implemented 5 different boundary conditions for the 6 boundaries of our 3D domain, as well as for internal boundaries.
 \subsubsection{No-Slip boundary condition}\label{sec:no-slip}
 For no-slip conditions, the fluid vanishes at the boundary. As a consequence, both the velocity components are zero. 
 %Using staggered grid, the discrete velocity components normal to and parallel to the boundary lie directly at the boundary, whilst the one parallel to the boundary is the average of the boundary cell's and its neighbouring fluid cell's velocity components.
@@ -104,7 +104,10 @@ w_{i,j,k} = 0, & w_{i,j,k-1} = -\frac{1}{2}(w_{i+1,j,k-1}+w_{i,j+1,k-1}), \\
 \end{equation}
 and we analogously set the boundary conditions for the following 7 cases: \texttt{B\_NWU}, \texttt{B\_NOD}, \texttt{B\_NWD}, \texttt{B\_SOU}, \texttt{B\_SWU}, \texttt{B\_SOD}, and \texttt{B\_SWD}.
 
-Boundary conditions of the following 18 cases are analogous to their 2D counterparts, and are omitted here for brevity of discussion: \texttt{B\_O}, \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U}, \texttt{B\_D}; \texttt{B\_NO} \texttt{B\_NW}, \texttt{B\_NU}, \texttt{B\_ND}, \texttt{B\_SO}, \texttt{B\_SW}, \texttt{B\_SU}, \texttt{B\_SD}, \texttt{B\_OU}, \texttt{B\_WU}, \texttt{B\_OD} and \texttt{B\_WD}. Same applies for the discussion in  \ref{sec:free-slip}, \ref{sec:outflow}, and \ref{sec:boundary_pressure}.
+Boundary conditions of the cells that only have one or two fluid neighbours are analogous to their 2D counterparts, and are omitted here for the sake of brevity;
+same applies for the discussion in  \ref{sec:free-slip}, \ref{sec:outflow}, and \ref{sec:boundary_pressure}.
+
+%\texttt{B\_O}, \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U}, \texttt{B\_D}; \texttt{B\_NO} \texttt{B\_NW}, \texttt{B\_NU}, \texttt{B\_ND}, \texttt{B\_SO}, \texttt{B\_SW}, \texttt{B\_SU}, \texttt{B\_SD}, \texttt{B\_OU}, \texttt{B\_WU}, \texttt{B\_OD} and \texttt{B\_WD}. 
 
 \subsubsection{Free-Slip boundary condition}\label{sec:free-slip}
 For free-slip conditions, the fluid flows freely parallel to the boundary, but does not cross the boundary. As a consequence, the velocity component normal to the boundary is zero, as well as the normal derivative of the velocity component parallel to the wall. 
@@ -175,8 +178,10 @@ w_{i,j,k} = w_{i,j,k+1}, & w_{i,j,k-1} = \frac{1}{2}(w_{i+1,j,k-1}+w_{i,j+1,k-1}
 and we analogously set the boundary conditions for the following 7 cases: \texttt{B\_NWU}, \texttt{B\_NOD}, \texttt{B\_NWD}, \texttt{B\_SOU}, \texttt{B\_SWU}, \texttt{B\_SOD}, and \texttt{B\_SWD}.
 
 \subsubsection{Inflow boundary condition}\label{sec:inflow}
-For inflow conditions, we assume the inflow velocity is perpendicular to the inflow boundary. We implement the following 6 cases, \texttt{B\_O}, \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U} and \texttt{B\_D}, and forbid the other cases.
-For the \texttt{B\_O} case, the boundary velocities are same with those the no-slip condition, except that $u_{i,j,k} = \texttt{velIN}$, where the inflow velocity \texttt{velIN} is larger than zero. We analogously set the boundary conditions for the other 5 cases.
+For inflow conditions, we assume the inflow velocity is perpendicular to the inflow boundary. Thus, the input for the velocity is a positive scalar. 
+We implement the following 6 cases, \texttt{B\_O}, \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U} and \texttt{B\_D}, and forbid the other cases (see section \ref{sec:forb} for forbiden cells).
+For the \texttt{B\_O} case, the boundary velocity that we set to the input value is $u_{i,j,k} = \texttt{velIN}$, while other velocities for this cell are set to zero. 
+ We analogously set the boundary conditions for the other 5 cases.
 
 %For inflow conditions, we assume the inflow velocity is perpendicular to the inflow boundary. We implement the following 6 cases, \texttt{B\_O}, \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U} and \texttt{B\_D}, and forbid the other cases.
 %
@@ -186,7 +191,8 @@ For the \texttt{B\_O} case, the boundary velocities are same with those the no-s
 
 \subsubsection{Moving wall boundary condition}\label{sec:moving_wall}
 For moving wall conditions, we need to restrict the moving wall directions.
-When the boundary cell is like \texttt{B\_O},the moving wall direction is $+y$ or $-y$. Consequently, the boundary velocities are same with those of the no-slip condition, except for the ones along this moving wall direction and parallel to the boundary. Therefore, the following boundary conditions differ from those of the no-slip condition:
+When the boundary cell is like \texttt{B\_O}, we allow the moving wall direction to be $+y$ or $-y$. Consequently, the boundary velocities are equal to zero,
+ except for the ones along this moving wall direction and parallel to the boundary. The only velocities that are thus set to a non-zero value in this case are:
 \begin{equation}
 \begin{array}{ll}
 v_{i,j-1,k} = 2*\texttt{velMW}_y-v_{i+1,j-1,k}, & v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, 
@@ -220,8 +226,9 @@ v_{i,j,k} = 2*\texttt{velMW}_y-v_{i+1,j,k}, & v_{i,j-1,k} = 2*\texttt{velMW}_y-v
 We analogously set the boundary conditions for the following 16 (5 + 11) cases: \texttt{B\_W}, \texttt{B\_N}, \texttt{B\_S}, \texttt{B\_U}, \texttt{B\_D}, \texttt{B\_NW}, \texttt{B\_NU}, \texttt{B\_ND}, \texttt{B\_SO}, \texttt{B\_SW}, \texttt{B\_SU}, \texttt{B\_SD}, \texttt{B\_OU}, \texttt{B\_WU}, \texttt{B\_OD}, \texttt{B\_WD},
 and we forbid the boundary conditions for the following 8 cases: \texttt{B\_NOU}, \texttt{B\_NWU}, \texttt{B\_NOD}, \texttt{B\_NWD}, \texttt{B\_SOU}, \texttt{B\_SWU}, \texttt{B\_SOD}, \texttt{B\_SWD}.
 
-\subsection{Boundary condition for the pressure}\label{sec:boundary_pressure}
-On the other hand, for all the 5 aforementioned boundary conditions, the boundary values for the pressure are derived from the discretized momentum equation and result in discrete \textit{Neumann} conditions.
+\subsubsection{Boundary condition for the pressure}\label{sec:boundary_pressure}
+On the other hand, for all the 5 aforementioned boundary conditions, the boundary values for the pressure are derived from the discretized 
+momentum equation and result in discrete \textit{Neumann} conditions (the same as in the 2D case).
 
 %Therefore, for the \texttt{B\_O} case, we set the following boundary conditions:
 %\begin{equation}
@@ -248,6 +255,52 @@ F_{i,j,k} = u_{i,j,k}, & G_{i,j,k} = v_{i,j,k}, \quad H_{i,j,k} = w_{i,j,k}, \\
 \end{array}
 \end{equation}
 and we analogously set the boundary conditions for the following 7 cases: \texttt{B\_NWU}, \texttt{B\_NOD}, \texttt{B\_NWD}, \texttt{B\_SOU}, \texttt{B\_SWU}, \texttt{B\_SOD}, and \texttt{B\_SWD}.
+
+
+\subsection{Allowed cells and their representation}\label{sec:forb}
+As in the 2D case, we again forbade geometries with cells, that are of boundary type and border on fluid in two opposite directions. However, 
+we added two more types of forbidden cells, to make implementation easier and results more physical.
+Firstly, the inflow cells that border on fluid on more than one side are forbidden due to the fact that we're reading the inflow velocity as a scalar.
+Setting that for a cell with more fluid neighbours would mean having to choose the vector ($u$, $v$ or $w$) of the inflow.    
+And secondly, since an obstacle that has a corner and all of its sides moving isn't really physical, we decided not to deal with cells that have three
+fluid neighbours and moving wall boundary condition.
+
+\begin{table}[H]
+\label{tab4}
+\centering
+\begin{tabular}{|c||c|c|c|c|c|c|}
+\hline
+center & east & west & north & south & bottom & top \\ 
+4bits & 2bits & 2bits & 2bits & 2bits & 2bits & 2bits\\
+\hline
+\end{tabular}
+\end{table} 
+Cells are represented by flags, which consist of 16 bits, instead of 5 (see table \ref{tab4}). That extension was necessary because we planned to add the possibility of free flow scenarios,
+fo which we needed the additional (apart from water and obstacle) state of cells - air. We also extended representation of center cell by three bits, to
+be able to store the information on special boundary conditions.
+
+
+
+For neighbour cells we used the following 2bit representation: 
+\begin{center}
+\begin{tabular}{ccc}
+01 & $\cdots$ & water \\
+10 & $\cdots$ & air \\
+11 & $\cdots$ & obstacle
+\end{tabular}
+\end{center}
+And for the center cell we used 4bit sequences:
+\begin{center}
+\begin{tabular}{ccc}
+$00|01$ & $\cdots$ & water \\
+$00|10$ & $\cdots$ & air \\
+$00|00$ & $\cdots$ & no slip \\
+$00|11$ & $\cdots$ & free slip \\
+$01|00$ & $\cdots$ & inflow \\
+$01|11$ & $\cdots$ & outlow \\
+$10|00$ & $\cdots$ & moving wall 
+\end{tabular}
+\end{center}
 
 \section{Problems, current state and future work}\label{sec:prob_state_future}
 
