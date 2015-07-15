@@ -977,8 +977,7 @@ void boundaryvalues_inflow(
 }
 
 void boundaryvalues_pressure(double ***P,int ***Flag,int imax,int jmax,int kmax){
-	int i,j,k,temp;
-
+	int i,j,k;
 	/* set boundary values, here just for the 'real' boundaries - no air included yet (if even needed?) */
 		for(i = 0; i <= imax+1; i++) {
 			//P[i][0] = P[i][1];		//boundary cond at lower and upper wall
@@ -1020,22 +1019,6 @@ void boundaryvalues_pressure(double ***P,int ***Flag,int imax,int jmax,int kmax)
 					//case C_B: P[i][j] = 0; break;
 					default: break;
 					}
-
-					/*
-					temp = Flag[i][j][k] >> 12;
-					temp = (temp >> 2)*2 + temp%2 + ((temp&1)!=((temp>>1)&1))*5 + 2;
-					if(temp==OUTFLOW){
-						if(P[i][j][k]>0){
-							P[i][j][k] = P[i][j][k]*0.7;
-						}
-						else
-						{
-							P[i][j][k] = P[i][j][k]*1.3;
-						}
-					}
-					*/
-
-
 				}
 			}
 		}
