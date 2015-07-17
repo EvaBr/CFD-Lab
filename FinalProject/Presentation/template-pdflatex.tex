@@ -71,16 +71,19 @@
 \begin{frame}
 \frametitle{Project Topic}
 
-\begin{columns}
-\begin{column}{0.48\textwidth}
+%\begin{columns}
+%\begin{column}{0.48\textwidth}
 \begin{itemize}
 \item 3D Navier Stokes for arbitrary geometries
-\item (TO remove Free Surface flow, unless we wanna explain why we didn't do it at the beginning of presentation??)
-\end{itemize} \end{column}
-\begin{column}{0.48\textwidth}
-\includegraphics[height = 0.45\textheight]{simpleCavity.png}
-\end{column}
-\end{columns}
+\item possible extention: Free surface flows
+\end{itemize}
+\includegraphics[height = 0.40\textheight]{pipeinflow.png}
+ 
+%\end{column}
+%\begin{column}{0.48\textwidth}
+%\includegraphics[height = 0.45\textheight]{simpleCavity.png}
+%\end{column}
+%\end{columns}
 \end{frame}
 
 \begin{frame}
@@ -88,7 +91,7 @@
 \framesubtitle{3D Navier Stokes for arbitrary geometries}
 
 \begin{itemize}
-\item To handle truly arbitrary scenarios, our code allows any of the following standard boundary conditions to be employed in any domain cell:
+\item truly arbitrary scenarios, any of the following b.c. can be employed in any domain cell:
 \begin{itemize}
 \item no slip
 \item free slip
@@ -96,7 +99,7 @@
 \item outflow
 \item moving wall
 \end{itemize}
-\item Therefore, even the obstacles inside the domain can have arbitrary boundaries, as opposed to only allowing that on the domain walls (as in worksheet 3).
+\item $\Rightarrow$ the obstacles inside the domain have arbitrary boundaries
 \end{itemize}
 \end{frame}
 
@@ -106,8 +109,8 @@
 \begin{columns}
 \begin{column}{0.48\textwidth}
 \begin{itemize}
-\item Special numbering of cells when generating input pgm files
-\item Geometries represented by a grayscale image with 7 levels of brightness.
+\item Special numbering of cells when generating input pgm files,
+\item geometries represented by a grayscale image with 7 levels of brightness.
 \end{itemize} 
 \end{column}
 \begin{column}{0.48\textwidth}
@@ -133,8 +136,34 @@ moving wall & 6 \\
 \end{frame}
 
 \begin{frame}
-\frametitle{Lid driven cavity example case}
-\framesubtitle{...and its input pgm files}
+\frametitle{Implementation}
+\framesubtitle{Extending the flag field}
+\begin{columns}
+\begin{column}{0.46\textwidth}
+\begin{itemize}
+\item 4bits for center cell
+\item 2bits for every neighbour
+\item altogether 16 bits
+\end{itemize}
+\end{column}
+\begin{column}{0.46\textwidth}
+\begin{table}[hb!]
+\label{tab4}
+\centering
+\begin{tabular}{|c||c|c|c|c|c|c|}
+\hline
+center & east & west & north & south & bottom & top \\ 
+4bits & 2bits & 2bits & 2bits & 2bits & 2bits & 2bits\\
+\hline
+\end{tabular}
+\end{table} 
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation}
+\framesubtitle{Input: Lid Driven Cavity example}
 \begin{columns}
 \begin{column}{0.33\textwidth}
 \includegraphics[height=5.2cm]{coord.jpg}
@@ -148,100 +177,54 @@ moving wall & 6 \\
 \end{columns}
 \end{frame}
 
-\begin{frame}
-\frametitle{Implementation}
-\framesubtitle{Boundary conditions}
-\begin{itemize}
-\item skip?
-\end{itemize}
-\end{frame}
-
 
 \begin{frame}
 \frametitle{Implementation}
-\framesubtitle{Theory}
-\scriptsize
+\framesubtitle{Particle Tracking}
 
-\begin{table}[ht!]
-\flushleft
-\begin{tabular}{r|ccccc}
- & \bf Palabos & \bf OpenLB & \bf LBSim & \bf SailFish & \bf LB3D \\ \toprule
-\bf Language &C++ (Java, Python) & C++ & C++ &Python &Fortran90 \\
-\bf Visualiz.&ASCII, gif& vtk & OpenGL &numpy, vtk& XDR \\ \bottomrule
-\end{tabular}
-\end{table}
-
-\end{frame}
-
-
-
-\begin{frame}
-\frametitle{Implementation}
-\framesubtitle{Problems}
-blablablablabblalalablbablalalalabla
-\end{frame}
-
-
-
-\begin{frame}
-\frametitle{Title}
-\framesubtitle{Subtitle}
-
-\begin{itemize}
-\item first
-\item second
-\begin{itemize}
-\item second sub 1
-\item second sub 2
-\end{itemize}
-\item own third
-\end{itemize}
-\end{frame}
-
-
-
-\begin{frame}
-\begin{alertblock}{{\bf Important: } Something.} 
-Parameters used for the simulation: alalalalala
-\end{alertblock}
-\vspace{0.7cm}
 \begin{columns}
-\begin{column}{0.47\textwidth}
-Results:
-\vspace{0.4cm}
-%\centering
-\begin{tabular}{|c||c|}\hline
-\it one & 5.217 s \\
-\it two & 6.999 s \\
-\it three & 5.522 s \\
-\hline
-\end{tabular}
-
+\begin{column}{0.45\textwidth}
+\begin{itemize}
+\item implemented adding and advancing of particles
+\item surface boundary conditions still under development
+\item multiple particle sets possible 
+\end{itemize}
 \end{column}
-\begin{column}{0.5\textwidth}
-\flushright
-\includegraphics[height=4cm]{simpleCavity.png}
+\begin{column}{0.45\textwidth}
+\includegraphics[width = 0.35\textwidth]{interpol.png}
 \end{column}
-\end{columns}
 \end{frame}
 
 
+%\begin{frame}
+%\frametitle{Implementation}
+%\framesubtitle{Theory}
+%\scriptsize
+
+%\begin{table}[ht!]
+%\flushleft
+%\begin{tabular}{r|ccccc}
+% & \bf Palabos & \bf OpenLB & \bf LBSim & \bf SailFish & \bf LB3D \\ \toprule
+%\bf Language &C++ (Java, Python) & C++ & C++ &Python &Fortran90 \\
+%\bf Visualiz.&ASCII, gif& vtk & OpenGL &numpy, vtk& XDR \\ \bottomrule
+%\end{tabular}
+%\end{table}
+
+%\end{frame}
+
+
 \begin{frame}
-\frametitle{Some links}  %pics, movies.
-{\Large \bf Palabos}\\
+\frametitle{Results}  %pics, movies.
 \begin{itemize}
-\item Dam Break (free-surface flows): \\
-\url{http://www.palabos.org/gallery/multi-phase-free-surface-flow/23-dam-break}
-\item Volcanic Eruption \\
-\url{http://www.palabos.org/gallery/incompressible-isothermal-flow/22-volcanic-eruption}
-\item Rayleigh-Taylor Instability: \\
-\url{http://www.palabos.org/gallery/incompressible-isothermal-flow/43-rayleigh-taylor-instability}
+\item 
+\item 
+\item 
 \end{itemize}
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Result}
+\frametitle{Results}
 \begin{columns}
 \begin{column}{0.35\textwidth}
 Inflow through a pipe
@@ -259,7 +242,7 @@ Inflow through a pipe
 \end{frame}
 
 \begin{frame}
-\frametitle{Result}
+\frametitle{Results}
 \begin{columns}
 \begin{column}{0.30\textwidth}
 \begin{itemize}
@@ -275,7 +258,7 @@ Inflow through a pipe
 \end{frame}
 
 \begin{frame}
-\frametitle{Result}
+\frametitle{Results}
 \begin{columns}
 \begin{column}{0.30\textwidth}
 Flow over step
@@ -291,7 +274,7 @@ Flow over step
 \end{frame}
 
 \begin{frame}
-\frametitle{Result}
+\frametitle{Results}
 \begin{columns}
 \begin{column}{0.33\textwidth}
 Flow over step
@@ -306,7 +289,7 @@ Flow over step
 \end{frame}
 
 \begin{frame}
-\frametitle{Result}
+\frametitle{Results}
 %\framesubtitle{Flow across TUM :)}
 \begin{columns}
 \begin{column}{0.33\textwidth}
@@ -322,7 +305,7 @@ Flow across TUM :)
 \end{frame}
 
 \begin{frame}
-\frametitle{Result}
+\frametitle{Results}
 \begin{columns}
 \begin{column}{0.33\textwidth}
 Flow across TUM :)
@@ -338,14 +321,10 @@ Flow across TUM :)
 
 \begin{frame}
 \frametitle{Conclusion and Further Development}
-
 \begin{itemize}
-\item Conclusion
-\item Further Development
-\begin{itemize}
-\item Free Surface flow
+\item Finish Free Surface flow
+\item add Thermal flow
 \item Parallelization
-\end{itemize}
 \end{itemize}
 \end{frame}
 
