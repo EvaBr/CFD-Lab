@@ -42,10 +42,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 		//                  double *presRight,		     /*pressure at the right wall*/
 		//                  double *presDelta,		     /*pressure difference across the domain*/
 		double *velIN,             /*velocity of inflow*/
-		double *velMW,
-		int *particles
-
-)		         /*velocity of wall (in U direction)*/
+		double *velMW )		         /*velocity of wall (in U direction)*/
 {
 	READ_DOUBLE( szFileName, *xlength );
 	READ_DOUBLE( szFileName, *ylength );
@@ -83,9 +80,6 @@ int read_parameters( const char *szFileName,       /* name of the file */
 	READ_INT   ( szFileName, *wh );
 	READ_INT   ( szFileName, *wt );
 	READ_INT   ( szFileName, *wb );
-
-	READ_INT   ( szFileName, *particles );
-
 
 	READ_STRING( szFileName, problemGeometry );
 
@@ -179,7 +173,6 @@ void init_uvwp(
 	init_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
 	init_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
 	init_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
-
 	for(i = 1; i <= imax+1; i++) {
 		for(j = 1; j <= jmax+1; j++) {
 			for(k = 1; k <= kmax+1; k++) {
@@ -196,17 +189,18 @@ void init_uvwp(
 		}
 	}
 
+
 	if(strcmp (problem,"step.pgm")==0 || strcmp (problem,"surface.pgm")==0){
 		for(i = 0; i <= imax+1; i++) {
 			for(j = 0; j <= jmax+1; j++) {
 				for(k = 0; k <= kmax*0.5; k++) {
-					U[i][j][k] = 0;
+					U[i][j][k] = U[i][j][k] *0.5;
 				}
 			}
 		}
 	}
 
-	boundaryvalues_pressure(P,Flag,imax,jmax,kmax);
+
 }
 
 
@@ -229,63 +223,49 @@ void init_flag(
 		int wb
 ) {
 	int i,j,k;
-	int temp, temp2;
-
-	//temporary array of mapping, for easier computation of flags
-	int tarr[] = {1, 2, 0, 3, 4, 7, 8};
 	//read the geometry
 	int **Pic = read_pgm(problem);
 	for (k=1; k<kmax+1; k++) {
 		//initialisation to C_F and C_B  Flag[i][0][0]
 		for (int j=1; j<jmax+1; j++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
 			for (int i=1; i<imax+1; i++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
-				temp = tarr[Pic[i][j + k*(jmax+2)]]*pow2(2, 12) + min(Pic[i+1][j + k*(jmax+2)]+1, 3)*pow2(2, 10) + min(Pic[i-1][j + k*(jmax+2)]+1, 3)*pow2(2, 8) +   min(Pic[i][j + k*(jmax+2)-1]+1, 3)*pow2(2, 6) +  min(Pic[i][j + k*(jmax+2) + 1]+1, 3)*pow2(2, 4) + min(Pic[i][j + (k-1)*(jmax+2)]+1, 3)*4 + min(Pic[i][j + (k+1)*(jmax+2)]+1, 3);   //use min() bcs obstacle neighbours will have numbrs 3-6 in the pic, but they should be flagged with (11)_2 = 3 in the flag field.
-				//check for forbidden cells:
-				//if ( ((temp > pow(2, 12)*3) || (temp < pow(2, 12))) /*so it is bound.*/ & (E,W water / N,S water / D,U water) ) { error }
-				if (Pic[i][j + k*(jmax+2)]>1 && (min(Pic[i][j+k*(jmax+2)+1]+Pic[i][j+k*(jmax+2)-1], Pic[i-1][j+ k*(jmax+2)]+Pic[i+1][j+ k*(jmax+2)])==0  || !(Pic[i][j+(k-1)*(jmax+2)]+Pic[i][j+(k+1)*(jmax+2)])))  {
-					ERROR("Invalid geometry! Forbidden boundary cell found.\n");
-				}
-				temp2 = getcelltype(temp)%16;
-				if (( ((temp>>12)&15) == 8 ) && (temp2==5 || temp2==6 || temp2==9 || temp2==10)){ //tryin to set moving wall for a B_??? cell. not allowed!
-					ERROR("Invalid geometry! Forbidden boundary cell found.\n");
-				}
-				Flag[i][jmax+1-j][k] = temp;
+				Flag[i][jmax+1-j][k] = createflag(Pic,i,j,k,imax,jmax,kmax);
 			}
 		} //da bo to delal more bit slika tk narjena, da ma vsaka 2D podslika okoliinokoli ghost boundary. (s poljubno boundary cifro, tj med 2 in 6)
 	}
 
-	//set outer boundary vortices, so you wont use them uninitialised. used getbit() bcs theyre on the edges of domain, so have only 2 or 3 neighbs, all boundary
+	//set outer boundary vortices, so you wont use them uninitialised. used getwallbit() bcs theyre on the edges of domain, so have only 2 or 3 neighbs, all boundary
 	for (k=0; k<kmax+2; k++) {
-		Flag[0][0][k] = getbit(wf);            //xz0
-		Flag[0][jmax+1][k] = getbit(wh);       //xz1
-		Flag[imax+1][0][k] = getbit(wf);       //xz0
-		Flag[imax+1][jmax+1][k] = getbit(wh);  //xz1
+		Flag[0][0][k] = getwallbit(wf);            //xz0
+		Flag[0][jmax+1][k] = getwallbit(wh);       //xz1
+		Flag[imax+1][0][k] = getwallbit(wf);       //xz0
+		Flag[imax+1][jmax+1][k] = getwallbit(wh);  //xz1
 	}
 	for (j=0; j<jmax+2; j++) {
-		Flag[0][j][0] = getbit(wb);            //xy0
-		Flag[0][j][kmax+1] = getbit(wt);       //xy1
-		Flag[imax+1][j][0] = getbit(wb);       //xy0
-		Flag[imax+1][j][kmax+1] = getbit(wt);  //xy1
+		Flag[0][j][0] = getwallbit(wb);            //xy0
+		Flag[0][j][kmax+1] = getwallbit(wt);       //xy1
+		Flag[imax+1][j][0] = getwallbit(wb);       //xy0
+		Flag[imax+1][j][kmax+1] = getwallbit(wt);  //xy1
 	}
 	for (i=0; i<imax+2; i++) {
-		Flag[i][0][0] = getbit(wf);            //xy0
-		Flag[i][jmax+1][0] = getbit(wh);       //xy0
-		Flag[i][0][kmax+1] = getbit(wf);       //xy1
-		Flag[i][jmax+1][kmax+1] = getbit(wh);  //xy1
+		Flag[i][0][0] = getwallbit(wf);            //xy0
+		Flag[i][jmax+1][0] = getwallbit(wh);       //xy0
+		Flag[i][0][kmax+1] = getwallbit(wf);       //xy1
+		Flag[i][jmax+1][kmax+1] = getwallbit(wh);  //xy1
 	}
 
 	//set outer boundary flags - top and bottom:
 	for (i=1; i<=imax; i++){
 		for (j=1; j<=jmax; j++){
 			if ((Flag[i][j][1]&pow2(2,12))==(Flag[i][j][1]&pow2(2,13))) {//if our only inner cell neighbour is a boundary(obstacle), we set this cell to the same kind of boundary.
-				Flag[i][j][0] = getbit(0)/*3*(pow(2,10)+pow(2,8)+pow(2,6)+pow(2,4)+4+1)*/ + (Flag[i][j][1]&(pow2(2,12)*15)/*info bout the boundary at the beginning*/);
+				Flag[i][j][0] = getwallbit(0)/*3*(pow(2,10)+pow(2,8)+pow(2,6)+pow(2,4)+4+1)*/ + (Flag[i][j][1]&(pow2(2,12)*15)/*info bout the boundary at the beginning*/);
 			} else { //Otherwise set it to what you read in the picture (<- remark: NO. we set it to what we read in the parameter file.). plus subtract/set the neighbouring cell, which seems to be water or air
-				Flag[i][j][0] = (getbit(wb)-3) + (Flag[i][j][1]&3);
+				Flag[i][j][0] = (getwallbit(wb)-3) + (Flag[i][j][1]&3);
 			}
 			if ((Flag[i][j][kmax]&pow2(2,12))==(Flag[i][j][kmax]&pow2(2,13))) {//if our only inner cell neighbour is a boundary(obstacle), we set this cell to the same kind of bc.
-				Flag[i][j][kmax+1] = getbit(0) + (Flag[i][j][kmax]&(pow2(2,12)*15)); /*info bout the boundary at the beginning*/
+				Flag[i][j][kmax+1] = getwallbit(0) + (Flag[i][j][kmax]&(pow2(2,12)*15)); /*info bout the boundary at the beginning*/
 			} else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
-				Flag[i][j][kmax+1] = (getbit(wt)-12) + (Flag[i][j][kmax]&12);
+				Flag[i][j][kmax+1] = (getwallbit(wt)-12) + (Flag[i][j][kmax]&12);
 			}
 		}
 	}
@@ -293,14 +273,14 @@ void init_flag(
 	for (j=1; j<=jmax; j++){
 		for (k=1; k<=kmax; k++){
 			if ((Flag[1][j][k]&pow2(2,12))==(Flag[1][j][k]&pow2(2,13))) {
-				Flag[0][j][k] = getbit(0) + (Flag[1][j][k]&(pow2(2,12)*15));
+				Flag[0][j][k] = getwallbit(0) + (Flag[1][j][k]&(pow2(2,12)*15));
 			} else { //Otherwise set it to what you read in the picture <- remark: NO. we set it to what we read in the parameter file.
-				Flag[0][j][k] = (getbit(wl)- 3*pow2(2,10)) + (Flag[1][j][k]& (3*pow2(2,10)));
+				Flag[0][j][k] = (getwallbit(wl)- 3*pow2(2,10)) + (Flag[1][j][k]& (3*pow2(2,10)));
 			}
 			if ((Flag[imax][j][k]&pow2(2,12))==(Flag[imax][j][k]&pow2(2,13))) {
-				Flag[imax+1][j][k] = getbit(0) + (Flag[imax][j][k]&(pow2(2,12)*15));
+				Flag[imax+1][j][k] = getwallbit(0) + (Flag[imax][j][k]&(pow2(2,12)*15));
 			} else {
-				Flag[imax+1][j][k] = (getbit(wr)-3*pow2(2,8)) + (Flag[imax][j][k]&(3*pow2(2,8)));
+				Flag[imax+1][j][k] = (getwallbit(wr)-3*pow2(2,8)) + (Flag[imax][j][k]&(3*pow2(2,8)));
 			}
 		}
 	}
@@ -308,17 +288,30 @@ void init_flag(
 	for (i=1; i<=imax; i++){
 		for (k=1; k<=kmax; k++){
 			if ((Flag[i][1][k]&pow2(2,12))==(Flag[i][1][k]&pow2(2,13))) {
-				Flag[i][0][k] = getbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
+				Flag[i][0][k] = getwallbit(0) + (Flag[i][1][k]&(pow2(2,12)*15));
 			} else {
-				Flag[i][0][k] = (getbit(wf)-64*3) + (Flag[i][1][k]&(64*3));
+				Flag[i][0][k] = (getwallbit(wf)-64*3) + (Flag[i][1][k]&(64*3));
 			}
 			if ((Flag[i][jmax][k]&pow2(2,12))==(Flag[i][jmax][k]&pow2(2,13))) {
-				Flag[i][jmax+1][k] = getbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
+				Flag[i][jmax+1][k] = getwallbit(0) + (Flag[i][jmax][k]&(pow2(2,12)*15));
 			} else {
-				Flag[i][jmax+1][k] = (getbit(wh)-16*3) + (Flag[i][jmax][k]&(16*3));
+				Flag[i][jmax+1][k] = (getwallbit(wh)-16*3) + (Flag[i][jmax][k]&(16*3));
 			}
 		}
 	}
+/*
+	for(i = 0; i <= imax+1; i++) {
+		for(j = 0; j <= jmax+1; j++) {
+			for(k = 0; k <= kmax+1; k++) {
+				if(isfluid(Flag[i][j][k])){
+					setcelltype(&Flag[i][jmax][k],FLUID);
+				}
+			}
+		}
+	}
+	*/
+
+
 
 	// take care of the case when pressure is given
 	/*	for (i=0; i<=imax+1; i++){

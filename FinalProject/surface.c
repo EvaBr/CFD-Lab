@@ -18,7 +18,6 @@ void add_cell_particles(struct particleline *Partline, double i, double j, doubl
 	}
 }
 
-
 struct particle *create_particle(double x, double y, double z){
 	struct particle *p  = (struct particle *) malloc(sizeof(struct particle));
 	if(p == 0)
@@ -43,24 +42,27 @@ void add_particle(struct particleline *Partline, double x,double y,double z)
 	(*Partline).length++;
 }
 
-
-
-
-
-void mark_cells(int ***Flag,double dx,double dy, double dz,int imax,int jmax,int kmax,int N,struct particleline *Partlines){
-	int i,j,k,n;
-	struct particle *t,*p;
-	double x,y,z;
-
+void clean_cells(int ***Flag,int imax,int jmax, int kmax){
+	int i,j,k;
 	for (i=0;i<=imax+1;i++){
 		for (j=0;j<=jmax+1;j++){
 			for(k=0;k<=kmax+1;k++){
 				if (!isboundary(Flag[i][j][k])){
 					setcelltype(&Flag[i][j][k],AIR);
+
 				}
 			}
 		}
 	}
+}
+
+
+void mark_cells(int ***Flag,double dx,double dy, double dz,int imax,int jmax,int kmax,int N,struct particleline *Partlines){
+	int i,j,k,n;
+	struct particle *p;//*t,
+	double x,y,z;
+	int *flag=0,*flagc=0;
+	clean_cells(Flag,imax,jmax, kmax);
 	for (n=0;n<N;n++){
 		for(p=Partlines[n].Particles; p->next != 0; p=p->next)
 		{
@@ -70,27 +72,232 @@ void mark_cells(int ***Flag,double dx,double dy, double dz,int imax,int jmax,int
 			i = (int)(x/dx)+1;
 			j = (int)(y/dy)+1;
 			k = (int)(z/dz)+1;
-			if (isboundary(Flag[i][j][k]))
-			{
-				t = p->next->next;
-				free(p->next);
-				p->next = t;
+			if (i<0 || j<0 || k<0 || i>imax || j>jmax || k>kmax){
+				/*
+				t = p->next;
+				p->next = p->next->next;
+				free(t);
 				Partlines[n].length--;
+				if (p->next==NULL)
+					break;
+				 */
 			}
 			else{
-				setcelltype(&Flag[i][j][k],FLUID);
+				if (!isboundary(Flag[i][j][k])){
+					setcelltype(&Flag[i][j][k],FLUID);
+				}
 			}
-
 		}
 	}
-
-	for (j=1;j<=jmax;j++){
-		for (i=1;i<=imax;i++)
-		{
-			for (i=1;i<=imax;i++)
+	printf("markcell!\n");
+	for (i=1;i<=imax;i++)
+	{
+		for (j=1;j<=jmax;j++){
+			for (k=1;k<=kmax;k++)
 			{
+				flagc = &Flag[i][j  ][k  ];
+				if( isfluid(*flagc) )
+				{
+					flag = &Flag[i+1][j  ][k  ];
+					if(isempty(*flag)){  //B_O
+						//Flag[i][j  ][k  ] = 0;
+						//	printf("before: %d , %d\n ",Flag[i][j][k],issurface(Flag[i][j][k]));
+						changebit(flagc,0,0);
+						changebit(flagc,1,1);
+						//	printf("is surface: %d, %d\n",Flag[i][j][k],issurface(Flag[i][j][k]));
+						//printf("flag: %d\n",Flag[i][j  ][k  ]);
+						//printf("is surface: %d\n",issurface(Flag[i][j][k]));
+					}
+					else if (isfluid(*flag)){
+						changebit(flagc,0,1);
+						changebit(flagc,1,0);
+					}
+					flag = &Flag[i-1][j  ][k  ];
+					if(isempty(*flag)){
+						//printf("markcell!\n");
+						changebit(flagc,2,0); //B_W
+						changebit(flagc,3,1);
+					}
+					else if (isfluid(*flag)){
+						changebit(flagc,2,1);
+						changebit(flagc,3,0);
+					}
 
+					flag = &Flag[i][j+1][k  ];
+					if(isempty(*flag)){
+						//printf("markcell!\n");
+						changebit(flagc,4,0); //B_N
+						changebit(flagc,5,1);
+					}
+					else if(isfluid(*flag)){
+						changebit(flagc,4,1);
+						changebit(flagc,5,0);
+					}
+
+					flag = &Flag[i][j-1][k  ];
+					if(isempty(*flag)){
+						//printf("markcell!\n");
+						changebit(flagc,6,0); //B_S
+						changebit(flagc,7,1);
+					}
+					else if(isfluid(*flag)){
+						changebit(flagc,6,1);
+						changebit(flagc,7,0);
+					}
+
+					flag = &Flag[i][j  ][k-1];
+					if(isempty(*flag)){
+						//printf("markcell!\n");
+						changebit(flagc,8,0); //B_D
+						changebit(flagc,9,1);
+					}
+					else if (isfluid(*flag)){
+						changebit(flagc,8,1);
+						changebit(flagc,9,0);
+					}
+
+					flag = &Flag[i][j  ][k+1];
+					if(isempty(*flag)){
+						//printf("markcell!\n");
+						changebit(flagc,10,0);//B_U
+						changebit(flagc,11,1);
+					}
+					else if (isfluid(*flag)){
+						changebit(flag,10,1);
+						changebit(flag,11,0);
+					}
+				}
 			}
+		}
+	}
+}
+
+void clean_empty_space(int*** Flag,double ***U,double ***V,double ***W,double ***P,int imax,int jmax, int kmax){
+	int i,j,k;
+	for (i=0;i<=imax-1;i++){
+		for (j=0;j<=jmax;j++){
+			for (k=0;k<=kmax;k++){
+				if (!isfluid(Flag[i][j][k]) && !isfluid(Flag[i+1][j][k])){
+					U[i][j][k] = 0;
+				}
+			}
+		}
+	}
+	for (i=0;i<=imax-1;i++){
+		for (j=0;j<=jmax-1;j++){
+			for (k=0;k<=kmax;k++){
+				if (!isfluid(Flag[i][j][k]) && !isfluid(Flag[i][j+1][k])){
+					V[i][j][k] = 0;
+				}
+			}
+		}
+	}
+	for (i=0;i<=imax;i++){
+		for (j=0;j<=jmax;j++){
+			for (k=0;k<=kmax-1;k++){
+				if (!isfluid(Flag[i][j][k]) && !isfluid(Flag[i][j][k+1])){
+					W[i][j][k] = 0;
+				}
+			}
+		}
+	}
+	for (i=1;i<=imax;i++){
+		for (j=1;j<=jmax;j++){
+			for (k=1;k<=kmax;k++){
+				if (!isempty(Flag[i][j][k] )) {
+					P[i][j][k] = 0;
+				}
+			}
+		}
+	}
+
+}
+
+
+
+
+struct cell{
+	double *p;
+	double *ue;
+	double *uw;
+	double *vn;
+	double *wt;
+	double *wb;
+};
+
+void getcell(struct cell* c,double ***U,double ***V,double ***W,double ***P,int i, int j, int k){
+	*c->p = P[i][j][k];
+}
+
+
+
+void compute_surface_values(double ***U,double ***V,double ***W,double ***P,int ***Flag,int i,int j,int k,double dt,double GX,double GY,double GZ){
+	int type;
+	struct cell c;
+	int nx,ny,nz;
+	int mx,my,mz;
+	int num;
+	type = getsurfacetype(Flag[i][j][k],&nx,&ny,&nz,&mx,&my,&mz,&num);
+	getcell(&c,U,V,W,P,i,j,k);
+
+	if(binMatch(type,B_O)){
+		if(!binMatch(type,B_W)){
+
+			U[i][j][k]      = U[i-1][j][k];
+
+		}
+		else{
+			U[i][j][k]   += dt*GX;
+		}
+
+	}
+	if(binMatch(type,B_W)){
+
+		if(!binMatch(type,B_O)){
+
+			U[i-1][j][k]    = U[i][j][k];
+		}
+		else{
+			U[i-1][j][k]    += dt*GX;
+		}
+
+	}
+	if(binMatch(type,B_N) ){
+		if(!binMatch(type,B_S)){
+			V[i][j][k]      = V[i][j-1][k];
+
+		}else{
+
+			V[i][j][k]     += dt*GY;
+		}
+
+
+	}
+	if(binMatch(type,B_S)){
+		if(!binMatch(type,B_N)){
+
+			V[i  ][j-1][k]    = V[i][j][k];
+
+		}else{
+
+			V[i  ][j-1][k]     += dt*GY;
+		}
+
+	}
+	if(binMatch(type,B_U)){
+		if(!binMatch(type,B_U)){
+			W[i][j][k-1]      = W[i][j][k];
+
+		}else{
+
+			W[i][j][k-1]     += dt*GZ;
+		}
+	}
+	if(binMatch(type,B_D)){
+		if(!binMatch(type,B_D)){
+			W[i][j][k]      = W[i][j][k-1];
+		}else{
+			W[i][j][k]     += dt*GZ;
 		}
 	}
 
@@ -98,9 +305,72 @@ void mark_cells(int ***Flag,double dx,double dy, double dz,int imax,int jmax,int
 }
 
 
-void set_uvwp_surface(double ***U,double ***V,double ***W,double ***P,int ***Flag,double dx,double dy,double dz, int imax,int jmax, int kmax,double GX,double GY,double GZ,double Re){
 
+void set_uvwp_surface(double ***U,double ***V,double ***W,double ***P,int ***Flag,double dx,double dy,double dz, int imax,int jmax, int kmax,double GX,double GY,double GZ,double dt,double Re){
+
+	clean_empty_space(Flag,U,V,W,P,imax,jmax, kmax);
+
+	int i,j,k;
+	//int x=0,y=0,z=0;
+
+	int type = 0;
+
+	int nx,ny,nz;
+	int mx,my,mz;
+	int num;
+
+
+	for (j=0;j<=jmax+1;j++){
+		for (i=0;i<=imax+1;i++){
+			for (k=0;k<=kmax+1;k++){
+
+				if (issurface(Flag[i][j][k])){
+					type = getsurfacetype(Flag[i][j][k],&nx,&ny,&nz,&mx,&my,&mz,&num);
+
+					switch(type){
+
+					case B_O   : P[i][j][k] = 2.0/Re/dx*(U[i][j][k]-U[i-1][j][k]); break;
+					case B_W   : P[i][j][k] = 2.0/Re/dx*(U[i][j][k]-U[i-1][j][k]); break;
+					case B_N   : P[i][j][k] = 2.0/Re/dy*(V[i][j][k]-V[i][j-1][k]); break;
+					case B_S   : P[i][j][k] = 2.0/Re/dy*(V[i][j][k]-V[i][j-1][k]); break;
+
+					case B_U   : P[i][j][k] = 2.0/Re/dz*(W[i][j][k]-W[i][j][k-1]); break;
+					case B_D   : P[i][j][k] = 2.0/Re/dz*(W[i][j][k]-W[i][j][k-1]); break;
+
+					default   :
+						P[i][j][k] = 0; break;
+						P[i][j][k] = 0; break;
+						P[i][j][k] = 0; break;
+						P[i][j][k] = 0; break;
+						P[i][j][k] = 0; break;
+						P[i][j][k] = 0; break;
+						P[i][j][k] = 0; break;
+
+						break;
+					}
+
+				}
+			}
+		}
+	}
+
+	for (j=2;j<jmax;j++){
+		for (i=2;i<imax;i++){
+			for (k=2;k<kmax;k++){
+
+				if (issurface(Flag[i][j][k])){
+
+					compute_surface_values(U,V,W,P,Flag,i, j, k,dt,GX,GY,GZ);
+
+
+
+				}
+			}
+		}
+	}
+	printf("%d",type);
 }
+
 
 inline double trilinearInterpolation(double ***m,int i, int j, int k, double dx, double dz, double dy,double x,double y, double z, double x1,  double x2,double y1,double y2,double z1,double z2){
 	double t1,t2;
@@ -110,8 +380,8 @@ inline double trilinearInterpolation(double ***m,int i, int j, int k, double dx,
 	)/dx/dy;
 
 	t2 = ((y2-y)*((x2-x)*m[i-1][j-1][k-1] + (x-x1)*m[i][j-1][k-1])   +
-				(y-y1)*((x2-x)*m[i-1][j][k-1]   + (x-x1)*m[i][j][k-1])
-		)/dx/dy;
+			(y-y1)*((x2-x)*m[i-1][j][k-1]   + (x-x1)*m[i][j][k-1])
+	)/dx/dy;
 
 	return((z2-z)*t2+(z-z1)*t1)/dz;
 
@@ -132,7 +402,7 @@ void advance_particles(double dx,double dy, double dz,int imax,int jmax,int kmax
 	double w;
 
 	struct particle *p;
-	struct particle *t;
+	//struct particle *t;
 
 
 	for(s=0;s<N;s++){
@@ -150,13 +420,14 @@ void advance_particles(double dx,double dy, double dz,int imax,int jmax,int kmax
 			k2 = (int)((z+0.5*dz)/dz)+1;
 
 			if (i1<=0 || j1<=0 || k1<=0 || i2>imax || j2>jmax || k2>kmax ){
-
+				/*
 				t = p->next;
 				p->next = p->next->next;
 				free(t);
 				Partlines[s].length--;
 				if (p->next==NULL)
 					break;
+				 */
 			}
 			else
 			{
@@ -236,8 +507,9 @@ void advance_particles(double dx,double dy, double dz,int imax,int jmax,int kmax
 				i = (int)(x/dx);
 				j = (int)(y/dy);
 				k = (int)(z/dz);
-
+				/*
 				if (i<0 || j<0 || k<0 || i>imax || j>jmax || k>kmax ){
+
 					t = p->next;
 					p->next = p->next->next;
 					free(t);
@@ -247,14 +519,16 @@ void advance_particles(double dx,double dy, double dz,int imax,int jmax,int kmax
 
 				}
 				else{
+				 */
+				/* todo boundary */
 
-					/* todo boundary */
-
-					p->next->x = x;
-					p->next->y = y;
-					p->next->z = z;
-					p->next->vel = 2*sqrt(u*u+v*v*w*w);
+				p->next->x = x;
+				p->next->y = y;
+				p->next->z = z;
+				p->next->vel = sqrt(u*u+v*v+w*w);
+				/*
 				}
+				 */
 			}
 		}
 	}

@@ -54,6 +54,20 @@
 #define B_SWU 21
 #define B_SWD 22
 
+#define B_NOSWUD 63
+
+#define B_ALL 4095
+
+
+#define C_AIR_1 8192
+#define C_AIR_2 53248
+
+#define C_FLUID_1  4096
+#define C_FLUID_2 57344
+
+
+#define C_AIR_MASK 2730
+
 
 
 
@@ -71,21 +85,40 @@
 extern clock_t last_timer_reset;
 
 
+int createflag(int** Pic,int i,int j,int k,int imax,int jmax,int kmax);
+
+#define binMatch(a,b)  (((a&b)==b))
+
+void   setbit(int *number,int pos);
+void   clearbit(int *number,int pos);
+int    getbit(int number,int pos);
+int    getboundarytype(int flag);
+int    isboundary(int flag);
+int    isfluid(int flag);
+int    isempty(int flag);
+int    issurface(int flag);
+int    pow2 (int en, int dva);
+int    getwallbit (int wall);
+void   changebit(int* number,int pos, int bit);
+int    interior (int flag);
+int    getcelltype(int flag);
+void   setcelltype(int*flag,int type);
+int getsurfacetype (int flag,int *nx,int*ny, int*nz,int *mx,int*my, int*mz,int*num);
+
+void write_flag_imatrix( const char* szDebug,       /* filename */
+		int	timeStepNumber,
+		int ***m,		       /* matrix */
+		int nrl, int nrh, int ncl, int nch, int nll, int nlh);
+
 int min( int a, int b);
 int max( int a, int b);
 double fmin( double a, double b);
 double fmax( double a, double b);
 double mmax(double **M, int imax, int jmax);
 double tmax(double ***M, int imax, int jmax, int kmax);
-/*Just a helper function, to have less writing*/
-int isboundary(int flag);
-int isfluid(int flag);
-int pow2 (int en, int dva);
-int getbit (int wall);
-int interior (int flag);
-int getcelltype (int flags); //i, int j, int k, int ***Flag);
 
-void setcelltype(int*flag,int type);
+int emptyneighbor(int flag);
+/*Just a helper function, to have less writing*/
 
 
 

@@ -17,5 +17,6 @@ lbsim
 #vtk:
 *.vtk
 
-#directory of pics
+#directory of pics and submitted version
 simulation*
+oddano*
