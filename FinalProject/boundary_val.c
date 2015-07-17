@@ -1047,7 +1047,7 @@ void boundaryvalues(
 				int ***Flag,
 				double velIN,
 				double *velMW
-) {
+  ) {
 	int i, j, k, temp;
 	for (i=0; i<imax+2; i++) {
 		for (j=0; j<jmax+2; j++){
