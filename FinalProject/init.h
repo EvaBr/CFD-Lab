@@ -86,8 +86,7 @@ int read_parameters(
   double *presRight,
   double *presDelta,*/
 		double *velIN,
-		double *velMW,
-		int *particles
+		double *velMW
 );
 
 
