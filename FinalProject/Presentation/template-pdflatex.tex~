@@ -135,30 +135,6 @@ moving wall & 6 \\
 \end{columns}
 \end{frame}
 
-
-
-\begin{frame}
-\frametitle{Implementation}
-\framesubtitle{Input: Lid Driven Cavity example}
-\begin{columns}
-\begin{column}{0.33\textwidth}
-\begin{center}
-\includegraphics[height=5.2cm]{coord.jpg}
-\end{center}
-\end{column}
-\begin{column}{0.33\textwidth}
-\begin{center}
-\includegraphics[height=5.2cm]{cavity.png}
-\end{center}
-\end{column}
-\begin{column}{0.33\textwidth}
-\begin{center}
-\includegraphics[height=5cm]{cavity20202.jpg}
-\end{center}
-\end{column}
-\end{columns}
-\end{frame}
-
 \begin{frame}
 \frametitle{Implementation}
 \framesubtitle{Extending the flag field}
@@ -184,6 +160,29 @@ center & east & west & north & south & bottom & top \\
 %\end{column}
 %\end{columns}
 \end{frame}
+
+\begin{frame}
+\frametitle{Implementation}
+\framesubtitle{Input: Lid Driven Cavity example}
+\begin{columns}
+\begin{column}{0.33\textwidth}
+\begin{center}
+\includegraphics[height=5.2cm]{coord.jpg}
+\end{center}
+\end{column}
+\begin{column}{0.33\textwidth}
+\begin{center}
+\includegraphics[height=5.2cm]{cavity.png}
+\end{center}
+\end{column}
+\begin{column}{0.33\textwidth}
+\begin{center}
+\includegraphics[height=5cm]{cavity20202.jpg}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
 
 \begin{frame}
 \frametitle{Implementation}
