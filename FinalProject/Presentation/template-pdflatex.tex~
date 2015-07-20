@@ -1,0 +1,346 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+%\usepackage{movie15}
+%\usepackage{amsmath, amssymb}
+\useoutertheme{split}
+\usecolortheme{orchid}
+\usecolortheme{seahorse}
+
+\setbeamerfont{author}{size=\footnotesize}
+\setbeamerfont{date}{size=\tiny}
+\setbeamerfont{title}{size=\Large, series={\bfseries}}
+\setbeamerfont{subtitle}{size=\small, series=\normalfont}
+
+\useinnertheme[shadow=true]{rounded}
+
+\usepackage{pgf}  
+\usepackage{tikz}
+\logo{\pgfputat{\pgfxy(-0.2, 8.4)}{\pgfbox[right,top]{
+\begin{tikzpicture}[y=0.38pt, x=0.38pt,yscale=-1, inner sep=0pt, outer sep=0pt]
+\begin{scope}[cm={{1.25,0.0,0.0,-1.25,(0.0,35.4325)}}]
+    \path[fill=blue,nonzero rule] (4.8090,23.2950) -- (4.8090,-0.0020) --
+      (9.8590,-0.0020) -- (9.8590,23.2600) -- (15.4730,23.2600) -- (15.4730,-0.0020)
+      -- (31.5390,-0.0020) -- (31.5390,23.0140) -- (37.2580,23.0140) --
+      (37.2580,0.0060) -- (42.5550,0.0060) -- (42.5550,23.0140) -- (48.3440,23.0140)
+      -- (48.3440,0.0060) -- (53.6410,0.0060) -- (53.6410,28.3460) --
+      (26.4530,28.3460) -- (26.4530,5.1580) -- (20.6290,5.1580) -- (20.6290,28.3110)
+      -- (-0.0000,28.3110) -- (-0.0000,23.2950) -- (4.8090,23.2950) -- cycle;
+\end{scope}
+\end{tikzpicture}
+}}}
+
+
+\mode<presentation>
+
+\title{CFD Lab: Final Project}
+\subtitle{3D Navier Stokes Code for Arbitrary Geometries}    %, including Free Surface}
+
+\author{Norbert Schmidbartl, Wei Ni, Zhibin Cheng, Eva Breznik}
+\institute[TUM]{Technische Universit\"{a}t M\"{u}nchen \\ Fakult\"{a}t f\"{u}r Informatik}
+
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+\maketitle %titlepage
+\end{frame}
+
+
+%\addtobeamertemplate{frametitle}{}{
+%\logo{\pgfputat{\pgfxy(-0.2, 8.4)}{\pgfbox[right,top]{
+%\begin{tikzpicture}[remember picture,overlay][y=0.38pt, x=0.38pt,yscale=-1, inner sep=0pt, outer sep=0pt]
+%\begin{scope}[cm={{1.25,0.0,0.0,-1.25,(0.0,35.4325)}}]
+%    \path[fill=blue,nonzero rule] (4.8090,23.2950) -- (4.8090,-0.0020) --
+%      (9.8590,-0.0020) -- (9.8590,23.2600) -- (15.4730,23.2600) -- (15.4730,-0.0020)
+%      -- (31.5390,-0.0020) -- (31.5390,23.0140) -- (37.2580,23.0140) --
+%      (37.2580,0.0060) -- (42.5550,0.0060) -- (42.5550,23.0140) -- (48.3440,23.0140)
+%      -- (48.3440,0.0060) -- (53.6410,0.0060) -- (53.6410,28.3460) --
+%      (26.4530,28.3460) -- (26.4530,5.1580) -- (20.6290,5.1580) -- (20.6290,28.3110)
+%      -- (-0.0000,28.3110) -- (-0.0000,23.2950) -- (4.8090,23.2950) -- cycle;
+%\end{scope}
+%\end{tikzpicture}}}}}
+
+
+
+\begin{frame}
+\frametitle{Project Topic}
+
+%\begin{columns}
+%\begin{column}{0.48\textwidth}
+\begin{itemize}
+\item 3D Navier Stokes for arbitrary geometries
+\item possible extention: Free surface flows
+\end{itemize}
+\includegraphics[height = 0.40\textheight]{pipeinflow.png}
+ 
+%\end{column}
+%\begin{column}{0.48\textwidth}
+%\includegraphics[height = 0.45\textheight]{simpleCavity.png}
+%\end{column}
+%\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Project Topic}
+\framesubtitle{3D Navier Stokes for arbitrary geometries}
+
+\begin{itemize}
+\item truly arbitrary scenarios, any of the following b.c. can be employed in any domain cell:
+\begin{itemize}
+\item no slip
+\item free slip
+\item inflow
+\item outflow
+\item moving wall
+\end{itemize}
+\item $\Rightarrow$ the obstacles inside the domain have arbitrary boundaries
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation}
+\framesubtitle{3D Navier Stokes for arbitrary geometries}
+\begin{columns}
+\begin{column}{0.48\textwidth}
+\begin{itemize}
+\item Special numbering of cells when generating input pgm files,
+\item geometries represented by a grayscale image with 7 levels of brightness.
+\end{itemize} 
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{table}[ht!]
+\flushleft
+\label{tab1}
+\begin{tabular}{|l|c|}
+\hline
+{\bf Cell type} & {\bf Number code}\\
+\hline
+water & 0 \\
+air & 1 \\
+no-slip & 2 \\
+free-slip & 3 \\
+inflow & 4 \\
+outflow & 5 \\
+moving wall & 6 \\
+\hline
+\end{tabular}
+\end{table}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation}
+\framesubtitle{Extending the flag field}
+%\begin{columns}
+%\begin{column}{0.46\textwidth}
+\begin{itemize}
+\item 4bits for center cell
+\item 2bits for every neighbour
+\item altogether 16 bits
+\end{itemize}
+%\end{column}
+%\begin{column}{0.46\textwidth}
+\begin{table}[hb!]
+\label{tab4}
+\centering
+\begin{tabular}{|c||c|c|c|c|c|c|}
+\hline
+center & east & west & north & south & bottom & top \\ 
+4bits & 2bits & 2bits & 2bits & 2bits & 2bits & 2bits\\
+\hline
+\end{tabular}
+\end{table} 
+%\end{column}
+%\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Implementation}
+\framesubtitle{Input: Lid Driven Cavity example}
+\begin{columns}
+\begin{column}{0.33\textwidth}
+\begin{center}
+\includegraphics[height=5.2cm]{coord.jpg}
+\end{center}
+\end{column}
+\begin{column}{0.33\textwidth}
+\begin{center}
+\includegraphics[height=5.2cm]{cavity.png}
+\end{center}
+\end{column}
+\begin{column}{0.33\textwidth}
+\begin{center}
+\includegraphics[height=5cm]{cavity20202.jpg}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Implementation}
+\framesubtitle{Particle Tracking}
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{itemize}
+\item implemented adding and advancing of particles
+\item surface boundary conditions still under development
+\item multiple particle sets possible 
+\end{itemize}
+\end{column}
+\begin{column}{0.45\textwidth}
+\includegraphics[width = 0.95\textwidth]{interpol.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+%\begin{frame}
+%\frametitle{Implementation}
+%\framesubtitle{Theory}
+%\scriptsize
+
+%\begin{table}[ht!]
+%\flushleft
+%\begin{tabular}{r|ccccc}
+% & \bf Palabos & \bf OpenLB & \bf LBSim & \bf SailFish & \bf LB3D \\ \toprule
+%\bf Language &C++ (Java, Python) & C++ & C++ &Python &Fortran90 \\
+%\bf Visualiz.&ASCII, gif& vtk & OpenGL &numpy, vtk& XDR \\ \bottomrule
+%\end{tabular}
+%\end{table}
+
+%\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+\begin{columns}
+\begin{column}{0.30\textwidth}
+Flow over step
+\begin{itemize}
+\item Streamlines
+\end{itemize}
+\end{column}
+\begin{column}{0.70\textwidth}
+%\flushright
+\includegraphics[height=4.5cm]{flowoverstep.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+\begin{columns}
+\begin{column}{0.33\textwidth}
+Flow over step
+\begin{itemize}
+\item Particle paths
+\end{itemize}
+\end{column}
+\begin{column}{0.66\textwidth}
+\includegraphics[height=5.5cm]{Step-Particles.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results}
+%\begin{columns}
+%\begin{column}{0.35\textwidth}
+Inflow through a pipe
+%\begin{itemize}
+%\item Geometry
+%\item Streamlines
+%\end{itemize}
+%\end{column}
+%\begin{column}{0.65\textwidth}
+%\flushright
+
+%\includegraphics[height=2.6cm]{pipeinflow.png}\\
+\begin{center}
+\includegraphics[height=5.2cm]{singlePipe.png}
+\end{center}
+%\end{column}
+%\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+\begin{columns}
+\begin{column}{0.30\textwidth}
+\begin{itemize}
+\item Inflow through part of wall
+\item Outflow through pipe
+\end{itemize}
+
+\end{column}
+\begin{column}{0.70\textwidth}
+\includegraphics[height=5.2cm]{Pipe.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+%\framesubtitle{Flow across TUM :)}
+\begin{columns}
+\begin{column}{0.33\textwidth}
+Flow across TUM :)
+\begin{itemize}
+\item Streamlines
+\end{itemize}
+\end{column}
+\begin{column}{0.66\textwidth}
+\includegraphics[height=5.5cm]{TUMFlow.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+\begin{columns}
+\begin{column}{0.33\textwidth}
+Flow across TUM :)
+\begin{itemize}
+\item Particle paths
+\end{itemize}
+\end{column}
+\begin{column}{0.66\textwidth}
+\includegraphics[height=5.8cm]{TUM-Particles.png}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Results}
+A 'Bavarian' example: Later Today...
+\begin{center}
+\includegraphics[height=5cm]{beerflow3-withoutglass.png}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Results}
+A 'Bavarian' example: Later Today...
+\begin{center}
+\includegraphics[height=5cm]{beerflow2.png}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conclusion and Further Development}
+\begin{itemize}
+\item Finish Free Surface flow
+\item add Thermal flow
+\item Parallelization
+\end{itemize}
+\end{frame}
+
+\end{document}
