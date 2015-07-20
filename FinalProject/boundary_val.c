@@ -66,11 +66,17 @@ void boundaryvalues_no_slip(
 
 		case B_NO:
 			U[i  ][j  ][k  ] = 0.0;
-			U[i-1][j  ][k  ] = -U[i-1][j+1][k  ];
 			V[i  ][j  ][k  ] = 0.0;
-			V[i  ][j-1][k  ] =  -V[i+1][j-1][k  ];
+
+			U[i-1][j  ][k  ] = -U[i-1][j+1][k  ];
+			V[i  ][j-1][k  ] = -V[i+1][j-1][k  ];
 			W[i  ][j  ][k  ] = -(W[i  ][j+1][k  ] + W[i+1][j  ][k  ]) * 0.5;
 			W[i  ][j  ][k-1] = -(W[i  ][j+1][k-1] + W[i+1][j  ][k-1]) * 0.5;
+
+			U[i][j]      = 0;
+			V[i][j]      = 0;
+
+
 			break;
 		case B_NW:
 			U[i-1][j  ][k  ] = 0.0;
@@ -1055,33 +1061,39 @@ void boundaryvalues(
 	for (i=0; i<imax+2; i++) {
 		for (j=0; j<jmax+2; j++){
 			for (k=0; k<kmax+2; k++){
-				switch (getcelltype(Flag[i  ][j  ][k  ])) {
-				case NO_SLIP:
-					boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
-					/*printf("noslip\t");*/
-					break;
-				case FREE_SLIP:
-					boundaryvalues_free_slip(i, j, k, U, V, W, Flag);
-					/*printf("free slip\t");*/
-					break;
-				case INFLOW:
-					boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
-					boundaryvalues_inflow(i, j, k, U, V, W, Flag, velIN);
-					/*printf("inflow\t");*/
-					break;
-				case OUTFLOW:
-					boundaryvalues_outflow(i, j, k, U, V, W, Flag);
-					/*printf("outflow\n");*/
-					break;
-				case MOVING_WALL:
-					boundaryvalues_moving_wall(i, j, k, U, V, W, Flag, velMW);
-					/*printf("movingwall\t");*/
-					break;
-				default: //if we get to here, our cell is air or water. (temp>6) Maybe need to add something here when we do free surfaces.
 
-					break;
-				}
+				//	printf("%d,%d,%d - %d (%d)     ",i,j,k,Flag[i  ][j  ][k  ],getcelltype(Flag[i  ][j  ][k  ]));
+					switch (getcelltype(Flag[i  ][j  ][k  ])) {
+					case NO_SLIP:
+						boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
+						/*printf("noslip\t");*/
+						break;
+					case FREE_SLIP:
+						boundaryvalues_free_slip(i, j, k, U, V, W, Flag);
+						/*printf("free slip\t");*/
+						break;
+					case INFLOW:
+						boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
+						boundaryvalues_inflow(i, j, k, U, V, W, Flag, velIN);
+						/*printf("inflow\t");*/
+						break;
+					case OUTFLOW:
+						boundaryvalues_outflow(i, j, k, U, V, W, Flag);
+						/*printf("outflow\n");*/
+						break;
+					case MOVING_WALL:
+						boundaryvalues_moving_wall(i, j, k, U, V, W, Flag, velMW);
+						/*printf("movingwall\t");*/
+						break;
+					default: //if we get to here, our cell is air or water. (temp>6) Maybe need to add something here when we do free surfaces.
+
+						break;
+					}
+
 			}
+			//printf("\n");
 		}
+		//printf("\n");
 	}
+	//printf("ok\n");
 }

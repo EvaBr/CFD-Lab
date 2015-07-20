@@ -103,7 +103,7 @@ void   changebit(int* number,int pos, int bit);
 int    interior (int flag);
 int    getcelltype(int flag);
 void   setcelltype(int*flag,int type);
-int getsurfacetype (int flag,int *nx,int*ny, int*nz,int *mx,int*my, int*mz,int*num);
+int    getsurfacetype (int flag,int *ui,int *vi,int *wi,int *nx,int*ny, int*nz,int *xdb,int*ydb, int*zdb,int*num);
 
 void write_flag_imatrix( const char* szDebug,       /* filename */
 		int	timeStepNumber,

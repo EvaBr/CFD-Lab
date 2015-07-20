@@ -90,16 +90,7 @@ int read_parameters(
 );
 
 
-void init_particles(
-		int ***Flag,
-		double dx,
-		double dy,
-		double dz,
-		int imax,
-		int jmax,
-		int kmax,
-		int ppc,
-		struct particleline *Partlines);
+void init_particles(int ***Flag,double dx,double dy,double dz,int imax,int jmax,int kmax,int ppc,struct particleline *Partlines,char * problem);
 
 
 

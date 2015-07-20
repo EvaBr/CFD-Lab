@@ -6,36 +6,205 @@
 /* ----------------------------------------------------------------------- */
 /*                             auxiliary functions                         */
 /* ----------------------------------------------------------------------- */
-int min( int a, int b)
+
+
+
+inline int createflag(int** Pic,int i,int j,int k,int imax,int jmax,int kmax){
+	int temp, temp2;
+	const int tarr[] = {1, 2, 0, 3, 4, 7, 8};
+	temp = tarr[Pic[i][j + k*(jmax+2)]]*pow2(2, 12) + min(Pic[i+1][j + k*(jmax+2)]+1, 3)*pow2(2, 10) + min(Pic[i-1][j + k*(jmax+2)]+1, 3)*pow2(2, 8) +   min(Pic[i][j + k*(jmax+2)-1]+1, 3)*pow2(2, 6) +  min(Pic[i][j + k*(jmax+2) + 1]+1, 3)*pow2(2, 4) + min(Pic[i][j + (k-1)*(jmax+2)]+1, 3)*4 + min(Pic[i][j + (k+1)*(jmax+2)]+1, 3);   //use min() bcs obstacle neighbours will have numbrs 3-6 in the pic, but they should be flagged with (11)_2 = 3 in the flag field.
+	//check for forbidden cells:
+	//if ( ((temp > pow(2, 12)*3) || (temp < pow(2, 12))) /*so it is bound.*/ & (E,W water / N,S water / D,U water) ) { error }
+	if (Pic[i][j + k*(jmax+2)]>1 && (min(Pic[i][j+k*(jmax+2)+1]+Pic[i][j+k*(jmax+2)-1], Pic[i-1][j+ k*(jmax+2)]+Pic[i+1][j+ k*(jmax+2)])==0  || !(Pic[i][j+(k-1)*(jmax+2)]+Pic[i][j+(k+1)*(jmax+2)])))  {
+		ERROR("Invalid geometry! Forbidden boundary cell found.\n");
+	}
+	temp2 = getboundarytype(temp)%16;
+	if (( ((temp>>12)&15) == 8 ) && (temp2==5 || temp2==6 || temp2==9 || temp2==10)){ //tryin to set moving wall for a B_??? cell. not allowed!
+		ERROR("Invalid geometry! Forbidden boundary cell found.\n");
+	}
+	return temp;
+}
+
+
+
+inline int getboundarytype (int flag){
+	//flag = flag;
+	//int flags = Flag[i][j][k];
+	//int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
+	int flags = (~(2730&flag))&getwallbit(0); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
+	flags = ((flags&2) >> 1) + ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
+	//TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
+	//e.g.:
+	//flags = ((getwallbit(0)/3) & flags); // & (01|01|01|01|01|01) - check where is air, and get just the important bits (00 where air, 01 where b or water)
+
+	//flags = flags&getwallbit(isboundary);  //add the cond. of being a boundarycell
+	return flags;
+}
+
+inline int getsurfacetype (int flag,int *nx,int*ny, int*nz,int *mx,int*my, int*mz,int*num){
+	int type = 0;
+	*nx = 0;
+	*ny = 0;
+	*nz = 0;
+	*mx = 0;
+	*my = 0;
+	*mz = 0;
+	if(issurface(flag)){
+		if(getbit(flag,0)==0 && getbit(flag,1)==1){
+			*nx = 1;
+			*my = 1;
+			type|= B_O;
+		}
+		else if(getbit(flag,2)==0 && getbit(flag,3)==1){
+			*nx = -1;
+			*ny = -1;
+			type|= B_W;
+		}
+		if(getbit(flag,4)==0 && getbit(flag,5)==1){
+			*ny = 1;
+			*my = 1;
+			type|= B_N;
+		}
+		else if(getbit(flag,6)==0 && getbit(flag,7)==1){
+			*ny = -1;
+			*my = -1;
+			type|= B_S;
+		}
+		if(getbit(flag,8)==0 && getbit(flag,9)==1){
+			*nz = 1;
+			*my = 1;
+			type|= B_D;
+		}
+		else if(getbit(flag,10)==0 && getbit(flag,11)==1){
+			*nz = -1;
+			*my = -1;
+			type|= B_U;
+		}
+	}
+	return type;
+}
+
+
+inline int isfluid(int flag) {
+	if(isboundary(flag)==0){
+		int ret = pow(2, 12);
+		return ( (flag & (3*ret)) == ret );
+	}
+	return 0;
+}
+
+
+inline int isboundary(int flag) {
+	return (flag > pow2(2, 12)*3) || (flag < pow2(2, 12));
+}
+
+
+inline int isempty(int flag) {
+	return !isfluid(flag) && !isboundary(flag);
+}
+
+
+inline void setcelltype(int*flag,int type){
+	if(type == FLUID){
+		*flag = *flag&(~C_FLUID_2);
+		*flag = *flag|C_FLUID_1;
+	}
+	else if(type==AIR){
+		*flag = *flag&(~C_AIR_2);
+		*flag = *flag|C_AIR_1;
+	}
+}
+
+inline int getcelltype(int flag){
+	int temp = flag >> 12;
+	return (temp >> 2)*2 + temp%2 + ((temp&1)!=((temp>>1)&1))*5 + 2;
+}
+
+inline int emptyneighbor(int flag){
+	flag = (~flag)&B_ALL;
+	if ((flag&1365) != 0){
+		return 1;
+	}
+	return 0;
+}
+
+
+inline int issurface(int flag){
+	if(isfluid(flag)){
+		return  emptyneighbor(flag);
+	}
+	return 0;
+}
+
+
+inline void setbit(int *number,int pos){
+	*number |= 1 << pos;
+}
+
+inline void clearbit(int *number,int pos){
+	*number &= ~(1 << pos);
+}
+
+inline void changebit(int* number,int pos, int bit){
+	*number ^= (-bit ^ *number) & (1 << pos);
+}
+
+
+inline int getbit(int number,int pos){
+	return (number >> pos) & 1;
+}
+
+
+
+/*helper function for getting the right bit represent. of edges.*/
+inline int getwallbit (int wall) {
+	const int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
+	return (tarr[wall]*pow2(2, 12)+3*(pow2(2,10)+pow2(2,8)+pow2(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
+}
+
+inline int interior (int flag) {
+	//int big = Flag[i][j][k];
+	int big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
+	int gb = getwallbit(0);
+	return (big && ((flag&gb)==gb)); //check also all neighb. are b
+}
+
+
+
+
+
+
+
+inline int min( int a, int b)
 {
 	if( a < b ) return a;
 	return b;
 }
 
-int max( int a, int b)
+inline int max( int a, int b)
 {
 	if( a > b ) return a;
 	return b;
 }
 
-double fmin( double a, double b)
+inline double fmin( double a, double b)
 {
 	if( a < b ) return a;
 	return b;
 }
 
-double fmax( double a, double b)
+inline double fmax( double a, double b)
 {
 	if( a > b ) return a;
 	return b;
 }
 
-int pow2 (int en, int dva) {
+inline int pow2 (int en, int dva) {
 	int ret = pow(en, dva);
 	return ret;
 }
 
-double mmax( double **U, int imax, int jmax)
+inline double mmax( double **U, int imax, int jmax)
 {
 	double maxij = 0;
 	for( int i=0; i<=imax+1; i++){
@@ -49,23 +218,6 @@ double mmax( double **U, int imax, int jmax)
 }
 
 
-int isfluid(int flag) {
-	int ret = pow(2, 12);
-	return ( (flag & (3*ret)) == ret );
-}
-
-/*helper function for getting the right bit represent. of edges.*/
-int getbit (int wall) {
-	int tarr[] = {0, 2, 0, 3, 4, 7, 8};  //first two should never be used; we set the first one to 0 for convenience when only pow(..) need to be computed
-	return (tarr[wall]*pow2(2, 12)+3*(pow2(2,10)+pow2(2,8)+pow2(2,6)+16+4+1)); //this represents a cell that has obstacles all round, and is itself obstacle of sort 'wall'
-}
-
-int interior (int flag) {
-	//int big = Flag[i][j][k];
-	int big = (flag > pow2(2, 12)*3) || (flag < pow2(2, 12)); //check the cell itself is b
-	int gb = getbit(0);
-	return (big && ((flag&gb)==gb)); //check also all neighb. are b
-}
 
 double tmax( double ***U, int imax, int jmax, int kmax) //added function for getting max of a tensor
 {
@@ -83,18 +235,7 @@ double tmax( double ***U, int imax, int jmax, int kmax) //added function for get
 }
 
 
-int getcelltype (int flag){
-	//int flags = Flag[i][j][k];
-	//int isboundary = (flags > pow(2, 12)*3) || (flags < pow(2, 10));//check if this is really boundary cell <- for now, this is assumed true.
-	int flags = (~(2730&flag))&getbit(0); // & (10|10|10|10|10|10) - check where is water, and get just the important bits (00 where water, 10 where b or air)
-	flags = ((flags&2) >> 1) + ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
-	//TODO: when doing free surfaces, this might need to be extended for the cases of water/air cells, not just boundary cells. for now, we dont even need check for it being a boundary cell. (well do this in a loop in boundary.c)
-	//e.g.:
-	//flags = ((getbit(0)/3) & flags); // & (01|01|01|01|01|01) - check where is air, and get just the important bits (00 where air, 01 where b or water)
 
-	//flags = flags&getbit(isboundary);  //add the cond. of being a boundarycell
-	return flags;
-}
 
 
 
@@ -302,8 +443,14 @@ void write_matrix2( const char* szDebug,       /* filename */
 
 
 	char szFileName[80];
-
-	sprintf( szFileName, "debug/d%i_%s", timeStepNumber,szDebug );
+	if(timeStepNumber<1000){
+		sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/d%i_%s", timeStepNumber,szDebug );
+	}
+	else
+	{
+		timeStepNumber = timeStepNumber-1000;
+		sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/P/d%i_%s", timeStepNumber,szDebug );
+	}
 
 
 	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
@@ -580,6 +727,110 @@ int **imatrix( int nrl, int nrh, int ncl, int nch )
 	/* return the value corrected by the beginning of a line */
 	return pArray - nrl;
 }
+
+void write_flag_imatrix( const char* szDebug,       /* filename */
+		int	timeStepNumber,
+		int ***m,		       /* matrix */
+		int nrl, int nrh, int ncl, int nch, int nll, int nlh)
+{
+	int i, j,k;
+	FILE * fh = 0;
+
+
+	char szFileName[80];
+
+	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/d%i_%s", timeStepNumber,szDebug );
+
+
+	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
+	if( fh == NULL )			/* opening failed ? */
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
+		ERROR( szBuff );
+	}
+
+	/*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
+
+	for( k = nll; k <= nlh; k++){
+		for( j = ncl; j <= nch; j++){
+			for( i = nrl; i <= nrh; i++){
+				//fprintf( fh, "%d ",getcelltype( m[i][j][k]) );
+				if(!isfluid(m[i][j][k])){
+					fprintf( fh, "%d ",getboundarytype( m[i][j][k]) );
+				}
+				else{
+					fprintf( fh, "F " );
+				}
+			}
+			fprintf( fh, "\n" );
+		}
+		fprintf( fh, "-----------------------------------------------------------\n" );
+	}
+
+	if( fclose(fh) )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
+		ERROR( szBuff );
+	};
+
+}
+
+
+
+
+
+
+
+
+
+
+void write_imatrix2( const char* szDebug,       /* filename */
+		int	timeStepNumber,
+		int ***m,		       /* matrix */
+		int nrl, int nrh, int ncl, int nch, int nll, int nlh)
+{
+	int i, j,k;
+	FILE * fh = 0;
+
+
+	char szFileName[80];
+
+	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/d%i_%s", timeStepNumber,szDebug );
+
+
+	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
+	if( fh == NULL )			/* opening failed ? */
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be created", szFileName );
+		ERROR( szBuff );
+	}
+
+	/*       fprintf( fh,"%f\n%f\n%d\n%d\n%d\n%d\n", xlength, ylength, nrl, nrh, ncl, nch ); */
+
+	for( k = nll; k <= nlh; k++){
+		for( j = ncl; j <= nch; j++){
+			for( i = nrl; i <= nrh; i++){
+				fprintf( fh, "%d ", m[i][j][k] );
+			}
+			fprintf( fh, "\n" );
+		}
+		fprintf( fh, "-----------------------------------------------------------\n" );
+	}
+
+	if( fclose(fh) )
+	{
+		char szBuff[80];
+		sprintf( szBuff, "Outputfile %s cannot be closed", szFileName );
+		ERROR( szBuff );
+	};
+
+}
+
+
+
 
 
 void free_imatrix2( int ***m, int nrl, int nrh, int ncl, int nch, int nll, int nlh ){

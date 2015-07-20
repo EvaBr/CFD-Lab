@@ -1,8 +1,33 @@
 #include "helper.h"
 #include <math.h>
+#include <pthread.h>
 
 #define fluid 4096 //pow2(2,12);
 #define air 8192
+
+
+struct fgh_params{
+	double Re;
+	double GX;
+	double GY;
+	double GZ;
+	double alpha;
+	double dt;
+	double dx;
+	double dy;
+	double dz;
+	int imax;
+	int jmax;
+	int kmax;
+	double ***U;
+	double ***V;
+	double ***W;
+	double ***F;
+	double ***G;
+	double ***H;
+	int ***Flag;
+};
+
 
 
 void calculate_fgh(
@@ -30,8 +55,12 @@ void calculate_fgh(
 	double Dx = 1/dx, Dy = 1/dy, Dz = 1/dz;
 	double ReInv = 1.0/Re;
 	int i, j, k, fgg;
+
+
 	for (i=1; i<imax+1; i++){
+
 		for  (j=1; j<jmax+1; j++){
+
 			for  (k=1; k<kmax+1; k++){
 				if(isfluid(Flag[i][j][k])){
 					//printf("cell %d, %d, %d is fluid.\n", i, j, k);
@@ -45,6 +74,7 @@ void calculate_fgh(
 					uduk = U[i-1][j+1][k]; udju = U[i-1][j][k+1];
 					vudk = V[i+1][j-1][k]; vidu = V[i][j-1][k+1];
 					wiud = W[i][j+1][k-1]; wujd = W[i+1][j][k-1];
+
 					if (isfluid(Flag[i+1][j][k])){ // add this to ensure calculation is only on edges separating two fluid cells.
 						F[i][j][k] = uijk + dt*(ReInv*((uujk-2*uijk+udjk)*Dx*Dx + (uiuk-2*uijk+uidk)*Dy*Dy + (uiju-2*uijk+uijd)*Dz*Dz) -
 								0.25*Dx*(pow((uijk+uujk),2)-pow((udjk+uijk),2) + alpha*(fabs(uijk+uujk)*(uijk-uujk)-fabs(udjk+uijk)*(udjk-uijk))) -
@@ -59,6 +89,8 @@ void calculate_fgh(
 								0.25*Dz*((wijk+wiuk)*(vijk+viju)-(wijd+wiud)*(vijd+vijk) + alpha*(fabs(wijk+wiuk)*(vijk-viju)-fabs(wijd+wiud)*(vijd-vijk))) +
 								GY);
 					}
+
+
 					if (isfluid(Flag[i][j][k+1])){
 						H[i][j][k] = wijk + dt*(ReInv*((wujk-2*wijk+wdjk)*Dx*Dx + (wiuk-2*wijk+widk)*Dy*Dy + (wiju-2*wijk+wijd)*Dz*Dz) -
 								0.25*Dz*(pow((wijk+wiju),2)-pow((wijd+wijk),2) + alpha*(fabs(wijk+wiju)*(wijk-wiju)-fabs(wijd+wijk)*(wijd-wijk))) -
@@ -66,25 +98,27 @@ void calculate_fgh(
 								0.25*Dy*((vijk+viju)*(wijk+wiuk)-(vidk+vidu)*(widk+wijk) + alpha*(fabs(vijk+viju)*(wijk-wiuk)-fabs(vidk+vidu)*(widk-wijk))) +
 								GZ);
 					}
+
 				}
 				else {
+
 					//we have a boundary cell; rewrite with right boundary cond., depending on type of cell
 					//printf("cell %d, %d, %d is boundary: \t", i, j, k);
 					fgg = getboundarytype(Flag[i][j][k]);      //if no neighbours are fluid, we do nothing. thats ok, right? bcs we never need those values?
 					if (fgg%4==1){ //U neighb. is fluid
-						H[i][j][k] = W[i][j][k]; break;
+						H[i][j][k] = W[i][j][k];
 					} else if (fgg%4==2){  //D neighb. is fluid
-						H[i][j][k-1] = W[i][j][k-1]; break;
+						H[i][j][k-1] = W[i][j][k-1];
 					}
 					if (fgg>31){ // O neigh. is fluid
-						F[i][j][k] = U[i][j][k]; break;
+						F[i][j][k] = U[i][j][k];
 					} else if (fgg>15) { // W neighb. is fluid
-						F[i-1][j][k] = U[i-1][j][k]; break;
+						F[i-1][j][k] = U[i-1][j][k];
 					}
 					if ( (fgg%16+1)/3==3 ) { //N neigh. is fluid
-						G[i][j][k] = V[i][j][k]; break;
+						G[i][j][k] = V[i][j][k];
 					} else if ( (fgg%16+2)/3==2 ) { //S neigh. is fluid
-						G[i][j-1][k] = V[i][j-1][k]; break;
+						G[i][j-1][k] = V[i][j-1][k];
 					}
 				}
 			}
@@ -102,6 +136,7 @@ void calculate_fgh(
 			F[imax][j][k] = U[imax][j][k];
 		}
 	}
+
 }
 
 void calculate_rs(
@@ -123,15 +158,15 @@ void calculate_rs(
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax+1; j++){
 			for(k=1; k<kmax+1; k++){
-				if(!emptyneighbor(Flag[i][j][k])){
-					if(isfluid(Flag[i][j][k]) && !emptyneighbor(Flag[i][j][k])){
-						RS[i][j][k] = (
-								(F[i][j][k] - F[i-1][j][k])/dx
-								+ (G[i][j][k] - G[i][j-1][k])/dy
-								+ (H[i][j][k] - H[i][j][k-1])/dz
-						) / dt;
-					}
+				//if(!emptyneighbor(Flag[i][j][k])){
+				if(isfluid(Flag[i][j][k])){
+					RS[i][j][k] = (
+							(F[i][j][k] - F[i-1][j][k])/dx
+							+ (G[i][j][k] - G[i][j-1][k])/dy
+							+ (H[i][j][k] - H[i][j][k-1])/dz
+					) / dt;
 				}
+				//}
 			}
 		}
 	}

@@ -41,46 +41,79 @@ inline int getboundarytype (int flag){
 	return flags;
 }
 
-inline int getsurfacetype (int flag,int *nx,int*ny, int*nz,int *mx,int*my, int*mz,int*num){
+inline int getsurfacetype (int flag,int *ui,int *vi,int *wi,int *nx,int*ny, int*nz,int *xdb,int*ydb, int*zdb,int*num){
+	                     //Flag        ,&ui,    &vi,    &wi,    &nx,   &ny,    &nz,    &mx,   &my,    &mz,   &num
 	int type = 0;
 	*nx = 0;
 	*ny = 0;
 	*nz = 0;
-	*mx = 0;
-	*my = 0;
-	*mz = 0;
+	*ui = 0;
+	*vi = 0;
+	*wi = 0;
+
+	*num = 0;
+
 	if(issurface(flag)){
-		if(getbit(flag,0)==0 && getbit(flag,1)==1){
+		if(getbit(flag,10)==0 && getbit(flag,11)==1){
+			*ui = 1;
 			*nx = 1;
-			*my = 1;
+
 			type|= B_O;
+			*num=*num+1;
 		}
-		else if(getbit(flag,2)==0 && getbit(flag,3)==1){
-			*nx = -1;
-			*ny = -1;
+	    if(getbit(flag,8)==0 && getbit(flag,9)==1){
+			*ui =  0;
+			if(*nx == 0)
+			   *nx = -1;
+			else{
+				*xdb = 1;
+				*nx = 0;
+			}
+
 			type|= B_W;
+			*num=*num+1;
+		}
+
+		if(getbit(flag,6)==0 && getbit(flag,7)==1){
+			*vi = 1;
+			*ny = 1;
+
+			type|= B_N;
+			*num=*num+1;
 		}
 		if(getbit(flag,4)==0 && getbit(flag,5)==1){
-			*ny = 1;
-			*my = 1;
-			type|= B_N;
-		}
-		else if(getbit(flag,6)==0 && getbit(flag,7)==1){
-			*ny = -1;
-			*my = -1;
+			*vi =  0;
+
+			if(*ny==0)
+				*ny = -1;
+			else{
+				*ydb = 1;
+				*ny = 0;
+			}
+
 			type|= B_S;
+			*num=*num+1;
 		}
-		if(getbit(flag,8)==0 && getbit(flag,9)==1){
+		if(getbit(flag,0)==0 && getbit(flag,1)==1){ /*todo ok? */
+			*wi = 1;
 			*nz = 1;
-			*my = 1;
-			type|= B_D;
-		}
-		else if(getbit(flag,10)==0 && getbit(flag,11)==1){
-			*nz = -1;
-			*my = -1;
 			type|= B_U;
+			*num=*num+1;
+		}
+		if(getbit(flag,2)==0 && getbit(flag,3)==1){
+			*wi =  0;
+			if(*nz==0)
+				*nz = -1;
+			else{
+				*zdb = 1;
+				*nz = 0;
+			};
+
+			type|= B_D;
+			*num=*num+1;
 		}
 	}
+
 	return type;
 }
 
@@ -153,6 +186,8 @@ inline void changebit(int* number,int pos, int bit){
 inline int getbit(int number,int pos){
 	return (number >> pos) & 1;
 }
+
+
 
 
 

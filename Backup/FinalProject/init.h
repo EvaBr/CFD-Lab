@@ -1,6 +1,11 @@
 #ifndef __INIT_H_
 #define __INIT_H_
 
+
+
+
+#include "surface.h"
+
 /**
  * This operation initializes all the local variables reading a configuration
  * file. For every variable a macro like READ_INT() is called passing it the
@@ -44,79 +49,93 @@
  * @param problem    problem to solve
  */
 int read_parameters(
-  const char *szFileName,
-  double *Re,
-  double *UI,
-  double *VI,
-  double *WI,
-  double *PI,
-  double *GX,
-  double *GY,
-  double *GZ,
-  double *t_end,
-  double *xlength,
-  double *ylength,
-  double *zlength,
-  double *dt,
-  double *dx,
-  double *dy,
-  double *dz,
-  int  *imax,
-  int  *jmax,
-  int  *kmax,
-  double *alpha,
-  double *omg,
-  double *tau,
-  int  *itermax,
-  double *eps,
-  double *dt_value,
-  int *wl,
-  int *wr,
-  int *wf,
-  int *wh,
-  int *wt,
-  int *wb,
-  char *problem,
-  /*double *presLeft,
+		const char *szFileName,
+		double *Re,
+		double *UI,
+		double *VI,
+		double *WI,
+		double *PI,
+		double *GX,
+		double *GY,
+		double *GZ,
+		double *t_end,
+		double *xlength,
+		double *ylength,
+		double *zlength,
+		double *dt,
+		double *dx,
+		double *dy,
+		double *dz,
+		int  *imax,
+		int  *jmax,
+		int  *kmax,
+		double *alpha,
+		double *omg,
+		double *tau,
+		int  *itermax,
+		double *eps,
+		double *dt_value,
+		int *wl,
+		int *wr,
+		int *wf,
+		int *wh,
+		int *wt,
+		int *wb,
+		char *problem,
+		/*double *presLeft,
   double *presRight,
   double *presDelta,*/
-  double *velIN,
-  double *velMW
+		double *velIN,
+		double *velMW
 );
 
+
+void init_particles(
+		int ***Flag,
+		double dx,
+		double dy,
+		double dz,
+		int imax,
+		int jmax,
+		int kmax,
+		int ppc,
+		struct particleline *Partlines);
+
+
+
 /**
- * The arrays U,V and P are initialized to the constant values UI, VI and PI on
+ * The arrays U,V,W and P are initialized to the constant values UI, VI and PI on
  * the whole domain.
  */
 void init_uvwp(
-  double UI,
-  double VI,
-  double WI,
-  double PI,
-  int ***Flag,
-  int imax,
-  int jmax,
-  int kmax,
-  double ***U,
-  double ***V,
-  double ***W,
-  double ***P,
-  char * problem
+		double UI,
+		double VI,
+		double WI,
+		double PI,
+		int ***Flag,
+		int imax,
+		int jmax,
+		int kmax,
+		double ***U,
+		double ***V,
+		double ***W,
+		double ***P,
+		char * problem
 );
 
 void init_flag(
-  char *problem,
-  int imax,
-  int jmax,
-  int kmax,
-//  double presDelta,
-  int ***Flag,
-  int wl,
-  int wr,
-  int wf,
-  int wh,
-  int wt,
-  int wb
+		char *problem,
+		int imax,
+		int jmax,
+		int kmax,
+		//  double presDelta,
+		int ***Flag,
+		int wl,
+		int wr,
+		int wf,
+		int wh,
+		int wt,
+		int wb
 );
 
 #endif

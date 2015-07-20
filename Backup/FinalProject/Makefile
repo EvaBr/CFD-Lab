@@ -8,7 +8,8 @@ OBJ = 	helper.o\
       	uvp.o\
       	main.o\
       	visual.o\
-				sor.o\
+		sor.o\
+		surface.o\
 
 
 all:  $(OBJ)
@@ -21,10 +22,11 @@ clean:
 	rm $(OBJ)
 
 helper.o      : helper.h
-init.o        : helper.h init.h
+init.o        : helper.h init.h surface.h
 boundary_val.o: helper.h boundary_val.h
 uvp.o         : helper.h uvp.h
-visual.o      : helper.h
-sor.o	      	: sor.h
+visual.o      : helper.h surface.h
+sor.o	      : sor.h
+surface.o     : surface.h 
 
-main.o        : helper.h init.h boundary_val.h uvp.h visual.h sor.h
+main.o        : helper.h init.h boundary_val.h uvp.h visual.h sor.h surface.h
