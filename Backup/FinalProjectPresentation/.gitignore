@@ -1,0 +1,41 @@
+#object files:
+*.o
+
+#exec.
+*.out
+
+#latex stuff
+*.aux
+*.log
+*.synctex.gz
+/results/*.aux
+/results/*.log
+/results/*.synctex.gz
+/results/*.bbl
+/results/*.blg
+/Presentation/*.snm
+/Presentation/*.toc
+/Presentation/*.out
+/Presentation/*.nav
+/Presentation/*.aux
+/Presentation/*.log
+
+
+#builded simulation:
+sim
+
+#vtk:
+*.vtk
+
+#directory of pics
+simulation*
+ 
+#submitted version
+group9_submit*
+/.cproject
+/.project
+
+
+#files for running simulation, copied from the folder scenarios
+parameters_*
+*.pgm

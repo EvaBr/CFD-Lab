@@ -3,6 +3,15 @@
 #include <math.h>
 #include "boundary_val.h"
 
+#define DROP_CUBE 1
+#define DROP_SPHERE_1 2
+#define DROP_SPHERE_2 3
+
+
+#define DROP_TYPE DROP_SPHERE_1
+
+#define DROP_RADIUS 6
+#define DROP_WATER_HEIGHT 10
 
 
 int read_parameters( const char *szFileName,       /* name of the file */
@@ -132,23 +141,65 @@ int read_parameters( const char *szFileName,       /* name of the file */
  */
 
 
+void init_particles(int ***Flag,double dx,double dy,double dz,int imax,int jmax,int kmax,int ppc,struct particleline *Partlines,char * problem){
+	int i,j,k;
+	int pi = 0;
+	double xd,yd,zd;
+	Partlines[pi].length = 0;
+	Partlines[pi].Particles = create_particle(-1,-1,-1);
+	int ic,jc,kc;
 
+	if(strcmp (problem,"drop.pgm")==0 && DROP_TYPE == DROP_SPHERE_1){
+		double x,y,z;
+		double mx = imax*0.5;
+		double my = jmax*0.5+DROP_RADIUS-4;
+		double mz = kmax*0.5;
+		for(i = 1; i < imax+1; i++) {
+			for(k = 1; k < kmax+1; k++) {
+				for(j = 1; j < jmax+1; j++) {
+					for (ic=1;ic<=ppc;ic++){
+						x = (i-1)*dx+(ic-0.5)/((double)ppc)*dx;
+						for (jc=1;jc<=ppc;jc++)
+						{
+							y = (j-1)*dy+(jc-0.5)/((double)ppc)*dy;
+							for (kc=1;kc<=ppc;kc++)
+							{
+								z = (k-1)*dz+(kc-0.5)/((double)ppc)*dz;
+								xd = fabs(x/dx-mx);
+								yd = fabs(y/dy-my);
+								zd = fabs(z/dz-mz);
+								if(sqrt(xd*xd+yd*yd+zd*zd)<=DROP_RADIUS){
+									add_particle(&Partlines[pi],x,y,z);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for(i = 0; i <= imax+1; i++) {
+			for(j = 0; j < DROP_WATER_HEIGHT; j++) {
+				for(k = 0; k <= kmax+1; k++) {
+					if(isfluid(Flag[i][j][k])){
+						add_cell_particles(&Partlines[pi], i, j, k,dx,dy,dz,ppc);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		for(i = 0; i <= imax+1; i++) {
+			for(j = 0; j <= jmax+1; j++) {
+				for(k = 0; k <= kmax+1; k++) {
+					if(isfluid(Flag[i][j][k])){
+						add_cell_particles(&Partlines[pi], i, j, k,dx,dy,dz,ppc);
+					}
+				}
+			}
+		}
+	}
 
-
-void init_particles(int ***Flag,double dx,double dy,double dz,int imax,int jmax,int kmax,int ppc,struct particleline *Partlines){
-    int i,j,k;
-    int pi = 0; /*todo multiple partlines*/
-    Partlines[pi].length = 0;
-    Partlines[pi].Particles = create_particle(-1,-1,-1);
-    for(i = 0; i <= imax+1; i++) {
-    	for(j = 0; j <= jmax+1; j++) {
-    		for(k = 0; k <= kmax+1; k++) {
-    			if(isfluid(Flag[i][j][k])){
-    				add_cell_particles(&Partlines[pi], i, j, k,dx,dy,dz,ppc);
-    			}
-    		}
-    	}
-    }
 }
 
 
@@ -199,15 +250,145 @@ void init_uvwp(
 			}
 		}
 	}
+	else if(strcmp (problem,"drop.pgm")==0){
+		for(i = 0; i <= imax+1; i++) {
+			for(j = 0; j < DROP_WATER_HEIGHT; j++) {
+				for(k = 0; k <= kmax+1; k++){
+
+					V[i  ][j  ][k  ] = 0;
+				}
+			}
+		}
+	}
 
 
 }
+
+
+
+void init_cell(int ***Flag,int i, int j, int k ){
+	int *flag=0,*flagc=0;
+	flagc = &Flag[i][j  ][k  ];
+	flag = &Flag[i+1][j  ][k  ];
+	if(isempty(*flag)){  //B_O
+		changebit(flagc,10,0);
+		changebit(flagc,11,1);
+	}
+	else if (isfluid(*flag)){
+		changebit(flagc,10,1);
+		changebit(flagc,11,0);
+	}
+	else if(isboundary(*flag)){
+		changebit(flagc,10,1);
+		changebit(flagc,11,1);
+	}
+	flag = &Flag[i-1][j  ][k  ];
+	if(isempty(*flag)){
+		changebit(flagc,8,0); //B_W
+		changebit(flagc,9,1);
+	}
+	else if (isfluid(*flag)){
+		changebit(flagc,8,1);
+		changebit(flagc,9,0);
+	}
+	else if(isboundary(*flag)){
+		changebit(flagc,8,1);
+		changebit(flagc,9,1);
+	}
+	flag = &Flag[i][j+1][k  ];
+	if(isempty(*flag)){
+		//printf("markcell!\n");
+		changebit(flagc,6,0); //B_N
+		changebit(flagc,7,1);
+	}
+	else if(isfluid(*flag)){
+		changebit(flagc,6,1);
+		changebit(flagc,7,0);
+	}
+	else if(isboundary(*flag)){
+		changebit(flagc,6,1);
+		changebit(flagc,7,1);
+	}
+	flag = &Flag[i][j-1][k  ];
+	if(isempty(*flag)){
+		//printf("markcell!\n");
+		changebit(flagc,4,0); //B_S
+		changebit(flagc,5,1);
+	}
+	else if(isfluid(*flag)){
+		changebit(flagc,4,1);
+		changebit(flagc,5,0);
+	}
+	else if(isboundary(*flag)){
+		changebit(flagc,4,1);
+		changebit(flagc,5,1);
+	}
+	flag = &Flag[i][j  ][k-1];
+	if(isempty(*flag)){
+		changebit(flagc,2,0); //B_D
+		changebit(flagc,3,1);
+	}
+	else if (isfluid(*flag)){
+		changebit(flagc,2,1);
+		changebit(flagc,3,0);
+	}
+	else if(isboundary(*flag)){
+		changebit(flagc,2,1);
+		changebit(flagc,3,1);
+	}
+	flag = &Flag[i][j  ][k+1];
+	if(isempty(*flag)){
+		//printf("markcell!\n");
+		changebit(flagc,0,0);//B_U
+		changebit(flagc,1,1);
+	}
+	else if (isfluid(*flag)){
+		changebit(flagc,0,1);
+		changebit(flagc,1,0);
+	}
+	else if(isboundary(*flag)){
+		changebit(flagc,0,1);
+		changebit(flagc,1,1);
+	}
+}
+
 
 
 /**
  * The integer array Flag is initialized to constants C_F for fluid cells and C_B
  * for obstacle cells as specified by the parameter problem.
  */
+
+
+
+void  init_sphere((
+		char *problem,
+		int imax,
+		int jmax,
+		int kmax,
+		//  double presDelta,
+		int ***Flag,
+		int wl,
+		int wr,
+		int wf,
+		int wh,
+		int wt,
+		int wb
+) {
+	int i,j,k;
+	if(strcmp (problem,"drop.pgm")==0){
+		for(i = 0; i <= imax+1; i++) {
+			for(k = 0; k <= kmax+1; k++) {
+				for(j = 0; j <= jmax+1; j++) {
+					setcelltype(&Flag[i][j][k],FLUID);
+				}
+			}
+		}
+	}
+}
+
+
+
 void init_flag(
 		char *problem,
 		int imax,
@@ -223,16 +404,26 @@ void init_flag(
 		int wb
 ) {
 	int i,j,k;
-	//read the geometry
-	int **Pic = read_pgm(problem);
-	for (k=1; k<kmax+1; k++) {
-		//initialisation to C_F and C_B  Flag[i][0][0]
-		for (int j=1; j<jmax+1; j++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
-			for (int i=1; i<imax+1; i++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
-				Flag[i][jmax+1-j][k] = createflag(Pic,i,j,k,imax,jmax,kmax);
-			}
-		} //da bo to delal more bit slika tk narjena, da ma vsaka 2D podslika okoliinokoli ghost boundary. (s poljubno boundary cifro, tj med 2 in 6)
+
+
+	if(strcmp (problem,"drop.pgm")==0){
+
+		init_sphere(problem, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);
+
 	}
+	else{
+		//read the geometry
+		int **Pic = read_pgm(problem);
+		for (k=1; k<kmax+1; k++) {
+			//initialisation to C_F and C_B  Flag[i][0][0]
+			for (int j=1; j<jmax+1; j++){ //i is the line, j the column. so left, right is j-1,j+1, and north, south is i-1, i+1. up/down (bigger/smaller z) is -/+ (ymax+2)*k
+				for (int i=1; i<imax+1; i++){ //in Pic, 1 is where it's fluid, and 0 where it's air, apart from that: different boundary cond.
+					Flag[i][jmax+1-j][k] = createflag(Pic,i,j,k,imax,jmax,kmax);
+				}
+			} //da bo to delal more bit slika tk narjena, da ma vsaka 2D podslika okoliinokoli ghost boundary. (s poljubno boundary cifro, tj med 2 in 6)
+		}
+	}
+
 
 	//set outer boundary vortices, so you wont use them uninitialised. used getwallbit() bcs theyre on the edges of domain, so have only 2 or 3 neighbs, all boundary
 	for (k=0; k<kmax+2; k++) {
@@ -253,6 +444,7 @@ void init_flag(
 		Flag[i][0][kmax+1] = getwallbit(wf);       //xy1
 		Flag[i][jmax+1][kmax+1] = getwallbit(wh);  //xy1
 	}
+
 
 	//set outer boundary flags - top and bottom:
 	for (i=1; i<=imax; i++){
@@ -299,7 +491,63 @@ void init_flag(
 			}
 		}
 	}
-/*
+
+
+
+	if(strcmp (problem,"drop.pgm")==0){
+
+
+		double dx=0,dy=0,dz=0;
+		double mx = imax*0.5;
+		double my = jmax*0.5;//-DROP_RADIUS-2;
+		double mz = kmax*0.5;
+
+
+		for(i = 1; i < imax+1; i++) {
+			for(k = 1; k < kmax+1; k++) {
+				for(j = 1; j < jmax+1; j++) {
+
+					dx = fabs(i+0.5-mx);
+					dy = fabs(j+0.5-my);
+					dz = fabs(k+0.5-mz);
+
+
+
+					if(DROP_TYPE == DROP_CUBE && dx <=DROP_RADIUS && dy <=DROP_RADIUS*1.1 && dz<=DROP_RADIUS){
+						setcelltype(&Flag[i][j][k],FLUID);
+
+					}
+					else if(DROP_TYPE == DROP_SPHERE_2 && sqrt(dx*dx+dy*dy+dz*dz)<=DROP_RADIUS){
+						setcelltype(&Flag[i][j][k],FLUID);
+
+					}
+					else if(j < DROP_WATER_HEIGHT){
+						setcelltype(&Flag[i][j][k],FLUID);
+					}
+
+					else{
+						setcelltype(&Flag[i][j][k],AIR);
+					}
+
+
+				}
+			}
+
+		}
+
+		printf("init_cells\n");
+		for(i = 1; i < imax+1; i++) {
+			for(k = 1; k < kmax+1; k++) {
+				for(j = 1; j < jmax+1; j++) {
+						init_cell(Flag,i,j,k);
+					}
+				}
+			}
+		}
+
+
+
+	/*
 	for(i = 0; i <= imax+1; i++) {
 		for(j = 0; j <= jmax+1; j++) {
 			for(k = 0; k <= kmax+1; k++) {
@@ -309,7 +557,7 @@ void init_flag(
 			}
 		}
 	}
-	*/
+	 */
 
 
 
@@ -326,4 +574,10 @@ void init_flag(
 			Flag[imax+1][j] += 32;
 		}
 	}*/
+
+
+
+
+
+
 }

@@ -61,7 +61,7 @@ WI		0.0
 #--------------------------------------------
 wl		2
 wr		2
-wt		6
+wt		2
 wb		2
 wf		2
 wh		2
@@ -69,7 +69,7 @@ wh		2
 #--------------------------------------------
 #     problem geometry
 #--------------------------------------------
-problemGeometry		cavity303030.pgm
+problemGeometry		drop.pgm
 
 #-------------------------------------------
 #	additional velocity variable

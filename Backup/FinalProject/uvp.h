@@ -64,7 +64,8 @@ void calculate_rs(
   double ***F,
   double ***G,
   double ***H,
-  double ***RS
+  double ***RS,
+  int ***Flag
 );
 
 

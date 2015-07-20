@@ -63,7 +63,7 @@ void sor(
 	for(i = 1; i <= imax; i++) {
 		for(j = 1; j <= jmax; j++) {
 			for(k = 1; k <= kmax; k++){
-				if(isfluid(Flag[i][j][k])&& !emptyneighbor(Flag[i][j][k])){
+				if(isfluid(Flag[i][j][k]) && !emptyneighbor(Flag[i][j][k])){
 					tmp =  (P[i+1][j][k]-2.0*P[i][j][k]+P[i-1][j][k])/(dx2) + (P[i][j+1][k]-2.0*P[i][j][k]+P[i][j-1][k])/(dy2) + (P[i][j][k+1]-2.0*P[i][j][k]+P[i][j][k-1])/(dz2) - RS[i][j][k];
 					rloc += tmp*tmp;
 

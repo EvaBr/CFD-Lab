@@ -33,8 +33,7 @@ void calculate_fgh(
 	for (i=1; i<imax+1; i++){
 		for  (j=1; j<jmax+1; j++){
 			for  (k=1; k<kmax+1; k++){
-				switch (Flag[i][j][k]&(3*fluid)){ //only check, if you have water, air or boundary
-				case fluid:
+				if(isfluid(Flag[i][j][k])){
 					//printf("cell %d, %d, %d is fluid.\n", i, j, k);
 					uijk = U[i][j][k];   vijk = V[i][j][k];   wijk = W[i][j][k];
 					uujk = U[i+1][j][k]; viuk = V[i][j+1][k]; wiju = W[i][j][k+1];
@@ -67,15 +66,11 @@ void calculate_fgh(
 								0.25*Dy*((vijk+viju)*(wijk+wiuk)-(vidk+vidu)*(widk+wijk) + alpha*(fabs(vijk+viju)*(wijk-wiuk)-fabs(vidk+vidu)*(widk-wijk))) +
 								GZ);
 					}
-					break;
-
-				case air:
-					//TODO in case of free surfaces?
-					//printf("cell %d, %d, %d is air.\n", i, j, k);
-					break;
-				default: //we have a boundary cell; rewrite with right boundary cond., depending on type of cell
+				}
+				else {
+					//we have a boundary cell; rewrite with right boundary cond., depending on type of cell
 					//printf("cell %d, %d, %d is boundary: \t", i, j, k);
-					fgg = getcelltype(Flag[i][j][k]);      //if no neighbours are fluid, we do nothing. thats ok, right? bcs we never need those values?
+					fgg = getboundarytype(Flag[i][j][k]);      //if no neighbours are fluid, we do nothing. thats ok, right? bcs we never need those values?
 					if (fgg%4==1){ //U neighb. is fluid
 						H[i][j][k] = W[i][j][k]; break;
 					} else if (fgg%4==2){  //D neighb. is fluid
@@ -91,128 +86,18 @@ void calculate_fgh(
 					} else if ( (fgg%16+2)/3==2 ) { //S neigh. is fluid
 						G[i][j-1][k] = V[i][j-1][k]; break;
 					}
-					/*switch (getcelltype(Flag[i][j][k])){
-				    case (B_N):
-					     G[i][j][k] = V[i][j][k]; break;
-				    case (B_W):
-					     F[i-1][j][k] = U[i-1][j][k]; break;
-				    case (B_O):
-					     F[i][j][k] = U[i][j][k]; break;
-				    case (B_S):
-					     G[i][j-1][k] = V[i][j-1][k]; break;
-            case (B_U):
-               H[i][j][k] = W[i][j][k]; break;
-            case (B_D):
-               H[i][j][k-1] = W[i][j][k-1]; break;
-		  		  case (B_NO):
-			  	     G[i][j][k] = V[i][j][k];
-			         F[i][j][k] = U[i][j][k];
-				       break;
-				    case (B_NW):
-					     G[i][j][k] = V[i][j][k];
-					     F[i-1][j][k] = U[i-1][j][k];
-					     break;
-            case (B_NU):
-               G[i][j][k] = V[i][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_ND):
-               G[i][j][k] = V[i][j][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-			    	case (B_SO):
-					     G[i][j-1][k] = V[i][j-1][k];
-					     F[i][j][k] = U[i][j][k];
-					     break;
-				    case (B_SW):
-					     F[i-1][j][k] = U[i-1][j][k];
-					     G[i][j-1][k] = V[i][j-1][k];
-					     break;
-            case (B_SU):
-               G[i][j-1][k] = V[i][j-1][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_SD):
-               G[i][j-1][k] = V[i][j-1][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-            case (B_OU):
-               F[i][j][k] = U[i][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_WU):
-               F[i-1][j][k] = U[i-1][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_OD):
-               F[i][j][k] = U[i][j][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-            case (B_WD):
-               F[i-1][j][k] = U[i-1][j][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-            case (B_NOU):
-               G[i][j][k] = V[i][j][k];
-               F[i][j][k] = U[i][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_NOD):
-               G[i][j][k] = V[i][j][k];
-               F[i][j][k] = U[i][j][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-            case (B_NWU):
-               G[i][j][k] = V[i][j][k];
-               F[i-1][j][k] = U[i-1][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_NWD):
-               G[i][j][k] = V[i][j][k];
-               F[i-1][j][k] = U[i-1][j][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-            case (B_SOU):
-               G[i][j-1][k] = V[i][j-1][k];
-               F[i][j][k] = U[i][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_SOD):
-               G[i][j-1][k] = V[i][j-1][k];
-               F[i][j][k] = U[i][j][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-            case (B_SWU):
-               G[i][j-1][k] = V[i][j-1][k];
-               F[i-1][j][k] = U[i-1][j][k];
-               H[i][j][k] = W[i][j][k];
-               break;
-            case (B_SWD):
-               G[i][j-1][k] = V[i][j-1][k];
-               F[i-1][j][k] = U[i][j-1][k];
-               H[i][j][k-1] = W[i][j][k-1];
-               break;
-				   }*/
 				}
 			}
 			H[i][j][0]    = W[i][j][0];
 			H[i][j][kmax] = W[i][j][kmax];
 		}
 		for (k=1; k<kmax+1; k++){
-			/* rewrite G(i,0,k) and G(i, jmax,k) with bound.cond. for G */
 			G[i][0][k]   = V[i][0][k];
 			G[i][jmax][k] = V[i][jmax][k];
 		}
-		/*for (j=1; j<kmax+1; j++){
-      // rewrite H(i,j, 0) and H(i, j, kmax) with bound.cond. for H
-      H[i][j][0] = W[i][j][0];
-      H[i][j][kmax] = W[i][j][kmax];
-    }*/
 	}
-/*F = matrix2(0, imax, 1, jmax, 1, kmax);*/
 	for (j=1; j<jmax+1; j++){
 		for (k=1; k<kmax+1; k++){
-			/* rewrite F(0,j, k) and F(imax, j, k) with bound.cond. for F */
 			F[0][j][k] = U[0][j][k];
 			F[imax][j][k] = U[imax][j][k];
 		}
@@ -230,18 +115,23 @@ void calculate_rs(
 		double ***F,
 		double ***G,
 		double ***H,
-		double ***RS
+		double ***RS,
+		int ***Flag
 ){
 	int i, j, k;
 	/*range of indices {1:imax}x{1:jmax} for RS*/
 	for(i=1; i<imax+1; i++){
 		for(j=1; j<jmax+1; j++){
 			for(k=1; k<kmax+1; k++){
-				RS[i][j][k] = (
-						  (F[i][j][k] - F[i-1][j][k])/dx
-						+ (G[i][j][k] - G[i][j-1][k])/dy
-						+ (H[i][j][k] - H[i][j][k-1])/dz
-				) / dt;
+				if(!emptyneighbor(Flag[i][j][k])){
+					if(isfluid(Flag[i][j][k]) && !emptyneighbor(Flag[i][j][k])){
+						RS[i][j][k] = (
+								(F[i][j][k] - F[i-1][j][k])/dx
+								+ (G[i][j][k] - G[i][j-1][k])/dy
+								+ (H[i][j][k] - H[i][j][k-1])/dz
+						) / dt;
+					}
+				}
 			}
 		}
 	}

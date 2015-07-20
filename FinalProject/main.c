@@ -30,12 +30,11 @@ int main(int argn, char** args){
 	double ***RS, ***F, ***G, ***H;
 
 	int ***Flag; //additional data structure for arbitrary geometry
-	int ***S; //additional data structure for arbitrary geometry
 	int matrix_output = 0;
 	/*those to be read in from the input file*/
 	double Re, UI, VI, WI, PI, GX, GY, GZ, t_end, xlength, ylength, zlength, dt, dx, dy, dz, alpha, omg, tau, eps, dt_value;
 	int  imax, jmax, kmax, itermax;
-
+    int ppc = 3;
 	//double presLeft, presRight, presDelta; //for pressure stuff  ...TODO: not allowed for now
 	int wl, wr, wt, wb, wf, wh;
 	char problemGeometry[200];
@@ -72,26 +71,24 @@ int main(int argn, char** args){
 
 	Flag = imatrix2(0, imax+1, 0, jmax+1, 0, kmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
-	S    = imatrix2(0, imax+1, 0, jmax+1, 0, kmax+1);
-	//S = Flag -> adjust C_x Flags in helper.h
 
 	//initialisation, including **Flag
 
 
 	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
+	printf("init_flag \n");
+	init_particles(Flag,dx,dy,dz,imax,jmax,kmax,ppc,Partlines,problemGeometry);
+	if(strcmp (problemGeometry,"drop.pgm")==0){
+			mark_cells(Flag,dx,dy,dz,imax,jmax,kmax,1,Partlines);
+		}
 
-	init_particles(Flag,dx,dy,dz,imax,jmax,kmax,3,Partlines);
-
-	printf("!!!!!!!!%d\n",binMatch(B_NO,B_N));
-
-
+	printf("init_uvwp \n");
 	init_uvwp(UI, VI, WI, PI, Flag,imax, jmax, kmax, U, V, W, P, problemGeometry);
-
-	write_particles("particles_init",0, 1, Partlines);
-
-	write_imatrix2("Flag_start.txt",t,Flag, 0, imax, 1, jmax, 1, kmax);
+	//printf("write_imatrix2 \n");
+	//write_imatrix2("Flag_start.txt",t,Flag, 0, imax, 1, jmax, 1, kmax);
 	//write_flag_imatrix("Flag.txt",t,Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
-	write_vtkFile(filename, -1, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+	//printf("write_vtkFile_debug \n");
+	//write_vtkFile_debug(filename, -1, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
 	//write_vtkFile("init", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
 	//going through all time steps
@@ -100,11 +97,19 @@ int main(int argn, char** args){
 	write_matrix2("U_start.txt",t,U, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	write_matrix2("V_start.txt",t,V, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	write_matrix2("W_start.txt",t,W, 0, imax+1, 0, jmax+1, 0, kmax+1);
-	*/
+	 */
 	//setting bound.values
+	printf("calc bc \n");
 	boundaryvalues(imax, jmax, kmax, U, V, W, P, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
-	//    printf("calc bc \n");
 
+	printf("start \n");
+
+	if(strcmp (problemGeometry,"drop.pgm")==0){
+		set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
+		get_particle_speed(dx,dy, dz,imax,jmax,kmax, dt,U,V,W,1,Partlines);
+		write_vtkFile("uvwp_drop",0, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+		write_particles("particles_drop",0, 1, Partlines);
+	}
 
 	while(t < t_end){
 		/*if(t - every >= 0){
@@ -113,19 +118,22 @@ int main(int argn, char** args){
     	}*/
 
 		//adaptive time stepping
+		printf("calculate_dt \n");
 		calculate_dt(Re, tau, &dt, dx, dy, dz, imax, jmax, kmax, U, V, W);
-		//    printf("calc dt \n");
 
 
+		printf("mark_cells \n");
 		mark_cells(Flag,dx,dy,dz,imax,jmax,kmax,1,Partlines);
 
+		printf("set_uvwp_surface \n");
 		set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
 
 
 		//computing F, G, H and right hand side of pressue eq.
+		printf("calculate_fgh \n");
 		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
-		//    printf("calc fgh \n");
 
+		printf("calculate_rs \n");
 		calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS,Flag);
 		//    printf("calc rs \n");
 
@@ -136,6 +144,7 @@ int main(int argn, char** args){
 		//write_matrix2("F.txt",t,F, 0, imax, 1, jmax, 1, kmax);
 		//write_matrix2("G.txt",t,G, 1, imax, 0, jmax, 1, kmax);
 		//write_matrix2("H.txt",t,H, 1, imax, 1, jmax, 0, kmax);
+		printf("sor\n");
 		do{
 			// sprintf( szFileName, "P_%d.txt",it );
 			//write_matrix2(szFileName,1000+t,P, 0, imax+1, 0, jmax+1, 0, kmax+1);
@@ -151,6 +160,7 @@ int main(int argn, char** args){
 
 		//write_matrix2("P.txt",t,P, 0, imax+1, 0, jmax+1, 0, kmax+1);
 		//calculate U, V and W of this time step
+		printf("calculate_uvw \n");
 		calculate_uvw(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag);
 		//write_matrix2("U.txt",t,U, 0, imax+1, 0, jmax+1, 0, kmax+1);
 		//write_matrix2("V.txt",t,V, 0, imax+1, 0, jmax+1, 0, kmax+1);
@@ -159,35 +169,28 @@ int main(int argn, char** args){
 		//    printf("calc uvw \n");
 
 
-			//sprintf( szFileName, "simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
-
+		//sprintf( szFileName, "simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
+		//write_vtkFile("uvwp_surface_2", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
 		//setting bound.values
+		printf("boundaryvalues \n");
 		boundaryvalues(imax, jmax, kmax, U, V, W, P, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
 
+		printf("set_uvwp_surface \n");
 		set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
 
-		printf("advance_particles!\n");
+		//printf("advance_particles!\n");
+		printf("advance_particles \n");
 		advance_particles(dx,dy, dz,imax,jmax,kmax, dt,U,V,W,1,Partlines);
 
 
 		//indent time and number of time steps
-		printf("timer\n");
+		printf("timestep\n");
 		n++;
 		t += dt;
 
 		//output of pics for animation
 		if ( t-last_output_t  >= dt_value ){  //n%pics==0 ){
-			printf("output\n!");
-
-
-
-
-
-
-
-
-
 			write_particles(filename,n, 1, Partlines);
 			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
@@ -214,7 +217,7 @@ int main(int argn, char** args){
 
 
 	free_imatrix2(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
-	free_imatrix2(S, 0, imax+1, 0, jmax+1, 0, kmax+1);
+
 	//printf("\n-\n");
 	return -1;
 }
