@@ -41,6 +41,8 @@ int read_parameters( const char *szFileName,       /* name of the file */
 		//                  double *presLeft,		       /*pressure at the left wall*/
 		//                  double *presRight,		     /*pressure at the right wall*/
 		//                  double *presDelta,		     /*pressure difference across the domain*/
+		int inflows,
+		int movingwalls,
 		double *velIN,             /*velocity of inflow*/
 		double *velMW )		         /*velocity of wall (in U direction)*/
 {
@@ -87,9 +89,18 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *presRight);
    READ_DOUBLE( szFileName, *presDelta); */
 
-	READ_DOUBLE( szFileName, *velIN );
+	READ_INT   ( szFileName, *inflows );
+	READ_INT   ( szFileName, *movingwalls );
 
+	for (int i=0; i<inflows; i++){
+		READ_DOUBLE( szFileName, *velIN );
+	}
+	for (int i=0; i<inflows; i++){
+		//TODO read mw velocities as many times as needed
+	}
+	//TODO think about allocating memory in the loop.... hm. :S
 	double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
+	for (int i=0; i<inflows; i++){
 	READ_DOUBLE( szFileName, *velMWx );
 	READ_DOUBLE( szFileName, *velMWy );
 	READ_DOUBLE( szFileName, *velMWz );
