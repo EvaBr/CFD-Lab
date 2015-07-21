@@ -1,6 +1,7 @@
 #include "helper.h"
 #include "visual.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 
@@ -24,7 +25,7 @@ void write_particles_debug(const char *szProblem, int    timeStepNumber, int N, 
 
 	char szFileName[80];
 	FILE *fp=NULL;
-
+///media/norbert/940CB6150CB5F27A/Documents/
 	sprintf( szFileName, "simulation/%s.%i.csv", szProblem, timeStepNumber );
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )
@@ -78,8 +79,10 @@ void write_vtkFile_debug(const char *szProblem,
 	double uVel,vVel,wVel;
 	char szFileName[80];
 	FILE *fp=NULL;
+	///media/norbert/940CB6150CB5F27A/Documents/
 	//sprintf( szFileName, "simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
+	///media/norbert/940CB6150CB5F27A/Documents/
+	sprintf( szFileName, "simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
 
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )
@@ -141,6 +144,25 @@ void write_vtkFile_debug(const char *szProblem,
 		for(j = 0; j < jmax+2; j++) {
 			for(i = 0; i < imax+2; i++) {
 
+
+
+				if(isfluid(Flag[i][j][k])){
+
+					if(issurface(Flag[i][j][k])){
+						fprintf(fp, "2\n");
+					}
+					else{
+						fprintf(fp, "1\n");
+					}
+				}
+				else if(isboundary(Flag[i][j][k])){
+					//printf("boundary: %d",getboundarytype(Flag[i  ][j  ][k  ]));
+					fprintf(fp, "3\n");
+				}
+				else
+					fprintf(fp, "0\n");
+
+				/*
 				if(isboundary(Flag[i][j][k])){
 					//printf("boundary: (%d,%d,%d) %d, %d -> %d\n",i,j,k,Flag[i  ][j  ][k  ],getcelltype(Flag[i  ][j  ][k  ]),getboundarytype(Flag[i  ][j  ][k  ]));
 
@@ -148,7 +170,17 @@ void write_vtkFile_debug(const char *szProblem,
 				}
 				else
 					fprintf(fp, "0\n");
-				/*
+
+
+
+				if(isboundary(Flag[i][j][k])){
+					//printf("boundary: (%d,%d,%d) %d, %d -> %d\n",i,j,k,Flag[i  ][j  ][k  ],getcelltype(Flag[i  ][j  ][k  ]),getboundarytype(Flag[i  ][j  ][k  ]));
+
+					fprintf(fp, "%d\n",getboundarytype(Flag[i  ][j  ][k  ]));
+				}
+				else
+					fprintf(fp, "0\n");
+
 
 				  fprintf(fp, "%d\n",getcelltype(Flag[i][j][k]));
 
@@ -206,17 +238,18 @@ void write_vtkPointCoordinates_debug( FILE *fp, int imax, int jmax, int kmax,
 
 
 /*#############################################################*/
+#define WRITE_PARTICLE_PROB 10
 
+void write_particles(const char *szProblem, int    timeStepNumber, double dx,double dy,double dz, int N, struct particleline *Partlines,int ***Flag){
 
-void write_particles(const char *szProblem, int    timeStepNumber, int N, struct particleline *Partlines){
-	int k;
 	struct particle *p;
 	double x,y,z;
 
 	char szFileName[80];
 	FILE *fp=NULL;
 
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.csv", szProblem, timeStepNumber );
+	//sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.csv", szProblem, timeStepNumber );
+	sprintf( szFileName, "simulation/%s.%i.csv", szProblem, timeStepNumber );
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )
 	{
@@ -225,15 +258,60 @@ void write_particles(const char *szProblem, int    timeStepNumber, int N, struct
 		ERROR( szBuff );
 		return;
 	}
-
+	unsigned int iseed = (unsigned int)time(NULL);
+	  srand (iseed);
 	fprintf(fp,"x,y,z,v,t\n");
-
+	int i,j,k;
+	//int k;
+	double r = 0;
+	//int c = 0;
 	for(k=0;k<N;k++){
 		for(p=Partlines[k].Particles; p->next != NULL; p=p->next){
 			x = p->next->x;
 			y = p->next->y;
 			z = p->next->z;
-			fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+
+			i = (int)(x/dx)+1;
+
+			j = (int)(y/dy)+1;
+
+			k = (int)(z/dz)+1;
+
+			if(issurface(Flag[i][j][k])||nonfluidneighbor(Flag[i][j][k])){
+				fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+			}
+			else
+			{
+				r = (rand ()*100.0)/(RAND_MAX*1.0);
+				if(r< WRITE_PARTICLE_PROB){
+					fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+				}
+
+			}
+
+
+			/*
+			r = (rand ()*100.0)/(RAND_MAX*1.0);
+			if(r< WRITE_PARTICLE_PROB){
+				fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+			}
+
+			if(c % WRITE_PARTICLE_PROB == 0){
+				fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+			}
+
+			if(issurface(Flag[i][j][k])){
+				fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+			}
+			else{
+				r = (rand ()*100.0)/(RAND_MAX*1.0);
+				if(r< WRITE_PARTICLE_PROB){
+					fprintf(fp,"%f,%f,%f,%f,1\n",x,y,z, p->next->vel);
+				}
+
+			}
+			 */
+			//c++;
 		}
 	}
 
@@ -245,6 +323,8 @@ void write_particles(const char *szProblem, int    timeStepNumber, int N, struct
 	}
 
 }
+
+
 
 
 
@@ -269,8 +349,8 @@ void write_vtkFile(const char *szProblem,
 	double uVel,vVel,wVel;
 	char szFileName[80];
 	FILE *fp=NULL;
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.vtk", szProblem, timeStepNumber );
-	//sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i.vtk", szProblem, timeStepNumber );
+	//sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
+	sprintf( szFileName, "simulation/%s.%i.vtk", szProblem, timeStepNumber );
 
 	fp = fopen( szFileName, "w");
 	if( fp == NULL )

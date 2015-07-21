@@ -42,7 +42,9 @@ void calculate_fgh(
   double ***F,
   double ***G,
   double ***H,
-  int ***Flag
+  int ***Flag,
+  struct p_pointer *PP1,
+  int FluidCells
 );
 
 
@@ -65,7 +67,9 @@ void calculate_rs(
   double ***G,
   double ***H,
   double ***RS,
-  int ***Flag
+  int ***Flag,
+  struct p_pointer *PP1,
+  int FluidCells
 );
 
 
@@ -120,7 +124,9 @@ void calculate_uvw(
   double ***G,
   double ***H,
   double ***P,
-  int ***Flag
+  int ***Flag,
+  struct p_pointer *PP1,
+  int FluidCells
 );
 
 #endif

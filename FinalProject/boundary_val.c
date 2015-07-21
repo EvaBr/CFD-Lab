@@ -1,6 +1,7 @@
 #include "init.h"
 #include "boundary_val.h"
 #include "helper.h"
+#include <omp.h>
 
 void boundaryvalues_no_slip(
 			int i,
@@ -19,7 +20,7 @@ void boundaryvalues_no_slip(
 	//int sth = ((flags&2) >> 1);
 	//printf("sth: %d\n", sth);
 	//sth += ((flags >> 2)&2) + ((flags >> 3)&4) + ((flags >> 4)&8) + ((flags >> 5)&16) + ((flags >> 6)&32);
-
+	//printf("getboundarytype: %d\n", getboundarytype(Flag[i  ][j  ][k  ]));
 	switch(getboundarytype(Flag[i  ][j  ][k  ])){
 		case B_O:
 			U[i  ][j  ][k  ]   = 0.0;
@@ -72,10 +73,6 @@ void boundaryvalues_no_slip(
 			V[i  ][j-1][k  ] = -V[i+1][j-1][k  ];
 			W[i  ][j  ][k  ] = -(W[i  ][j+1][k  ] + W[i+1][j  ][k  ]) * 0.5;
 			W[i  ][j  ][k-1] = -(W[i  ][j+1][k-1] + W[i+1][j  ][k-1]) * 0.5;
-
-			U[i][j]      = 0;
-			V[i][j]      = 0;
-
 
 			break;
 		case B_NW:
@@ -982,60 +979,69 @@ void boundaryvalues_inflow(
 void boundaryvalues_pressure(double ***P,int ***Flag,int imax,int jmax,int kmax){
 	int i,j,k;
 
+
 	/* set boundary values, here just for the 'real' boundaries - no air included yet (if even needed?) */
-		for(i = 0; i <= imax+1; i++) {
-			for(j = 0; j <= jmax+1; j++) {
-				for(k = 0; k <= kmax+1; k++) {
+#pragma omp parallel for private(j,k)
+	for(i = 0; i <= imax+1; i++) {
+		for(j = 0; j <= jmax+1; j++) {
+			for(k = 0; k <= kmax+1; k++) {
+				switch(getboundarytype(Flag[i  ][j  ][k  ])){
+				case B_O: P[i  ][j  ][k  ]  = P[i+1][j  ][k  ]; break;
 
-					switch(getboundarytype(Flag[i  ][j  ][k  ])){
-					case B_O: P[i  ][j  ][k  ]  = P[i+1][j  ][k  ]; break;
+				case B_W: P[i  ][j  ][k  ]  = P[i-1][j  ][k  ]; break;
 
-					case B_W: P[i  ][j  ][k  ]  = P[i-1][j  ][k  ]; break;
+				case B_N: P[i  ][j  ][k  ]  = P[i  ][j+1][k  ]; break;
 
-					case B_N: P[i  ][j  ][k  ]  = P[i  ][j+1][k  ]; break;
+				case B_S: P[i  ][j  ][k  ]  = P[i  ][j-1][k  ]; break;
 
-					case B_S: P[i  ][j  ][k  ]  = P[i  ][j-1][k  ]; break;
+				case B_U: P[i  ][j  ][k  ]  = P[i  ][j  ][k+1]; break;
 
-					case B_U: P[i  ][j  ][k  ]  = P[i  ][j  ][k+1]; break;
+				case B_D: P[i  ][j  ][k  ]  = P[i  ][j  ][k-1]; break;
 
-					case B_D: P[i  ][j  ][k  ]  = P[i  ][j  ][k-1]; break;
+				case B_NO: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j+1][k  ])*0.5; break;
+				case B_NW: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j+1][k  ])*0.5; break;
 
-					case B_NO: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j+1][k  ])*0.5; break;
-					case B_NW: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j+1][k  ])*0.5; break;
+				case B_SO: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j-1][k  ])*0.5; break;
+				case B_SW: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j-1][k  ])*0.5; break;
 
-					case B_SO: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j-1][k  ])*0.5; break;
-					case B_SW: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j-1][k  ])*0.5; break;
+				case B_NU: P[i  ][j  ][k  ] = (P[i  ][j  ][k+1] + P[i  ][j+1][k  ])*0.5; break;
+				case B_ND: P[i  ][j  ][k  ] = (P[i  ][j  ][k-1] + P[i  ][j+1][k  ])*0.5; break;
 
-					case B_NU: P[i  ][j  ][k  ] = (P[i  ][j  ][k+1] + P[i  ][j+1][k  ])*0.5; break;
-					case B_ND: P[i  ][j  ][k  ] = (P[i  ][j  ][k-1] + P[i  ][j+1][k  ])*0.5; break;
+				case B_SU: P[i  ][j  ][k  ] = (P[i  ][j  ][k+1] + P[i  ][j-1][k  ])*0.5; break;
+				case B_SD: P[i  ][j  ][k  ] = (P[i  ][j  ][k-1] + P[i  ][j-1][k  ])*0.5; break;
 
-					case B_SU: P[i  ][j  ][k  ] = (P[i  ][j  ][k+1] + P[i  ][j-1][k  ])*0.5; break;
-					case B_SD: P[i  ][j  ][k  ] = (P[i  ][j  ][k-1] + P[i  ][j-1][k  ])*0.5; break;
+				case B_OU: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j  ][k+1])*0.5; break;
+				case B_WU: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j  ][k+1])*0.5; break;
 
-					case B_OU: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j  ][k+1])*0.5; break;
-					case B_WU: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j  ][k+1])*0.5; break;
+				case B_OD: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j  ][k-1])*0.5; break;
+				case B_WD: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j  ][k-1])*0.5; break;
 
-					case B_OD: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j  ][k-1])*0.5; break;
-					case B_WD: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j  ][k-1])*0.5; break;
+				case B_NOU: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
+				case B_NWU: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
 
-					case B_NOU: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
-					case B_NWU: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
+				case B_SOU: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
+				case B_SWU: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
 
-					case B_SOU: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
-					case B_SWU: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k+1])*1.0/3.0; break;
+				case B_NOD: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
+				case B_NWD: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
 
-					case B_NOD: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
-					case B_NWD: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j+1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
-
-					case B_SOD: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
-					case B_SWD: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
+				case B_SOD: P[i  ][j  ][k  ] = (P[i+1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
+				case B_SWD: P[i  ][j  ][k  ] = (P[i-1][j  ][k  ] + P[i  ][j-1][k  ] + P[i  ][j  ][k-1])*1.0/3.0; break;
 
 
-					default: break;
-					}
+				default: break;
+				}
+				switch (getcelltype(Flag[i  ][j  ][k  ])) {
+				case OUTFLOW:
+					if(P[i  ][j  ][k  ]>0)
+						P[i  ][j  ][k  ]  = P[i  ][j  ][k  ]*0.1;
+					else
+						P[i  ][j  ][k  ]  = P[i  ][j  ][k  ]*1.9;
+					break;
 				}
 			}
 		}
+	}
 
 }
 
@@ -1052,21 +1058,23 @@ void boundaryvalues(
 		double ***G,
 		double ***H,
 		char *problem,  //should comment out? probably not needed.
-				int ***Flag,
-				double velIN,
-				double *velMW
-  ) {
-	int i, j, k, temp;
+		int ***Flag,
+		double velIN,
+		double *velMW
+) {
+	int i, j, k;
 
+
+#pragma omp parallel for private(j,k)
 	for (i=0; i<imax+2; i++) {
 		for (j=0; j<jmax+2; j++){
 			for (k=0; k<kmax+2; k++){
 
-				//	printf("%d,%d,%d - %d (%d)     ",i,j,k,Flag[i  ][j  ][k  ],getcelltype(Flag[i  ][j  ][k  ]));
+					//printf("%d,%d,%d - %d (%d)\n",i,j,k,Flag[i  ][j  ][k  ],getcelltype(Flag[i  ][j  ][k  ]));
 					switch (getcelltype(Flag[i  ][j  ][k  ])) {
 					case NO_SLIP:
 						boundaryvalues_no_slip(i, j, k, U, V, W, Flag);
-						/*printf("noslip\t");*/
+						//printf("noslip\n");
 						break;
 					case FREE_SLIP:
 						boundaryvalues_free_slip(i, j, k, U, V, W, Flag);
@@ -1097,3 +1105,4 @@ void boundaryvalues(
 	}
 	//printf("ok\n");
 }
+

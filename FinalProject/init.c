@@ -8,10 +8,12 @@
 #define DROP_SPHERE_2 3
 
 
-#define DROP_TYPE DROP_SPHERE_1
+#define DROP_TYPE DROP_CUBE
 
-#define DROP_RADIUS 6
+#define DROP_RADIUS 3
 #define DROP_WATER_HEIGHT 10
+
+#define BREAKING_DAM_WIDTH 20
 
 
 int read_parameters( const char *szFileName,       /* name of the file */
@@ -50,10 +52,9 @@ int read_parameters( const char *szFileName,       /* name of the file */
 		//                  double *presLeft,		       /*pressure at the left wall*/
 		//                  double *presRight,		     /*pressure at the right wall*/
 		//                  double *presDelta,		     /*pressure difference across the domain*/
-		int inflows,
-		int movingwalls,
 		double *velIN,             /*velocity of inflow*/
-		double *velMW )		         /*velocity of wall (in U direction)*/
+		double *velMW,
+		int *particles)		         /*velocity of wall (in U direction)*/
 {
 	READ_DOUBLE( szFileName, *xlength );
 	READ_DOUBLE( szFileName, *ylength );
@@ -69,6 +70,7 @@ int read_parameters( const char *szFileName,       /* name of the file */
 
 	READ_DOUBLE( szFileName, *dt_value );
 	READ_INT   ( szFileName, *itermax );
+	READ_INT   ( szFileName, *particles );
 
 	READ_DOUBLE( szFileName, *eps   );
 	READ_DOUBLE( szFileName, *omg   );
@@ -98,18 +100,9 @@ int read_parameters( const char *szFileName,       /* name of the file */
    READ_DOUBLE( szFileName, *presRight);
    READ_DOUBLE( szFileName, *presDelta); */
 
-	READ_INT   ( szFileName, *inflows );
-	READ_INT   ( szFileName, *movingwalls );
+	READ_DOUBLE( szFileName, *velIN );
 
-	for (int i=0; i<inflows; i++){
-		READ_DOUBLE( szFileName, *velIN );
-	}
-	for (int i=0; i<inflows; i++){
-		//TODO read mw velocities as many times as needed
-	}
-	//TODO think about allocating memory in the loop.... hm. :S
 	double *velMWx = &velMW[0], *velMWy = &velMW[1], *velMWz = &velMW[2];
-	for (int i=0; i<inflows; i++){
 	READ_DOUBLE( szFileName, *velMWx );
 	READ_DOUBLE( szFileName, *velMWy );
 	READ_DOUBLE( szFileName, *velMWz );
@@ -235,16 +228,19 @@ void init_uvwp(
 	init_matrix2(V, 0, imax+1, 0, jmax+1, 0, kmax+1, VI);
 	init_matrix2(W, 0, imax+1, 0, jmax+1, 0, kmax+1, WI);
 	init_matrix2(P, 0, imax+1, 0, jmax+1, 0, kmax+1, PI);
-	for(i = 1; i <= imax+1; i++) {
-		for(j = 1; j <= jmax+1; j++) {
-			for(k = 1; k <= kmax+1; k++) {
+	for(i = 0; i <= imax+1; i++) {
+		for(j = 0; j <= jmax+1; j++) {
+			for(k = 0; k <= kmax+1; k++) {
 				if(!isfluid(Flag[i][j][k])){
 					U[i  ][j  ][k  ] = 0;
-					U[i-1][j  ][k  ] = 0;
+					if(i>0)
+						U[i-1][j  ][k  ] = 0;
 					V[i  ][j  ][k  ] = 0;
-					V[i  ][j-1][k  ] = 0;
+					if(j>0)
+						V[i  ][j-1][k  ] = 0;
 					W[i  ][j  ][k  ] = 0;
-					W[i  ][j  ][k-1] = 0;
+					if(k>0)
+						W[i  ][j  ][k-1] = 0;
 					P[i  ][j  ][k  ] = 0;
 				}
 			}
@@ -365,14 +361,7 @@ void init_cell(int ***Flag,int i, int j, int k ){
 
 
 
-/**
- * The integer array Flag is initialized to constants C_F for fluid cells and C_B
- * for obstacle cells as specified by the parameter problem.
- */
-
-
-
-void  init_sphere((
+void  init_sphere(
 		char *problem,
 		int imax,
 		int jmax,
@@ -387,17 +376,89 @@ void  init_sphere((
 		int wb
 ) {
 	int i,j,k;
-	if(strcmp (problem,"drop.pgm")==0){
-		for(i = 0; i <= imax+1; i++) {
-			for(k = 0; k <= kmax+1; k++) {
-				for(j = 0; j <= jmax+1; j++) {
+
+
+
+
+
+	double dx=0,dy=0,dz=0;
+	double mx = imax*0.5;
+	double my = jmax*0.5;//-DROP_RADIUS-2;
+	double mz = kmax*0.5;
+
+
+	for(i = 1; i < imax+1; i++) {
+		for(k = 1; k < kmax+1; k++) {
+			for(j = 1; j < jmax+1; j++) {
+
+				dx = fabs(i+0.5-mx);
+				dy = fabs(j+0.5-my);
+				dz = fabs(k+0.5-mz);
+
+
+
+				if(DROP_TYPE == DROP_CUBE && dx <=DROP_RADIUS && dy <=DROP_RADIUS*1.1 && dz<=DROP_RADIUS){
 					setcelltype(&Flag[i][j][k],FLUID);
+
+				}
+				else if(DROP_TYPE == DROP_SPHERE_2 && sqrt(dx*dx+dy*dy+dz*dz)<=DROP_RADIUS){
+					setcelltype(&Flag[i][j][k],FLUID);
+
+				}
+				else if(j < DROP_WATER_HEIGHT){
+					setcelltype(&Flag[i][j][k],FLUID);
+				}
+
+				else{
+					setcelltype(&Flag[i][j][k],AIR);
+				}
+
+
+			}
+		}
+
+
+	}
+}
+
+
+void  init_breaking_dam(
+		char *problem,
+		int imax,
+		int jmax,
+		int kmax,
+		//  double presDelta,
+		int ***Flag,
+		int wl,
+		int wr,
+		int wf,
+		int wh,
+		int wt,
+		int wb
+) {
+	int i,j,k;
+	for(i = 1; i < imax+1; i++) {
+		for(k = 1; k < kmax+1; k++) {
+			for(j = 1; j < jmax+1; j++) {
+				if(i<BREAKING_DAM_WIDTH && j < jmax-5){
+					setcelltype(&Flag[i][j][k],FLUID);
+				}
+				else{
+					setcelltype(&Flag[i][j][k],AIR);
 				}
 			}
 		}
 	}
+
 }
 
+
+
+
+/**
+ * The integer array Flag is initialized to constants C_F for fluid cells and C_B
+ * for obstacle cells as specified by the parameter problem.
+ */
 
 
 void init_flag(
@@ -417,9 +478,14 @@ void init_flag(
 	int i,j,k;
 
 
-	if(strcmp (problem,"drop.pgm")==0){
-
-		init_sphere(problem, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);
+	if(strcmp (problem,"drop.pgm")==0 || strcmp (problem,"breaking_dam.pgm")==0 ){
+		for(i = 0; i <= imax+1; i++) {
+			for(k = 0; k <= kmax+1; k++) {
+				for(j = 0; j <= jmax+1; j++) {
+					setcelltype(&Flag[i][j][k],FLUID);
+				}
+			}
+		}
 
 	}
 	else{
@@ -503,62 +569,28 @@ void init_flag(
 		}
 	}
 
-
-
 	if(strcmp (problem,"drop.pgm")==0){
+		init_sphere(problem, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);
+	}
+	else if(strcmp (problem,"breaking_dam.pgm")==0){
+		init_breaking_dam(problem, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);
+	}
 
 
-		double dx=0,dy=0,dz=0;
-		double mx = imax*0.5;
-		double my = jmax*0.5;//-DROP_RADIUS-2;
-		double mz = kmax*0.5;
+	printf("init_cells\n");
+	for(i = 1; i < imax+1; i++) {
+		for(k = 1; k < kmax+1; k++) {
+			for(j = 1; j < jmax+1; j++) {
+				init_cell(Flag,i,j,k);
 
-
-		for(i = 1; i < imax+1; i++) {
-			for(k = 1; k < kmax+1; k++) {
-				for(j = 1; j < jmax+1; j++) {
-
-					dx = fabs(i+0.5-mx);
-					dy = fabs(j+0.5-my);
-					dz = fabs(k+0.5-mz);
-
-
-
-					if(DROP_TYPE == DROP_CUBE && dx <=DROP_RADIUS && dy <=DROP_RADIUS*1.1 && dz<=DROP_RADIUS){
-						setcelltype(&Flag[i][j][k],FLUID);
-
-					}
-					else if(DROP_TYPE == DROP_SPHERE_2 && sqrt(dx*dx+dy*dy+dz*dz)<=DROP_RADIUS){
-						setcelltype(&Flag[i][j][k],FLUID);
-
-					}
-					else if(j < DROP_WATER_HEIGHT){
-						setcelltype(&Flag[i][j][k],FLUID);
-					}
-
-					else{
-						setcelltype(&Flag[i][j][k],AIR);
-					}
-
-
-				}
-			}
-
-		}
-
-		printf("init_cells\n");
-		for(i = 1; i < imax+1; i++) {
-			for(k = 1; k < kmax+1; k++) {
-				for(j = 1; j < jmax+1; j++) {
-						init_cell(Flag,i,j,k);
-					}
-				}
 			}
 		}
+	}
+}
 
 
 
-	/*
+/*
 	for(i = 0; i <= imax+1; i++) {
 		for(j = 0; j <= jmax+1; j++) {
 			for(k = 0; k <= kmax+1; k++) {
@@ -568,12 +600,12 @@ void init_flag(
 			}
 		}
 	}
-	 */
+ */
 
 
 
-	// take care of the case when pressure is given
-	/*	for (i=0; i<=imax+1; i++){
+// take care of the case when pressure is given
+/*	for (i=0; i<=imax+1; i++){
 		if (presDelta) {
 			Flag[i][0] += 32;
 			Flag[i][jmax+1] += 32;
@@ -590,5 +622,3 @@ void init_flag(
 
 
 
-
-}

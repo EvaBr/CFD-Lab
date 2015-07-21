@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = -g -Wall -pedantic -Werror -std=c99
+CFLAGS = -g -Wall -pedantic -Werror -std=c99 -fopenmp
 .c.o:  ; $(CC) -c $(CFLAGS) $<
+
 
 OBJ = 	helper.o\
       	init.o\
@@ -26,7 +27,7 @@ init.o        : helper.h init.h surface.h
 boundary_val.o: helper.h boundary_val.h
 uvp.o         : helper.h uvp.h
 visual.o      : helper.h surface.h
-sor.o	      : sor.h
-surface.o     : surface.h 
+sor.o	      : sor.h helper.h
+surface.o     : surface.h helper.h
 
 main.o        : helper.h init.h boundary_val.h uvp.h visual.h sor.h surface.h

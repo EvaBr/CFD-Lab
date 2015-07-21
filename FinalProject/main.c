@@ -6,8 +6,7 @@
 #include "uvp.h"
 #include "surface.h"
 #include <stdio.h>
-
-
+#include <sys/time.h>
 
 
 int main(int argn, char** args){
@@ -29,6 +28,9 @@ int main(int argn, char** args){
 	double ***U, ***V, ***W, ***P;
 	double ***RS, ***F, ***G, ***H;
 
+
+	int particles = 0;
+
 	int ***Flag; //additional data structure for arbitrary geometry
 	int matrix_output = 0;
 	/*those to be read in from the input file*/
@@ -41,13 +43,14 @@ int main(int argn, char** args){
 	//in case of a given inflow or wall velocity  TODO: will we have this? needs to be a vector?
 	double velIN;
 	double velMW[3]; // the moving wall velocity is a vector
-
+	struct p_pointer *PP1;
+	int FluidCells = 0;
 	struct particleline *Partlines = (struct particleline *)malloc((unsigned)(1 * sizeof(struct particleline)));
 	//char szFileName[80];
 
 	//read the parameters, using problem.dat, including wl, wr, wt, wb
 	read_parameters(filename, &Re, &UI, &VI, &WI, &PI, &GX, &GY, &GZ, &t_end, &xlength, &ylength, &zlength, &dt, &dx, &dy, &dz, &imax,
-			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0]); //&presLeft, &presRight, &presDelta, &vel);
+			&jmax, &kmax, &alpha, &omg, &tau, &itermax, &eps, &dt_value, &wl, &wr,  &wf, &wh, &wt, &wb, problemGeometry, &velIN, &velMW[0],&particles); //&presLeft, &presRight, &presDelta, &vel);
 
 
 	//printf("d: %f, %f, %f\n", dx,dy,dz);
@@ -71,16 +74,22 @@ int main(int argn, char** args){
 
 	Flag = imatrix2(0, imax+1, 0, jmax+1, 0, kmax+1); // or Flag = imatrix(1, imax, 1, jmax);
 
+	PP1  = (struct p_pointer *)malloc((unsigned) (imax+2)*(jmax+2)*(kmax+2)*( sizeof(struct p_pointer)));
 
 	//initialisation, including **Flag
 
 
 	init_flag(problemGeometry, imax, jmax, kmax, Flag, wl, wr, wf, wh, wt, wb);  //presDelta, Flag);
 	printf("init_flag \n");
-	init_particles(Flag,dx,dy,dz,imax,jmax,kmax,ppc,Partlines,problemGeometry);
-	if(strcmp (problemGeometry,"drop.pgm")==0){
-			mark_cells(Flag,dx,dy,dz,imax,jmax,kmax,1,Partlines);
-		}
+	if(particles){
+		init_particles(Flag,dx,dy,dz,imax,jmax,kmax,ppc,Partlines,problemGeometry);
+	}
+
+	if(strcmp (problemGeometry,"drop.pgm")==0 || strcmp (problemGeometry,"breaking_dam.pgm")==0){
+		printf("mark_cells \n");
+		mark_cells(Flag,dx,dy,dz,imax,jmax,kmax,1,Partlines,PP1,&FluidCells);
+		particles = 1;
+	}
 
 	printf("init_uvwp \n");
 	init_uvwp(UI, VI, WI, PI, Flag,imax, jmax, kmax, U, V, W, P, problemGeometry);
@@ -88,7 +97,7 @@ int main(int argn, char** args){
 	//write_imatrix2("Flag_start.txt",t,Flag, 0, imax, 1, jmax, 1, kmax);
 	//write_flag_imatrix("Flag.txt",t,Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
 	//printf("write_vtkFile_debug \n");
-	//write_vtkFile_debug(filename, -1, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+	write_vtkFile_debug(filename, -1, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
 	//write_vtkFile("init", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P);
 	//going through all time steps
@@ -103,14 +112,18 @@ int main(int argn, char** args){
 	boundaryvalues(imax, jmax, kmax, U, V, W, P, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
 
 	printf("start \n");
-
-	if(strcmp (problemGeometry,"drop.pgm")==0){
-		set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
-		get_particle_speed(dx,dy, dz,imax,jmax,kmax, dt,U,V,W,1,Partlines);
-		write_vtkFile("uvwp_drop",0, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
-		write_particles("particles_drop",0, 1, Partlines);
+	if(particles){
+		if(strcmp (problemGeometry,"drop.pgm")==0 || strcmp (problemGeometry,"breaking_dam.pgm")==0){
+			set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
+			printf("get_particle_speed \n");
+			get_particle_speed(dx,dy, dz,imax,jmax,kmax, dt,U,V,W,1,Partlines);
+			write_vtkFile("uvwp_start",0, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+			printf("write_particles \n");
+			write_particles("particles_start",0,dx,dy,dz, 1, Partlines,Flag);
+		}
 	}
-
+	//write_vtkFile_debug("uvwp_surface_a", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+	//double lres = -1;
 	while(t < t_end){
 		/*if(t - every >= 0){
       	  	  printf("Calculating time %f ... \n", t);
@@ -121,20 +134,23 @@ int main(int argn, char** args){
 		printf("calculate_dt \n");
 		calculate_dt(Re, tau, &dt, dx, dy, dz, imax, jmax, kmax, U, V, W);
 
+		if(particles){
+			printf("mark_cells \n");
+			mark_cells(Flag,dx,dy,dz,imax,jmax,kmax,1,Partlines,PP1,&FluidCells);
 
-		printf("mark_cells \n");
-		mark_cells(Flag,dx,dy,dz,imax,jmax,kmax,1,Partlines);
+			printf("set_uvwp_surface \n");
+			set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
+			//write_vtkFile_debug("uvwp_surface_b", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
-		printf("set_uvwp_surface \n");
-		set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
-
+			//write_vtkFile_debug("debug", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+		}
 
 		//computing F, G, H and right hand side of pressue eq.
 		printf("calculate_fgh \n");
-		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag);
+		calculate_fgh(Re, GX, GY, GZ, alpha, dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, Flag,PP1,FluidCells);
 
 		printf("calculate_rs \n");
-		calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS,Flag);
+		calculate_rs(dt, dx, dy, dz, imax, jmax, kmax, F, G, H, RS,Flag,PP1,FluidCells);
 		//    printf("calc rs \n");
 
 		//iteration counter
@@ -144,15 +160,36 @@ int main(int argn, char** args){
 		//write_matrix2("F.txt",t,F, 0, imax, 1, jmax, 1, kmax);
 		//write_matrix2("G.txt",t,G, 1, imax, 0, jmax, 1, kmax);
 		//write_matrix2("H.txt",t,H, 1, imax, 1, jmax, 0, kmax);
+
 		printf("sor\n");
+		//lres = -1;
+		//struct timeval  tv1,tv2;
+		//gettimeofday(&tv1, NULL);
+		//double time_in_mill1 =
+				//         (tv1.tv_sec) * 1000 + (tv1.tv_usec) / 1000 ;
 		do{
 			// sprintf( szFileName, "P_%d.txt",it );
 			//write_matrix2(szFileName,1000+t,P, 0, imax+1, 0, jmax+1, 0, kmax+1);
 			//perform SOR iteration, at same time set bound.values for P and new residual value
-			sor(omg, dx, dy, dz, imax, jmax, kmax, P, RS, &res, Flag); //, presLeft, presRight);
-
-			it++;
+			//, presLeft, presRight);
+			it = it + sor(omg, dx, dy, dz, imax, jmax, kmax, P, RS, &res, Flag,PP1,FluidCells);
+			/*
+			if(lres!=-1)
+			{
+				if(it > 20 && res - lres < eps*0.0001 && res - lres >= 0 )
+					break;
+			}
+			*/
+			//lres = res;
 		}while(it<itermax && res>eps);
+		//gettimeofday(&tv2, NULL);
+		//double time_in_mill2 =
+		//		         (tv2.tv_sec) * 1000 + (tv2.tv_usec) / 1000 ;
+
+		//printf("sor took %f\n", (time_in_mill2-time_in_mill1)/1000.0);
+
+
+		//printf("sor -> %d,  %f \n", it,res);
 
 		/*if (it == itermax) {
 	printf("Warning: sor while loop exits because it reaches the itermax. res = %f, time =%f\n", res, t);
@@ -161,7 +198,7 @@ int main(int argn, char** args){
 		//write_matrix2("P.txt",t,P, 0, imax+1, 0, jmax+1, 0, kmax+1);
 		//calculate U, V and W of this time step
 		printf("calculate_uvw \n");
-		calculate_uvw(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag);
+		calculate_uvw(dt, dx, dy, dz, imax, jmax, kmax, U, V, W, F, G, H, P, Flag,PP1,FluidCells);
 		//write_matrix2("U.txt",t,U, 0, imax+1, 0, jmax+1, 0, kmax+1);
 		//write_matrix2("V.txt",t,V, 0, imax+1, 0, jmax+1, 0, kmax+1);
 		//write_matrix2("W.txt",t,W, 0, imax+1, 0, jmax+1, 0, kmax+1);
@@ -169,20 +206,23 @@ int main(int argn, char** args){
 		//    printf("calc uvw \n");
 
 
-		//sprintf( szFileName, "simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
-		//write_vtkFile("uvwp_surface_2", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
+		//sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/%s.%i_debug.vtk", szProblem, timeStepNumber );
+		//write_vtkFile_debug("uvwp_surface_c", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
 		//setting bound.values
 		printf("boundaryvalues \n");
 		boundaryvalues(imax, jmax, kmax, U, V, W, P, F, G, H, problemGeometry, Flag, velIN, velMW); //including P, wl, wr, wt, wb, F, G, problem
 
-		printf("set_uvwp_surface \n");
-		set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
+		//write_vtkFile_debug("uvwp_surface_d", n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
-		//printf("advance_particles!\n");
-		printf("advance_particles \n");
-		advance_particles(dx,dy, dz,imax,jmax,kmax, dt,U,V,W,1,Partlines);
+		if(particles){
+			printf("set_uvwp_surface \n");
+			set_uvwp_surface(U,V,W,P,Flag,dx,dy,dz,imax,jmax,kmax,GX,GY,GZ,dt,Re);
 
+			//printf("advance_particles!\n");
+			printf("advance_particles \n");
+			advance_particles(dx,dy, dz,imax,jmax,kmax, dt,U,V,W,1,Partlines);
+		}
 
 		//indent time and number of time steps
 		printf("timestep\n");
@@ -191,7 +231,11 @@ int main(int argn, char** args){
 
 		//output of pics for animation
 		if ( t-last_output_t  >= dt_value ){  //n%pics==0 ){
-			write_particles(filename,n, 1, Partlines);
+			if(particles){
+				printf("write_particles\n");
+				write_particles(filename,n,dx,dy,dz, 1, Partlines,Flag);
+			}
+			printf("write_vtkFile\n");
 			write_vtkFile(filename, n, xlength, ylength, zlength, imax, jmax, kmax, dx, dy, dz, U, V, W, P,Flag);
 
 			printf("output vtk (%d)\n",n);
@@ -218,6 +262,7 @@ int main(int argn, char** args){
 
 	free_imatrix2(Flag, 0, imax+1, 0, jmax+1, 0, kmax+1);
 
+	free(PP1);
 	//printf("\n-\n");
 	return -1;
 }

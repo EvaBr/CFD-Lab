@@ -1,6 +1,9 @@
 #ifndef __SOR_H_
 #define __SOR_H_
 
+
+#include "helper.h"
+
 /**
  * One GS iteration for the pressure Poisson equation. Besides, the routine must
  * also set the boundary values for P according to the specification. The
@@ -8,7 +11,7 @@
  *
  * An \omega = 1 GS - implementation is given within sor.c.
  */
-void sor(
+int sor(
   double omg,
   double dx,
   double dy,
@@ -19,7 +22,9 @@ void sor(
   double ***P,
   double ***RS,
   double *res,
-  int ***Flag
+  int ***Flag,
+  struct p_pointer *PP1,
+	int FluidCells
 /*  double presLeft,
   double presRight*/
 );

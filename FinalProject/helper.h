@@ -69,7 +69,13 @@
 #define C_AIR_MASK 2730
 
 
-
+struct p_pointer{
+	unsigned int p : 1;
+	unsigned int u : 1;
+	unsigned int v : 1;
+	unsigned int w : 1;
+	short i;short j;short k;
+};
 
 //#define C_P 32 //additional bit; case of given pressure
 
@@ -104,6 +110,8 @@ int    interior (int flag);
 int    getcelltype(int flag);
 void   setcelltype(int*flag,int type);
 int    getsurfacetype (int flag,int *ui,int *vi,int *wi,int *nx,int*ny, int*nz,int *xdb,int*ydb, int*zdb,int*num);
+int nonfluidneighbor(int flag);
+
 
 void write_flag_imatrix( const char* szDebug,       /* filename */
 		int	timeStepNumber,

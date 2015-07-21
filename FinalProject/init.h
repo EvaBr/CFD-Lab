@@ -6,6 +6,11 @@
 
 #include "surface.h"
 
+
+
+
+
+
 /**
  * This operation initializes all the local variables reading a configuration
  * file. For every variable a macro like READ_INT() is called passing it the
@@ -86,7 +91,8 @@ int read_parameters(
   double *presRight,
   double *presDelta,*/
 		double *velIN,
-		double *velMW
+		double *velMW,
+		int *particles
 );
 
 

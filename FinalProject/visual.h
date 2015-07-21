@@ -132,7 +132,7 @@ void write_vtkPointCoordinates_debug( FILE *fp, int imax, int jmax, int kmax,
 
 
 
-void write_particles(const char *szProblem, int    timeStepNumber, int N, struct particleline *Partlines);
+void write_particles(const char *szProblem, int    timeStepNumber,double dx,double dy,double dz, int N, struct particleline *Partlines,int ***Flag);
 
 
 

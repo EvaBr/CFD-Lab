@@ -8,7 +8,6 @@
 /* ----------------------------------------------------------------------- */
 
 
-
 inline int createflag(int** Pic,int i,int j,int k,int imax,int jmax,int kmax){
 	int temp, temp2;
 	const int tarr[] = {1, 2, 0, 3, 4, 7, 8};
@@ -127,6 +126,8 @@ inline int isfluid(int flag) {
 }
 
 
+
+
 inline int isboundary(int flag) {
 	return (flag > pow2(2, 12)*3) || (flag < pow2(2, 12));
 }
@@ -156,6 +157,14 @@ inline int getcelltype(int flag){
 inline int emptyneighbor(int flag){
 	flag = (~flag)&B_ALL;
 	if ((flag&1365) != 0){
+		return 1;
+	}
+	return 0;
+}
+
+inline int nonfluidneighbor(int flag){
+	flag = flag&B_ALL;
+	if((flag&(~1365)) !=0){
 		return 1;
 	}
 	return 0;
@@ -478,13 +487,13 @@ void write_matrix2( const char* szDebug,       /* filename */
 
 
 	char szFileName[80];
-	if(timeStepNumber<1000){
-		sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/d%i_%s", timeStepNumber,szDebug );
+	if(timeStepNumber<1000){ ///media/norbert/940CB6150CB5F27A/Documents/
+		sprintf( szFileName, "simulation/debug/d%i_%s", timeStepNumber,szDebug );
 	}
 	else
 	{
-		timeStepNumber = timeStepNumber-1000;
-		sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/P/d%i_%s", timeStepNumber,szDebug );
+		timeStepNumber = timeStepNumber-1000; ///media/norbert/940CB6150CB5F27A/Documents
+		sprintf( szFileName, "simulation/debug/P/d%i_%s", timeStepNumber,szDebug );
 	}
 
 
@@ -773,8 +782,8 @@ void write_flag_imatrix( const char* szDebug,       /* filename */
 
 
 	char szFileName[80];
-
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/d%i_%s", timeStepNumber,szDebug );
+///media/norbert/940CB6150CB5F27A/Documents/
+	sprintf( szFileName, "simulation/debug/d%i_%s", timeStepNumber,szDebug );
 
 
 	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
@@ -831,8 +840,8 @@ void write_imatrix2( const char* szDebug,       /* filename */
 
 
 	char szFileName[80];
-
-	sprintf( szFileName, "/media/norbert/940CB6150CB5F27A/Documents/simulation/debug/d%i_%s", timeStepNumber,szDebug );
+///media/norbert/940CB6150CB5F27A/Documents/
+	sprintf( szFileName, "simulation/debug/d%i_%s", timeStepNumber,szDebug );
 
 
 	fh = fopen( szFileName, "w");	/* overwrite file/write new file */
